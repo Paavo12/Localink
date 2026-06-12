@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – NamibConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body class="bg-[var(--bg-main)] text-[var(--text-main)]">
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="bg-[var(--card-bg)] rounded-[2rem] border border-[var(--border-main)] shadow-2xl p-10 w-full max-w-md">
+      <h1 class="text-3xl font-black uppercase italic tracking-tighter text-center mb-8">Sign In</h1>
+      <form id="loginForm" class="space-y-6">
+        <div>
+          <label class="text-xs font-black uppercase tracking-widest">Email</label>
+          <input type="email" id="email" required class="w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl p-3 mt-1">
+        </div>
+        <div>
+          <label class="text-xs font-black uppercase tracking-widest">Password</label>
+          <input type="password" id="password" required class="w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl p-3 mt-1">
+        </div>
+        <button type="submit" class="w-full btn-primary">Login</button>
+      </form>
+      <p class="text-center text-xs mt-6">Don't have an account? <a href="register.html" class="text-accent">Register</a> (demo)</p>
+    </div>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const success = await login(email, password);
+      if (success) {
+        window.location.href = 'index.html';
+      }
+    });
+  </script>
+</body>
+</html>

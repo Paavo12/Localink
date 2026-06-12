@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register – NamibConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body class="bg-[var(--bg-main)] text-[var(--text-main)]">
+ <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+    <div class="flex justify-between h-full items-center">
+      <a href="index.html" class="flex items-center gap-2 group">
+        <div class="w-9 h-9 bg-accent rounded-lg flex items-center justify-center transition-transform group-hover:rotate-12 shadow-neon">
+          <span class="text-white font-display font-black text-xl">N</span>
+        </div>
+        <span class="font-display font-black text-2xl tracking-tighter text-[var(--text-main)]">LocaLink</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="index.html" class="text-sm font-bold HOME_CLASS">Home</a>
+        <a href="search.html" class="text-sm font-bold SEARCH_CLASS">Find Local Pros</a>
+        <a href="pricing.html" class="text-sm font-bold PRICING_CLASS">Pricing</a>
+        <a href="about.html" class="text-sm font-bold ABOUT_CLASS">About</a>
+      </div>
+      <div class="hidden md:flex items-center gap-6">
+        <button id="themeToggle" class="p-2.5 rounded-xl border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--border-main)] transition-all">
+          <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+        <div class="flex items-center gap-4 border-l border-[var(--border-main)] pl-6">
+          <a href="login.html" class="text-sm font-bold text-gray-500 hover:text-[var(--text-main)] transition-colors">Login</a>
+          <a href="register.html" class="text-sm font-bold text-gray-500 hover:text-[var(--text-main)] transition-colors">Register</a>
+          <a href="register-provider.html" class="btn-primary text-sm">Provider Sign Up</a>
+          <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
+        </div>
+      </div>
+      <div class="md:hidden">
+        <button id="mobileMenuBtn" class="p-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden bg-[var(--card-bg)] border-t border-[var(--border-main)]">
+    <div class="px-4 py-6 space-y-4">
+      <a href="search.html" class="block text-lg font-medium">Find Services</a>
+      <a href="pricing.html" class="block text-lg font-medium">Pricing</a>
+      <a href="about.html" class="block text-lg font-medium">About</a>
+      <a href="login.html" class="block text-lg font-medium">Login</a>
+      <a href="register.html" class="block text-lg font-medium">Register</a>
+      <a href="register-provider.html" class="block text-lg font-medium text-accent font-bold">Provider Sign Up</a>
+      <a href="dashboard.html" class="block btn-primary text-center">Dashboard</a>
+    </div>
+  </div>
+</nav>
+  <div class="min-h-screen flex items-center justify-center px-4 pt-20">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-main)] p-10 w-full max-w-md">
+      <h1 class="text-3xl font-black uppercase italic tracking-tighter text-center mb-8">Create Account</h1>
+      <form id="registerForm" class="space-y-6">
+        <div><input type="text" id="fullName" placeholder="Full Name" required class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+        <div><input type="email" id="email" placeholder="Email" required class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+        <div><input type="tel" id="phone" placeholder="Phone (optional)" class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+        <div><input type="password" id="password" placeholder="Password" required class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+        <button type="submit" class="w-full btn-primary">Register</button>
+      </form>
+      <p class="text-center text-xs mt-6">Already have an account? <a href="login.html" class="text-accent">Login</a></p>
+    </div>
+  </div>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const full_name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name, email, phone, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        window.location.href = 'index.html';
+      } else {
+        alert(data.error || 'Registration failed');
+      }
+    });
+  </script>
+</body>
+</html>

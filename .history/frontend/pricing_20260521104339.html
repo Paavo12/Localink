@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing – NamibConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body class="bg-[var(--bg-main)] text-[var(--text-main)]">
+
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-20">...</nav>
+
+  <main class="pt-32 pb-20 max-w-7xl mx-auto px-4">
+    <h1 class="text-5xl font-black uppercase italic tracking-tighter text-center mb-4">Simple, transparent pricing</h1>
+    <p class="text-center text-gray-400 mb-12">Choose the plan that fits your business. Upgrade or downgrade anytime.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Basic -->
+      <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border-main)] p-8">
+        <h2 class="text-2xl font-bold">Basic</h2>
+        <div class="mt-4 mb-6">
+          <span class="text-5xl font-black">N$0</span>
+          <span class="text-gray-500">/month</span>
+        </div>
+        <ul class="space-y-3 text-sm">
+          <li>✓ Public business listing</li>
+          <li>✓ Up to 5 services</li>
+          <li>✓ 200‑char description</li>
+          <li>✓ WhatsApp contact</li>
+          <li>✗ Verified badge</li>
+          <li>✗ Search ranking boost</li>
+          <li>✗ Analytics</li>
+        </ul>
+        <div class="mt-8">
+          <a href="register.html" class="btn-secondary w-full text-center block">Get Started</a>
+        </div>
+      </div>
+
+      <!-- Verified -->
+      <div class="bg-[var(--card-bg)] rounded-3xl border-2 border-accent p-8 relative">
+        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
+        <h2 class="text-2xl font-bold">Verified</h2>
+        <div class="mt-4 mb-6">
+          <span class="text-5xl font-black">N$149</span>
+          <span class="text-gray-500">/month</span>
+        </div>
+        <ul class="space-y-3 text-sm">
+          <li>✓ Everything in Basic</li>
+          <li>✓ Verified badge</li>
+          <li>✓ 2x search ranking boost</li>
+          <li>✓ Up to 15 services</li>
+          <li>✓ 1,000‑char description</li>
+          <li>✓ 7‑day profile analytics</li>
+          <li>✓ Review responses</li>
+        </ul>
+        <div class="mt-8">
+          <a href="checkout.html?plan=verified" class="btn-primary w-full text-center block">Upgrade Now</a>
+        </div>
+      </div>
+
+      <!-- Premium -->
+      <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border-main)] p-8">
+        <h2 class="text-2xl font-bold">Premium</h2>
+        <div class="mt-4 mb-6">
+          <span class="text-5xl font-black">N$399</span>
+          <span class="text-gray-500">/month</span>
+        </div>
+        <ul class="space-y-3 text-sm">
+          <li>✓ Everything in Verified</li>
+          <li>✓ Featured badge</li>
+          <li>✓ 5x search ranking boost</li>
+          <li>✓ Homepage feature slot</li>
+          <li>✓ Unlimited services & images</li>
+          <li>✓ 30‑day analytics</li>
+          <li>✓ Priority WhatsApp support</li>
+        </ul>
+        <div class="mt-8">
+          <a href="checkout.html?plan=premium" class="btn-primary w-full text-center block">Upgrade Now</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-20 text-center text-gray-400 text-sm">
+      <p>All plans include secure payments, customer support, and no hidden fees. <br>Annual billing saves 2 months (N$1,490 for Verified, N$3,990 for Premium).</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-[var(--bg-main)] border-t border-[var(--border-main)] py-10 text-center text-gray-500">...</footer>
+</body>
+</html>

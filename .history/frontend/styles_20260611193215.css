@@ -1,0 +1,214 @@
+/* styles.css – Namib Desert Theme with Dark/Light Mode */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Outfit:wght@100..900&display=swap');
+
+/* ========== LIGHT MODE (Sunrise over dunes) ========== */
+:root {
+  --bg-main: linear-gradient(135deg, #fef3e2 0%, #ffedd5 40%, #fde68a 100%);
+  --bg-card: rgba(255, 248, 235, 0.92);
+  --bg-nav: rgba(255, 248, 235, 0.96);
+  --text-main: #2c1e0f;
+  --text-muted: #6b4c2c;
+  --border-main: rgba(180, 120, 50, 0.25);
+  --accent-color: #e67e22;
+  --accent-dark: #b85e0a;
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --sand-texture: repeating-linear-gradient(
+    45deg,
+    rgba(230, 126, 34, 0.04) 0px,
+    rgba(230, 126, 34, 0.04) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+}
+
+/* ========== DARK MODE (Starry night over dry earth) ========== */
+.dark {
+  --bg-main: linear-gradient(145deg, #0f172a 0%, #1e1b2e 50%, #2d1b2e 100%);
+  --bg-card: rgba(20, 20, 40, 0.88);
+  --bg-nav: rgba(15, 23, 42, 0.94);
+  --text-main: #f5e6d3;
+  --text-muted: #c9b696;
+  --border-main: rgba(243, 156, 18, 0.25);
+  --accent-color: #f39c12;
+  --accent-dark: #e67e22;
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  --sand-texture: repeating-linear-gradient(
+    45deg,
+    rgba(243, 156, 18, 0.06) 0px,
+    rgba(243, 156, 18, 0.06) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+}
+
+/* Apply backgrounds with texture */
+body {
+  background: var(--bg-main) var(--sand-texture);
+  background-attachment: fixed;
+  color: var(--text-main);
+  transition: background 0.3s, color 0.3s;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+}
+
+/* Subtle overlay for extra depth */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle at 20% 40%, rgba(230, 126, 34, 0.08) 0%, transparent 70%);
+  z-index: -1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Glass navigation */
+.glass-nav {
+  background-color: var(--bg-nav);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-main);
+  box-shadow: var(--shadow);
+}
+
+/* Card style (used for many containers) */
+.bg-\[var\(--card-bg\)\], .card {
+  background-color: var(--bg-card) !important;
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--border-main);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+/* Search bar */
+.bold-search {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-main);
+  border-radius: 1.5rem;
+  box-shadow: 8px 8px 0 0 rgba(230, 126, 34, 0.15);
+  transition: all 0.2s;
+}
+.bold-search:focus-within {
+  box-shadow: 12px 12px 0 0 rgba(230, 126, 34, 0.2);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  transition: all 0.2s;
+  box-shadow: 0 4px 0 var(--accent-dark);
+  display: inline-block;
+  text-align: center;
+}
+.btn-primary:hover {
+  background-color: var(--accent-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 0 var(--accent-dark);
+}
+
+.btn-secondary {
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-main);
+  color: var(--text-main);
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  box-shadow: 0 4px 0 var(--text-muted);
+  display: inline-block;
+  text-align: center;
+}
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 0 var(--text-muted);
+}
+
+.shadow-neon {
+  box-shadow: 0 0 15px rgba(230, 126, 34, 0.5);
+}
+
+.badge-verified {
+  background-color: rgba(230, 126, 34, 0.15);
+  color: var(--accent-color);
+  font-size: 0.625rem;
+  font-weight: 900;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.2s;
+}
+
+/* Forms */
+.quote-form input, .quote-form textarea,
+input, textarea, select {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-main);
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-main);
+  font-weight: 500;
+  width: 100%;
+}
+.quote-form input:focus, .quote-form textarea:focus,
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+input[type="time"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-main);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  font-family: inherit;
+}
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Optional: wavy separator (you can add this to any section) */
+.wave-separator {
+  background: none;
+  overflow: hidden;
+  line-height: 0;
+  margin-top: -1px;
+}
+.wave-separator svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 50px;
+}
+:root .wave-separator svg path {
+  fill: #ffedd5;
+}
+.dark .wave-separator svg path {
+  fill: #1e1b2e;
+}

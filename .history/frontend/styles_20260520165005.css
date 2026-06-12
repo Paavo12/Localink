@@ -1,0 +1,103 @@
+/* styles.css – full with dark mode */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Outfit:wght@100..900&display=swap');
+
+:root {
+  --bg-main: #F9FAFB;
+  --text-main: #111827;
+  --card-bg: #FFFFFF;
+  --border-main: rgba(0,0,0,0.05);
+  --accent-color: #3b82f6;
+}
+.dark {
+  --bg-main: #0a0c10;
+  --text-main: #F9FAFB;
+  --card-bg: #161b22;
+  --border-main: #30363d;
+}
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s, color 0.3s;
+  font-family: 'Inter', sans-serif;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+}
+.glass-nav {
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-main);
+  backdrop-filter: blur(12px);
+}
+.bold-search {
+  display: flex;
+  align-items: center;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-main);
+  border-radius: 1.5rem;
+  box-shadow: 8px 8px 0 0 rgba(59,130,246,0.1);
+  transition: all 0.2s;
+}
+.bold-search:focus-within {
+  box-shadow: 12px 12px 0 0 rgba(59,130,246,0.15);
+}
+.btn-primary {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  transition: all 0.2s;
+  box-shadow: 0 4px 0 0 #1d4ed8;
+  display: inline-block;
+  text-align: center;
+}
+.btn-primary:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-main);
+  color: var(--text-main);
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  box-shadow: 0 4px 0 0 var(--text-main);
+  display: inline-block;
+  text-align: center;
+}
+.shadow-neon {
+  box-shadow: 0 0 15px rgba(59,130,246,0.5);
+}
+.badge-verified {
+  background-color: rgba(59,130,246,0.1);
+  color: var(--accent-color);
+  font-size: 0.625rem;
+  font-weight: 900;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.2s;
+}
+.quote-form input, .quote-form textarea {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-main);
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-main);
+  font-weight: 500;
+  width: 100%;
+}
+.quote-form input:focus, .quote-form textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}

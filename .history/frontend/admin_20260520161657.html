@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – NamibConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body class="bg-[var(--bg-main)]">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-black">Admin Control Panel</h1>
+      <button id="adminLogout" class="btn-secondary">Logout</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12" id="adminStats"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div>
+        <h2 class="text-2xl font-bold mb-4">Pending Verifications</h2>
+        <div id="pendingVerifications"></div>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold mb-4">All Users</h2>
+        <div id="allUsersTable" class="overflow-x-auto"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

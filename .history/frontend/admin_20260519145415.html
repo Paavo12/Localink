@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard – NamibConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body class="bg-[var(--bg-main)] text-[var(--text-main)]">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-black uppercase italic tracking-tighter">Admin Control Panel</h1>
+      <button id="logoutAdminBtn" class="btn-secondary text-sm">Logout</button>
+    </div>
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-main)] overflow-hidden">
+      <table class="w-full text-left">
+        <thead class="bg-[var(--bg-main)] border-b border-[var(--border-main)]">
+          <tr>
+            <th class="p-4">Name</th>
+            <th class="p-4">Email</th>
+            <th class="p-4">Role</th>
+            <th class="p-4">Status</th>
+            <th class="p-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="adminUserTable"></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    async function loadAdminUsers() {
+      const users = await adminFetchUsers();
+      const tbody = document.getElementById('adminUserTable');
+      tbody.innerHTML = users.map(u => `
+        <tr class="border-b border-[var(--border-main)]">
+          <td class="p-4 font-bold">${u.full_name || '—'}</td>
+          <td class="p-4">${u.email}</td>
+          <td class="p-4">${u.role}</td>
+          <td class="p-4">
+            <span class="px-2 py-1 rounded-full text-xs font-black ${u.is_active ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}">
+              ${u.is_active ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td class="p-4 space-x-2">
+            ${u.is_active ? `<button onclick="deactivateUser('${u.id}')" class="btn-secondary text-xs p-2">Deactivate</button>` : `<button onclick="reactivateUser('${u.id}')" class="btn-primary text-xs p-2">Reactivate</button>`}
+            <button onclick="deleteUser('${u.id}')" class="bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-black">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function deactivateUser(id) {
+      if (await adminDeactivateUser(id)) loadAdminUsers();
+    }
+    async function reactivateUser(id) {
+      if (await adminReactivateUser(id)) loadAdminUsers();
+    }
+    async function deleteUser(id) {
+      if (await adminDeleteUser(id)) loadAdminUsers();
+    }
+
+    document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
+    loadAdminUsers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upgrade – NamibConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="container mx-auto px-4 py-32 text-center">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border">
+          <h2 class="text-2xl font-bold">Basic</h2>
+          <p class="text-3xl font-black mt-4">FREE</p>
+          <button class="btn-secondary mt-6 w-full" disabled>Current Plan</button>
+        </div>
+        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-accent">
+          <h2 class="text-2xl font-bold">Verified</h2>
+          <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
+          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Upgrade</button>
+        </div>
+        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border">
+          <h2 class="text-2xl font-bold">Premium</h2>
+          <p class="text-3xl font-black mt-4">N$399<span class="text-sm">/mo</span></p>
+          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Upgrade</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
