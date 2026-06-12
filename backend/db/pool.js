@@ -1,15 +1,29 @@
 const { Pool } = require('pg');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
-console.log('DB_PASSWORD from .env:', process.env.DB_PASSWORD ? '✅ Loaded' : '❌ Missing');
+// On Railway, DATABASE_URL is automatically provided.
+// On local, you can set it in .env or use individual variables.
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('❌ DATABASE_URL environment variable is missing.');
+  console.error('   On Railway, make sure your PostgreSQL service is linked to your backend.');
+  console.error('   On local, set DATABASE_URL in your .env file.');
+  process.exit(1);
+}
 
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  connectionString: connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
+
+// Test the connection
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('❌ Database connection failed:', err.message);
+  } else {
+    console.log('✅ Database connected successfully');
+    release();
+  }
 });
 
 module.exports = pool;
