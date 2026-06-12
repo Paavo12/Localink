@@ -3,35 +3,64 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+console.log('Starting server...');
+
 const app = express();
 
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
 // Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+try {
+  app.use(cors());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  console.log('✓ Middleware loaded');
+} catch (err) {
+  console.error('❌ Middleware error:', err.message);
+  process.exit(1);
+}
 
-// Static folders (now go up one level to reach frontend and uploads)
-const frontendPath = path.join(__dirname, '..', 'frontend');
-console.log('Serving static files from:', frontendPath);
-app.use(express.static(frontendPath));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Static folders
+try {
+  const frontendPath = path.join(__dirname, '../frontend');
+  console.log(`Serving static files from: ${frontendPath}`);
+  app.use(express.static(frontendPath));
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  console.log('✓ Static folders configured');
+} catch (err) {
+  console.error('❌ Static folder error:', err.message);
+  process.exit(1);
+}
 
-// Import routes (they are in same backend folder)
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/bookings', require('./routes/bookings'));
-app.use('/api/businesses', require('./routes/businesses'));
-app.use('/api/dashboard', require('./routes/dashboard'));
-app.use('/api/quotes', require('./routes/quotes'));
-app.use('/api/reviews', require('./routes/reviews'));
-app.use('/api/services', require('./routes/services'));
-app.use('/api/subscriptions', require('./routes/subscriptions'));
-app.use('/api/upload', require('./routes/upload'));
+// Route loading helper
+function loadRoute(routePath, mountPath) {
+  try {
+    console.log(`Loading ${mountPath} from ${routePath}...`);
+    const router = require(routePath);
+    app.use(mountPath, router);
+    console.log(`✓ ${mountPath} loaded`);
+  } catch (err) {
+    console.error(`❌ Failed to load ${mountPath}:`, err.message);
+    throw err;
+  }
+}
 
-// Fallback: serve index.html from frontend folder
+try {
+  loadRoute('./routes/auth', '/api/auth');
+  loadRoute('./routes/admin', '/api/admin');
+  loadRoute('./routes/bookings', '/api/bookings');
+  loadRoute('./routes/businesses', '/api/businesses');
+  loadRoute('./routes/dashboard', '/api/dashboard');
+  loadRoute('./routes/quotes', '/api/quotes');
+  loadRoute('./routes/reviews', '/api/reviews');
+  loadRoute('./routes/services', '/api/services');
+  loadRoute('./routes/subscriptions', '/api/subscriptions');
+  loadRoute('./routes/upload', '/api/upload');
+  console.log('✓ All routes loaded');
+} catch (err) {
+  console.error('❌ Route loading failed, exiting.');
+  process.exit(1);
+}
+
+// Fallback route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
