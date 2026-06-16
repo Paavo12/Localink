@@ -61,13 +61,16 @@ async function loadCurrentUser() {
 function initTheme() {
   const themeToggle = document.getElementById('themeToggle');
   const html = document.documentElement;
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  if (savedTheme === 'dark') html.classList.add('dark');
-  else html.classList.remove('dark');
+  const savedTheme = localStorage.getItem('theme') || 'dark'; // default to dark
+  if (savedTheme === 'light') {
+    html.classList.add('light');
+  } else {
+    html.classList.remove('light');
+  }
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
-      html.classList.toggle('dark');
-      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      html.classList.toggle('light');
+      localStorage.setItem('theme', html.classList.contains('light') ? 'light' : 'dark');
     });
   }
 }

@@ -1,32 +1,14 @@
 /* ==================================================================
    Localink – Namibian Desert Theme
-   Warm, welcoming, and distinctly local.
+   Dark mode default, with a soft light theme toggle.
    ================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Outfit:wght@100..900&display=swap');
 
-/* ----- LIGHT MODE (Sunrise over dunes) ----- */
+/* ----- DARK MODE (Default) – Warm charcoal with amber accents ----- */
 :root {
-  --bg-main: linear-gradient(145deg, #faf3e8 0%, #f5e6d3 100%);
-  --bg-card: rgba(255, 248, 240, 0.92);
-  --bg-nav: rgba(250, 243, 232, 0.96);
-  --text-main: #2c1e0f;
-  --text-muted: #6b4c2c;
-  --border-main: rgba(180, 120, 70, 0.15);
-  --accent-color: #c17a4e;
-  --accent-hover: #a8653d;
-  --accent-light: rgba(193, 122, 78, 0.12);
-  --shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
-  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.08);
-  --radius: 1.5rem;
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
-}
-
-/* ----- DARK MODE (Starry night over dry earth) ----- */
-.dark {
-  --bg-main: linear-gradient(145deg, #1a1510 0%, #2a1f18 100%);
-  --bg-card: rgba(30, 25, 20, 0.90);
+  --bg-main: #1a1510;
+  --bg-card: rgba(30, 25, 20, 0.92);
   --bg-nav: rgba(26, 21, 16, 0.95);
   --text-main: #f0e6d8;
   --text-muted: #c9b58a;
@@ -34,8 +16,26 @@
   --accent-color: #e08a5a;
   --accent-hover: #f09d6a;
   --accent-light: rgba(224, 138, 90, 0.18);
-  --shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --radius: 1.5rem;
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* ----- LIGHT MODE (Override with .light on <html>) ----- */
+html.light {
+  --bg-main: #e8ddd0;
+  --bg-card: #f5ede4;
+  --bg-nav: rgba(232, 221, 208, 0.96);
+  --text-main: #3d3224;
+  --text-muted: #7a684f;
+  --border-main: rgba(120, 80, 50, 0.12);
+  --accent-color: #b87a52;
+  --accent-hover: #9e6845;
+  --accent-light: rgba(184, 122, 82, 0.15);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 /* ----- Base Styles ----- */
@@ -48,7 +48,7 @@ body {
   min-height: 100vh;
 }
 
-/* Subtle dune SVG pattern overlay (very faint) */
+/* Subtle dune pattern overlay (faint, adapts to theme) */
 body::before {
   content: '';
   position: fixed;
@@ -95,11 +95,11 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--bg-card);
   border: 2px solid var(--border-main);
   border-radius: var(--radius);
-  box-shadow: 4px 4px 0 0 rgba(193, 122, 78, 0.08);
+  box-shadow: 4px 4px 0 0 var(--accent-light);
   transition: all 0.2s;
 }
 .bold-search:focus-within {
-  box-shadow: 8px 8px 0 0 rgba(193, 122, 78, 0.12);
+  box-shadow: 8px 8px 0 0 var(--accent-light);
 }
 
 /* ----- Buttons ----- */
@@ -151,10 +151,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .shadow-neon {
-  box-shadow: 0 0 16px rgba(193, 122, 78, 0.35);
+  box-shadow: 0 0 16px var(--accent-light);
 }
 
-/* ----- Badges ----- */
 .badge-verified {
   background-color: var(--accent-light);
   color: var(--accent-color);
@@ -197,8 +196,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(0.5);
   cursor: pointer;
 }
-.dark input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.8);
+html.light input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.2);
 }
 
 /* ----- Utilities ----- */
@@ -212,7 +211,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   color: var(--text-muted);
 }
 
-/* ----- Optional: Subtle wave separator (add to any section) ----- */
+/* Optional: Wave separator */
 .wave-separator {
   background: none;
   overflow: hidden;
@@ -225,20 +224,20 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   width: calc(100% + 1.3px);
   height: 48px;
 }
-:root .wave-separator svg path {
-  fill: #faf3e8;
-}
-.dark .wave-separator svg path {
+html:not(.light) .wave-separator svg path {
   fill: #1a1510;
 }
+html.light .wave-separator svg path {
+  fill: #e8ddd0;
+}
 
-/* ----- Responsive tweaks ----- */
+/* ----- Responsive ----- */
 @media (max-width: 640px) {
   .bold-search {
     flex-direction: column;
     align-items: stretch;
     border-radius: 1.5rem;
-    box-shadow: 0 4px 0 rgba(193, 122, 78, 0.08);
+    box-shadow: 0 4px 0 var(--accent-light);
   }
   .bold-search > *:not(:last-child) {
     border-bottom: 1px solid var(--border-main);
