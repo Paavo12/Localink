@@ -14,8 +14,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Log all requests
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.url}`);
+  next();
+});
+
 // Health check endpoint – must respond quickly
 app.get('/health', (req, res) => {
+  console.log('💚 Health check called');
   res.status(200).send('OK');
 });
 
@@ -47,7 +54,6 @@ routes.forEach(({ path: routePath, mount }) => {
     console.log(`✓ ${mount} loaded`);
   } catch (err) {
     console.error(`❌ Failed to load ${mount}:`, err.message);
-    // Continue – don't crash the whole server
   }
 });
 
@@ -58,7 +64,7 @@ app.get('*', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Unhandled error in request:', err);
+  console.error('❌ Unhandled error in request:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
@@ -75,11 +81,15 @@ process.on('unhandledRejection', (reason, promise) => {
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on http://0.0.0.0:${PORT}`);
+  // Keep the process alive by printing a dot every 30 seconds
+  setInterval(() => {
+    console.log('⏳ Server is alive');
+  }, 30000);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, closing server...');
+  console.log('📛 SIGTERM received, closing server...');
   server.close(() => {
     console.log('Server closed');
     process.exit(0);
