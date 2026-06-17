@@ -210,25 +210,25 @@ async function initBusinessPage() {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
         <h2 class="text-2xl font-bold mb-4 text-[var(--text-main)]">Services</h2>
-        ${b.services.map(s => `
-          <div class="mb-4 p-4 border rounded-xl">
-            <h3 class="font-bold text-lg">${escapeHtml(s.name)}</h3>
-            <p class="text-sm text-gray-500">N$${s.price} / ${s.duration_minutes} min</p>
-            <p class="text-sm">${escapeHtml(s.description || '')}</p>
-            ${s.image_urls && s.image_urls.length ? `
-              <div class="flex gap-2 mt-2 flex-wrap">
-                ${s.image_urls.map(url => `<img src="${escapeHtml(url)}" class="h-20 w-20 object-cover rounded-lg">`).join('')}
-              </div>
-            ` : ''}
-            <button onclick="showBookingForm('${s.id}', '${escapeHtml(s.name)}')" class="btn-primary text-sm mt-3">Book this service</button>
-            <div id="bookingForm-${s.id}" class="hidden mt-4 p-4 bg-[var(--bg-main)] border rounded-lg">
-              <h4 class="font-bold">Book ${escapeHtml(s.name)}</h4>
-              <input type="datetime-local" id="bookingTime-${s.id}" class="w-full p-2 my-2 border rounded-lg" required>
-              <textarea id="bookingNotes-${s.id}" placeholder="Any special requests?" class="w-full p-2 mb-2 border rounded-lg"></textarea>
-              <button onclick="submitBooking('${s.id}', '${b.user_id}')" class="btn-primary text-sm w-full">Confirm Booking</button>
-            </div>
-          </div>
-        `).join('')}
+       ${b.services.map(s => `
+  <div class="mb-4 p-4 border rounded-xl">
+    <h3 class="font-bold text-lg">${escapeHtml(s.name)}</h3>
+    <p class="text-sm text-gray-500">N$${s.price} / ${s.duration_minutes} min</p>
+    <p class="text-sm">${escapeHtml(s.description || '')}</p>
+    ${s.image_urls && s.image_urls.length ? `
+      <div class="flex gap-2 mt-2 flex-wrap">
+        ${s.image_urls.map(url => `<img src="${escapeHtml(url)}" class="h-20 w-20 object-cover rounded-lg">`).join('')}
+      </div>
+    ` : ''}
+    <button data-service-id="${s.id}" class="btn-primary text-sm mt-3 book-service-btn">Book this service</button>
+    <div id="bookingForm-${s.id}" class="hidden mt-4 p-4 bg-[var(--bg-main)] border rounded-lg">
+      <h4 class="font-bold">Book ${escapeHtml(s.name)}</h4>
+      <input type="datetime-local" id="bookingTime-${s.id}" class="w-full p-2 my-2 border rounded-lg" required>
+      <textarea id="bookingNotes-${s.id}" placeholder="Any special requests?" class="w-full p-2 mb-2 border rounded-lg"></textarea>
+      <button data-service-id="${s.id}" data-provider-id="${b.user_id}" class="btn-primary text-sm w-full confirm-booking-btn">Confirm Booking</button>
+    </div>
+  </div>
+`).join('')}
       </div>
       <div>
         <h2 class="text-2xl font-bold mb-4 text-[var(--text-main)]">Reviews</h2>
@@ -299,6 +299,22 @@ async function initBusinessPage() {
   
   container.innerHTML = html;
   
+  // Handle "Book this service" button clicks
+document.querySelectorAll('.book-service-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const serviceId = this.dataset.serviceId;
+    showBookingForm(serviceId);
+  });
+});
+
+// Handle "Confirm Booking" button clicks
+document.querySelectorAll('.confirm-booking-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const serviceId = this.dataset.serviceId;
+    const providerId = this.dataset.providerId;
+    submitBooking(serviceId, providerId);
+  });
+});
   // Initialize Leaflet map if coordinates exist
   if (b.lat && b.lng && document.getElementById('businessViewMap')) {
     if (typeof L !== 'undefined') {
@@ -366,9 +382,12 @@ async function initBusinessPage() {
 }
 
 // Booking helpers
-window.showBookingForm = (serviceId, serviceName) => {
+// In script.js, find and replace the showBookingForm function
+window.showBookingForm = (serviceId) => {
   const formDiv = document.getElementById(`bookingForm-${serviceId}`);
-  if (formDiv) formDiv.classList.toggle('hidden');
+  if (formDiv) {
+    formDiv.classList.toggle('hidden');
+  }
 };
 
 window.submitBooking = async (serviceId, providerId) => {
