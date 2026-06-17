@@ -1,6 +1,5 @@
-// backend/clear-data.js
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
-const pool = require('./db/pool');   // ← fixed path
+const pool = require('../db/pool');
 
 async function clearData() {
   const client = await pool.connect();
@@ -40,8 +39,10 @@ async function clearData() {
     console.log('Deleting providers (role = provider)...');
     await client.query(`DELETE FROM users WHERE role = 'provider'`);
     
+    // Keep admin users (role = 'admin')
+    
     await client.query('COMMIT');
-    console.log('✅ All clients, providers, and related data deleted. Admin users remain.');
+    console.log('✅ All services and clients deleted. Admin users remain.');
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Error clearing data:', err.message);

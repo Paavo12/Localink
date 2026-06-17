@@ -1,6 +1,6 @@
 // backend/clear-data.js
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
-const pool = require('./db/pool');   // ← fixed path
+const pool = require('../db/pool');
 
 async function clearData() {
   const client = await pool.connect();
