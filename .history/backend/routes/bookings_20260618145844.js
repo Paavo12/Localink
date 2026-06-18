@@ -33,24 +33,27 @@ router.post('/', authenticateToken, async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [providerId, clientId, serviceId, startTime, endTime, notes]
     );
+// Insert notification for the provider
+const clientNameRes = await pool.query('SELECT full_name FROM users WHERE id = $1', [clientId]);
+const clientName = clientNameRes.rows[0]?.full_name || 'A client';
+const serviceName = serviceRes.rows[0].service_name;
 
-    // ---- INSERT NOTIFICATION (NEW) ----
-    const clientNameRes = await pool.query('SELECT full_name FROM users WHERE id = $1', [clientId]);
-    const clientName = clientNameRes.rows[0]?.full_name || 'A client';
-    await pool.query(
-      `INSERT INTO notifications (user_id, title, message, type)
-       VALUES ($1, $2, $3, $4)`,
-      [
-        providerId,
-        'New Booking Request',
-        `${clientName} booked ${serviceName} on ${new Date(startTime).toLocaleString()}`,
-        'booking'
-      ]
-    );
-
-    // Send email notification (if SMTP is configured)
+await pool.query(
+  `INSERT INTO notifications (user_id, title, message, type)
+   VALUES ($1, $2, $3, $4)`,
+  [
+    providerId,
+    'New Booking Request',
+    `${clientName} booked ${serviceName} on ${new Date(startTime).toLocaleString()}`,
+    'booking'
+  ]
+);
+    // Send email notification to provider (if SMTP is configured)
     const providerUser = await pool.query('SELECT email FROM users WHERE id = $1', [providerId]);
     if (providerUser.rows.length > 0) {
+      const clientRes = await pool.query('SELECT full_name FROM users WHERE id = $1', [clientId]);
+      const clientName = clientRes.rows[0]?.full_name || 'A client';
+      // Don't await – fire and forget to avoid delaying response
       sendBookingNotification(providerUser.rows[0].email, clientName, serviceName, startTime).catch(err => console.error('Email error:', err));
     }
 
