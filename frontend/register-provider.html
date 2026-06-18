@@ -155,7 +155,7 @@
   </div>
 
   <footer class="bg-[var(--bg-main)] border-t border-[var(--border-main)] py-10 text-center text-gray-500 mt-12">
-    <p>© 2025 Localink. All rights reserved.</p>
+    <p>© 2026 Localink. All rights reserved.</p>
   </footer>
 
   <script>
@@ -171,12 +171,9 @@
     const totalSteps = 5;
 
     function goToStep(step) {
-      // Hide all steps
       document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-      // Show target step
       document.getElementById(`step${step}`).classList.add('active');
       currentStep = step;
-      // Update progress bar
       document.getElementById('progressFill').style.width = `${(step / totalSteps) * 100}%`;
     }
 
@@ -207,7 +204,7 @@
     }
     generateHours();
 
-    // ========== Form submission ==========
+    // ========== Form submission – single API call ==========
     document.getElementById('registerProviderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -228,8 +225,9 @@
         const inputs = entry.querySelectorAll('input');
         return {
           name: inputs[0].value,
-          price: inputs[1].value,
-          duration_minutes: inputs[2].value,
+          price: parseFloat(inputs[1].value),
+          duration_minutes: parseInt(inputs[2].value),
+          description: ''
         };
       }).filter(s => s.name && s.price && s.duration_minutes);
 
@@ -243,66 +241,43 @@
         }
       }
 
-      // Submit to backend (our existing endpoint accepts all fields, but we need to send services and hours separately)
-      // The current register-provider endpoint only creates the user and profile, not services/hours.
-      // We'll need to extend it or call separate endpoints after registration.
-      // For simplicity, we'll first register the provider, then if successful, add services and hours via dashboard endpoints (which require auth).
-      // But the user won't be logged in yet. We'll handle it: after registration, we log in the user and then POST services and hours.
+      // Show loading state
+      const submitBtn = document.querySelector('#registerProviderForm button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Registering...';
+      submitBtn.disabled = true;
 
       try {
-        // Step 1: Register provider
-        const regRes = await fetch('/api/auth/register-provider', {
+        const res = await fetch('/api/auth/register-provider', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ full_name, email, phone, password, business_name, category, description, address, whatsapp_number })
+          body: JSON.stringify({
+            full_name, email, phone, password,
+            business_name, category, description, address, whatsapp_number,
+            services, hours
+          })
         });
-        const regData = await regRes.json();
-        if (!regRes.ok) {
-          alert(regData.error || 'Registration failed');
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Registration failed');
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
           return;
         }
 
-        // Step 2: Login to get token
-        const loginRes = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        const loginData = await loginRes.json();
-        if (!loginRes.ok) {
-          alert('Login failed after registration');
-          return;
-        }
-        const token = loginData.token;
-
-        // Step 3: Add services
-        for (const svc of services) {
-          await fetch('/api/dashboard/services', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(svc)
-          });
-        }
-
-        // Step 4: Add hours
-        for (const hr of hours) {
-          await fetch('/api/dashboard/hours', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(hr)
-          });
-        }
-
-        localStorage.setItem('token', token);
+        localStorage.setItem('token', data.token);
         alert('Registration complete! Welcome to Localink.');
         window.location.href = 'dashboard.html';
       } catch (err) {
         console.error(err);
         alert('Server error. Please try again.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
       }
     });
 
-    // Theme toggle (already in script.js, but we need to ensure it runs)
+    // Theme toggle (already in script.js, but ensure it runs)
     if (document.getElementById('themeToggle')) {
       document.getElementById('themeToggle').addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');

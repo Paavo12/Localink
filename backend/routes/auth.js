@@ -38,7 +38,7 @@ router.post('/register', [
   }
 });
 
-// ---------- REGISTER PROVIDER (new) ----------
+// ---------- REGISTER PROVIDER (with services & hours in one call) ----------
 router.post('/register-provider', [
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 6 }),
@@ -48,39 +48,71 @@ router.post('/register-provider', [
   body('description').optional().trim(),
   body('address').optional().trim(),
   body('whatsapp_number').optional().trim(),
+  body('services').optional().isArray(),
+  body('hours').optional().isArray(),
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  const { email, password, full_name, phone, business_name, category, description, address, whatsapp_number } = req.body;
+  const {
+    email, password, full_name, phone,
+    business_name, category, description, address, whatsapp_number,
+    services = [],
+    hours = []
+  } = req.body;
+
   const password_hash = await bcrypt.hash(password, 10);
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // Insert user with role 'provider'
+    // 1. Insert user
     const userResult = await client.query(
-      `INSERT INTO users (email, password_hash, full_name, phone, role) 
+      `INSERT INTO users (email, password_hash, full_name, phone, role)
        VALUES ($1, $2, $3, $4, 'provider') RETURNING id, email, role, full_name`,
       [email, password_hash, full_name, phone]
     );
     const user = userResult.rows[0];
 
-    // Insert provider profile
+    // 2. Insert provider profile
     await client.query(
       `INSERT INTO provider_profiles (user_id, business_name, category, description, address, whatsapp_number, is_verified, subscription_tier)
        VALUES ($1, $2, $3, $4, $5, $6, false, 'basic')`,
       [user.id, business_name, category || null, description || null, address || null, whatsapp_number || null]
     );
 
+    // 3. Insert services (if any)
+    for (const svc of services) {
+      if (svc.name && svc.price && svc.duration_minutes) {
+        await client.query(
+          `INSERT INTO services (provider_id, name, description, price, duration_minutes)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [user.id, svc.name, svc.description || null, parseFloat(svc.price), parseInt(svc.duration_minutes)]
+        );
+      }
+    }
+
+    // 4. Insert hours (if any)
+    for (const hr of hours) {
+      if (hr.day_of_week !== undefined && hr.open_time && hr.close_time) {
+        await client.query(
+          `INSERT INTO business_hours (provider_id, day_of_week, open_time, close_time, is_closed)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [user.id, hr.day_of_week, hr.open_time, hr.close_time, false]
+        );
+      }
+    }
+
     await client.query('COMMIT');
 
+    // Generate token
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+
     res.json({ token, user });
   } catch (err) {
     await client.query('ROLLBACK');
