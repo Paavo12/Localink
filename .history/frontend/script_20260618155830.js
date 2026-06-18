@@ -1087,17 +1087,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadCurrentUser();
   console.log('Current user after load:', currentUser);
   const path = location.pathname;
-
-  // Protect admin page – only admin can access
-  if (path.includes('admin.html')) {
-    if (!currentUser || currentUser.role !== 'admin') {
-      window.location.href = 'login.html';
-      return;
-    }
-    initAdmin();
-    return;
-  }
-
   if (path.includes('search.html')) initSearchPage();
   else if (path.includes('business.html')) initBusinessPage();
   else if (path.includes('dashboard.html')) initDashboard();
