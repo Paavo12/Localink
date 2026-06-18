@@ -846,8 +846,8 @@ async function initAdmin() {
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">Pending Verifications</h2>
       ${pending.map(p => `
-        <div class="p-4 border rounded mb-2 flex justify-between items-center">
-          <span>${escapeHtml(p.business_name)} (${escapeHtml(p.email)})</span>
+        <div class="p-4 border rounded mb-2 flex justify-between">
+          ${escapeHtml(p.business_name)} (${escapeHtml(p.email)})
           <div>
             <button onclick="approveProvider('${p.user_id}')" class="btn-primary text-sm mr-2">Approve</button>
             <button onclick="rejectProvider('${p.user_id}')" class="btn-secondary text-sm">Reject</button>
@@ -859,17 +859,14 @@ async function initAdmin() {
       <h2 class="text-2xl font-bold mb-4">All Users</h2>
       <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
         <table class="w-full text-sm">
-          <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
           <tbody>
             ${users.map(u => `
               <tr class="border-b">
                 <td>${escapeHtml(u.email)}</td>
                 <td>${escapeHtml(u.role)}</td>
                 <td>${u.is_active ? 'Active' : 'Inactive'}</td>
-                <td>
-                  <button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>
-                  <button onclick="deactivateUser('${u.id}')" class="text-red-500 text-xs">Deactivate</button>
-                </td>
+                <td><button onclick="deactivateUser('${u.id}')" class="text-red-500">Deactivate</button></td>
               </tr>
             `).join('')}
           </tbody>
@@ -883,10 +880,8 @@ async function initAdmin() {
       `).join('')}
     </div>
   `;
-
   document.getElementById('adminContent').innerHTML = html;
 
-  // Render charts (same as before)
   if (typeof Chart !== 'undefined') {
     new Chart(document.getElementById('regChart'), {
       type: 'line',

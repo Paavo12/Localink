@@ -846,8 +846,8 @@ async function initAdmin() {
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">Pending Verifications</h2>
       ${pending.map(p => `
-        <div class="p-4 border rounded mb-2 flex justify-between items-center">
-          <span>${escapeHtml(p.business_name)} (${escapeHtml(p.email)})</span>
+        <div class="p-4 border rounded mb-2 flex justify-between">
+          ${escapeHtml(p.business_name)} (${escapeHtml(p.email)})
           <div>
             <button onclick="approveProvider('${p.user_id}')" class="btn-primary text-sm mr-2">Approve</button>
             <button onclick="rejectProvider('${p.user_id}')" class="btn-secondary text-sm">Reject</button>
@@ -859,17 +859,14 @@ async function initAdmin() {
       <h2 class="text-2xl font-bold mb-4">All Users</h2>
       <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
         <table class="w-full text-sm">
-          <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
           <tbody>
             ${users.map(u => `
               <tr class="border-b">
                 <td>${escapeHtml(u.email)}</td>
                 <td>${escapeHtml(u.role)}</td>
                 <td>${u.is_active ? 'Active' : 'Inactive'}</td>
-                <td>
-                  <button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>
-                  <button onclick="deactivateUser('${u.id}')" class="text-red-500 text-xs">Deactivate</button>
-                </td>
+                <td><button onclick="deactivateUser('${u.id}')" class="text-red-500">Deactivate</button></td>
               </tr>
             `).join('')}
           </tbody>
@@ -883,10 +880,8 @@ async function initAdmin() {
       `).join('')}
     </div>
   `;
-
   document.getElementById('adminContent').innerHTML = html;
 
-  // Render charts (same as before)
   if (typeof Chart !== 'undefined') {
     new Chart(document.getElementById('regChart'), {
       type: 'line',
@@ -945,130 +940,7 @@ async function initAdmin() {
     }
   }
 }
-// ---------- ADMIN: Provider Details Modal ----------
-async function viewProvider(userId) {
-  const modal = document.getElementById('providerModal');
-  const content = document.getElementById('modalContent');
-  if (!modal || !content) return;
 
-  modal.classList.remove('hidden');
-  content.innerHTML = 'Loading...';
-
-  try {
-    const res = await apiFetch(`/api/admin/provider/${userId}`);
-    if (!res.ok) throw new Error('Failed to fetch provider');
-    const data = await res.json();
-
-    // Build modal content
-    content.innerHTML = `
-      <form id="adminEditProviderForm">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-bold">Business Name</label>
-            <input name="business_name" value="${escapeHtml(data.profile.business_name || '')}" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
-          </div>
-          <div>
-            <label class="block text-sm font-bold">Category</label>
-            <input name="category" value="${escapeHtml(data.profile.category || '')}" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-bold">Description</label>
-            <textarea name="description" rows="2" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">${escapeHtml(data.profile.description || '')}</textarea>
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-bold">Address</label>
-            <input name="address" value="${escapeHtml(data.profile.address || '')}" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
-          </div>
-          <div>
-            <label class="block text-sm font-bold">WhatsApp Number</label>
-            <input name="whatsapp_number" value="${escapeHtml(data.profile.whatsapp_number || '')}" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
-          </div>
-          <div>
-            <label class="block text-sm font-bold">Verified</label>
-            <select name="is_verified" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
-              <option value="true" ${data.profile.is_verified ? 'selected' : ''}>Yes</option>
-              <option value="false" ${!data.profile.is_verified ? 'selected' : ''}>No</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-bold">Subscription Tier</label>
-            <select name="subscription_tier" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
-              <option value="basic" ${data.profile.subscription_tier === 'basic' ? 'selected' : ''}>Basic</option>
-              <option value="verified" ${data.profile.subscription_tier === 'verified' ? 'selected' : ''}>Verified</option>
-              <option value="premium" ${data.profile.subscription_tier === 'premium' ? 'selected' : ''}>Premium</option>
-            </select>
-          </div>
-        </div>
-        <div class="mt-4 flex justify-end gap-2">
-          <button type="button" id="modalCancelBtn" class="btn-secondary">Cancel</button>
-          <button type="submit" class="btn-primary">Save Changes</button>
-        </div>
-      </form>
-
-      <hr class="my-4 border-[var(--border-main)]">
-
-      <h3 class="text-lg font-bold mb-2">Services</h3>
-      ${data.services.length ? data.services.map(s => `
-        <div class="text-sm border-b py-1">${escapeHtml(s.name)} – N$${s.price} / ${s.duration_minutes}min</div>
-      `).join('') : '<p class="text-gray-500">No services</p>'}
-
-      <h3 class="text-lg font-bold mt-4 mb-2">Reviews (${data.reviews.length})</h3>
-      ${data.reviews.slice(0,5).map(r => `
-        <div class="text-sm border-b py-1">${escapeHtml(r.full_name)}: ⭐${r.rating} – ${escapeHtml(r.comment || '')}</div>
-      `).join('')}
-      ${data.reviews.length > 5 ? `<p class="text-xs text-gray-500">... and ${data.reviews.length - 5} more</p>` : ''}
-
-      <h3 class="text-lg font-bold mt-4 mb-2">Bookings: ${data.bookingsCount}</h3>
-    `;
-
-    // Attach form submit handler
-    document.getElementById('adminEditProviderForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const dataObj = Object.fromEntries(formData);
-      // Convert boolean strings
-      dataObj.is_verified = dataObj.is_verified === 'true';
-      try {
-        const res = await apiFetch(`/api/admin/provider/${userId}`, {
-          method: 'PUT',
-          body: JSON.stringify(dataObj)
-        });
-        if (res.ok) {
-          alert('Provider updated successfully!');
-          modal.classList.add('hidden');
-          // Reload user list (or just refresh page)
-          initAdmin();
-        } else {
-          const err = await res.json();
-          alert(err.error || 'Update failed');
-        }
-      } catch (err) {
-        alert('Network error');
-      }
-    });
-
-    // Cancel button
-    document.getElementById('modalCancelBtn').addEventListener('click', () => {
-      modal.classList.add('hidden');
-    });
-
-  } catch (err) {
-    content.innerHTML = `<div class="text-red-500">Failed to load provider details: ${err.message}</div>`;
-  }
-}
-
-// Close modal on backdrop click
-document.addEventListener('click', function(e) {
-  const modal = document.getElementById('providerModal');
-  if (modal && e.target === modal) {
-    modal.classList.add('hidden');
-  }
-});
-
-// Close button
-document.getElementById('closeModalBtn')?.addEventListener('click', function() {
-  document.getElementById('providerModal').classList.add('hidden');
-});
 
 window.approveProvider = async (id) => { await apiFetch(`/api/admin/verify-provider/${id}`, { method: 'PUT' }); location.reload(); };
 window.rejectProvider = async (id) => { await apiFetch(`/api/admin/reject-provider/${id}`, { method: 'DELETE' }); location.reload(); };
