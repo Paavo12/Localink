@@ -3,11 +3,13 @@ const { authenticateToken } = require('../middleware/auth');
 const pool = require('../db/pool');
 const router = express.Router();
 
-// GET /api/businesses – search with tier ranking + proper filtering
+// GET /api/businesses – search with tier ranking + filtering (city, rating)
 router.get('/', async (req, res) => {
-  let { search, category } = req.query;
+  let { search, category, city, rating } = req.query;
   search = search ? search.trim() : '';
   category = category ? category.trim() : '';
+  city = city ? city.trim() : '';
+  rating = rating ? parseFloat(rating) : null;
 
   let query = `
     SELECT p.user_id as id, p.business_name as name, p.description, p.category, 
@@ -32,10 +34,21 @@ router.get('/', async (req, res) => {
     params.push(`%${search}%`);
   }
 
- if (category) {
-  conditions.push(`p.category ILIKE $${params.length+1} AND p.category IS NOT NULL`);
-  params.push(`%${category}%`);
-}
+  if (category) {
+    conditions.push(`p.category ILIKE $${params.length+1} AND p.category IS NOT NULL`);
+    params.push(`%${category}%`);
+  }
+
+  if (city) {
+    conditions.push(`p.address ILIKE $${params.length+1}`);
+    params.push(`%${city}%`);
+  }
+
+  if (rating !== null && !isNaN(rating)) {
+    conditions.push(`COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) >= $${params.length+1}`);
+    params.push(rating);
+  }
+
   if (conditions.length > 0) {
     query += ' AND ' + conditions.join(' AND ');
   }
@@ -117,12 +130,11 @@ router.post('/:id/report', authenticateToken, async (req, res) => {
   res.json({ message: 'Reported' });
 });
 
-// ========== FIX #5: Authorization for review responses ==========
+// POST /api/businesses/reviews/:reviewId/respond – provider reply to review (auth)
 router.post('/reviews/:reviewId/respond', authenticateToken, async (req, res) => {
   const { reviewId } = req.params;
   const { response } = req.body;
-
-  // Check that the review belongs to a provider owned by the authenticated user
+  // Check ownership
   const reviewCheck = await pool.query(
     `SELECT r.provider_id FROM reviews r 
      JOIN provider_profiles p ON r.provider_id = p.user_id 
@@ -132,7 +144,6 @@ router.post('/reviews/:reviewId/respond', authenticateToken, async (req, res) =>
   if (reviewCheck.rows.length === 0) {
     return res.status(403).json({ error: 'You are not allowed to respond to this review' });
   }
-
   await pool.query(
     `UPDATE reviews SET response = $1, responded_at = NOW() WHERE id = $2`,
     [response, reviewId]
