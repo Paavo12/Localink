@@ -4,7 +4,7 @@ const pool = require('../db/pool');
 const { body, validationResult } = require('express-validator');
 const router = express.Router();
 
-// Helper: clean price string to numeric value
+// Helper: clean price
 function cleanPrice(price) {
   if (!price) return null;
   const cleaned = price.toString().replace(/[^0-9.-]/g, '');
@@ -75,12 +75,13 @@ router.get('/profile', authenticateToken, async (req, res) => {
   res.json(result.rows[0] || {});
 });
 
-// ---------- Update provider profile ----------
+// ---------- Update provider profile (with validation) ----------
 router.put('/profile', authenticateToken, profileValidation, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+
   const { business_name, description, category, address, lat, lng, whatsapp_number } = req.body;
   try {
     await pool.query(
@@ -107,6 +108,7 @@ router.post('/services', authenticateToken, serviceValidation, async (req, res) 
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+
   let { name, description, price, duration_minutes } = req.body;
   price = cleanPrice(price);
   if (price === null) {
@@ -130,6 +132,7 @@ router.put('/services/:id', authenticateToken, serviceValidation, async (req, re
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+
   let { name, description, price, duration_minutes } = req.body;
   price = cleanPrice(price);
   if (price === null) {
@@ -170,6 +173,7 @@ router.get('/hours', authenticateToken, async (req, res) => {
 
 router.post('/hours', authenticateToken, async (req, res) => {
   const { day_of_week, open_time, close_time, is_closed } = req.body;
+  // Basic validation: ensure day_of_week is 0-6 and times are valid if not closed
   if (day_of_week === undefined || day_of_week < 0 || day_of_week > 6) {
     return res.status(400).json({ error: 'Invalid day of week' });
   }
@@ -245,8 +249,7 @@ router.put('/notifications/read', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-// ========== PORTFOLIO MANAGEMENT ==========
+// ---------- PORTFOLIO MANAGEMENT ----------
 // GET all portfolio items for the logged-in provider
 router.get('/portfolio', authenticateToken, async (req, res) => {
   try {
@@ -264,7 +267,7 @@ router.get('/portfolio', authenticateToken, async (req, res) => {
   }
 });
 
-// POST a new portfolio item
+// POST a new portfolio image (upload handled separately, we just store URL)
 router.post('/portfolio', authenticateToken, async (req, res) => {
   const { image_url, title, description } = req.body;
   if (!image_url) {
@@ -303,7 +306,6 @@ router.delete('/portfolio/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 // Public endpoint to get portfolio for a specific provider
 router.get('/portfolio/public/:providerId', async (req, res) => {
   const { providerId } = req.params;

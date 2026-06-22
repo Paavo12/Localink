@@ -33,5 +33,11 @@ router.post('/service/:serviceId', authenticateToken, upload.single('image'), as
   );
   res.json({ url });
 });
+// Upload portfolio image
+router.post('/portfolio', authenticateToken, upload.single('image'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const url = `/uploads/${req.file.filename}`;
+  res.json({ url });
+});
 
 module.exports = router;

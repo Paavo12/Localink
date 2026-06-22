@@ -1,4 +1,4 @@
-// script.js – Final version with all features + full portfolio system
+// script.js – Final version with all features (filters, flatpickr, testimonials, notifications)
 let authToken = localStorage.getItem('token');
 let currentUser = null;
 
@@ -208,13 +208,6 @@ async function initBusinessPage() {
   const container = document.getElementById('businessContent');
   if (!container) return;
 
-  // Fetch portfolio for this provider
-  let portfolioItems = [];
-  try {
-    const portRes = await fetch(`/api/dashboard/portfolio/public/${b.user_id}`);
-    if (portRes.ok) portfolioItems = await portRes.json();
-  } catch (e) { console.error('Portfolio fetch error:', e); }
-
   const open = isOpenNow(b.hours);
   
   let html = `
@@ -233,19 +226,12 @@ async function initBusinessPage() {
     <p class="text-[var(--foreground-secondary)] mb-6">${escapeHtml(b.description)}</p>
   `;
   
-  // Location map (simplified Google Maps Embed)
+  // Location map
   if (b.lat && b.lng) {
     html += `
       <div class="mt-8">
         <h3 class="text-2xl font-bold mb-4">📍 Location</h3>
-        <iframe
-          src="https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY || ''}&q=${b.lat},${b.lng}&zoom=15"
-          width="100%"
-          height="300"
-          style="border:0; border-radius: 0.75rem;"
-          allowfullscreen=""
-          loading="lazy">
-        </iframe>
+        <div id="businessViewMap" style="height: 300px; width: 100%; border-radius: 0.75rem; overflow: hidden; z-index: 1;"></div>
         <a href="https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}" 
            target="_blank" class="btn-secondary mt-4 inline-flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,23 +247,6 @@ async function initBusinessPage() {
         <h3 class="text-2xl font-bold mb-4">📍 Location</h3>
         <p class="text-[var(--foreground-muted)]">${escapeHtml(b.address)}</p>
         <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(b.address)}" target="_blank" class="btn-secondary mt-4 inline-flex items-center gap-2">Get Directions</a>
-      </div>
-    `;
-  }
-  
-  // ---- PORTFOLIO GALLERY (public) ----
-  if (portfolioItems.length) {
-    html += `
-      <div class="mt-8">
-        <h3 class="text-2xl font-bold mb-4">📸 Portfolio</h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          ${portfolioItems.map(item => `
-            <div class="relative group rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <img src="${escapeHtml(item.image_url)}" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-              ${item.title ? `<div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2">${escapeHtml(item.title)}</div>` : ''}
-            </div>
-          `).join('')}
-        </div>
       </div>
     `;
   }
@@ -358,7 +327,7 @@ async function initBusinessPage() {
       </div>
     ` : '<p class="mt-4 text-center"><a href="login.html" class="text-[var(--orange)] hover:underline">Login to leave a review</a></p>'}
     
-    <!-- Quote Form (improved) -->
+    <!-- Quote Form (improved with validation) -->
     <div class="mt-8 p-6 border rounded-2xl bg-[var(--card-bg)]">
       <h3 class="text-xl font-bold mb-4">Request a Quote</h3>
       <form id="quoteForm" class="space-y-4">
@@ -412,6 +381,15 @@ async function initBusinessPage() {
     });
   });
   
+  // Leaflet map
+  if (b.lat && b.lng && document.getElementById('businessViewMap') && typeof L !== 'undefined') {
+    const map = L.map('businessViewMap').setView([parseFloat(b.lat), parseFloat(b.lng)], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB'
+    }).addTo(map);
+    L.marker([parseFloat(b.lat), parseFloat(b.lng)]).addTo(map);
+  }
+  
   // Anonymous comment
   document.getElementById('anonCommentForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -428,7 +406,7 @@ async function initBusinessPage() {
     alert('Report sent');
   });
   
-  // Quote form
+  // Quote form (improved)
   document.getElementById('quoteForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('quoteName').value.trim();
@@ -546,7 +524,6 @@ async function initDashboard() {
     let subInfo = { subscription_tier: 'basic', subscription_end: null };
     let viewData = [];
     let notifications = [];
-    let portfolioItems = [];
 
     try {
       const statsRes = await apiFetch('/api/dashboard/stats');
@@ -589,13 +566,12 @@ async function initDashboard() {
       const notifRes = await apiFetch('/api/dashboard/notifications');
       if (notifRes.ok) notifications = await notifRes.json();
     } catch (e) { console.error('Notifications error:', e); }
-
-    // ---- FETCH PORTFOLIO ----
-    try {
-      const portfolioRes = await apiFetch('/api/dashboard/portfolio');
-      if (portfolioRes.ok) portfolioItems = await portfolioRes.json();
-    } catch (e) { console.error('Portfolio error:', e); }
-
+// Fetch portfolio items
+let portfolioItems = [];
+try {
+  const portfolioRes = await apiFetch('/api/dashboard/portfolio');
+  if (portfolioRes.ok) portfolioItems = await portfolioRes.json();
+} catch (e) { console.error('Portfolio error:', e); }
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     const servicesHtml = services.map(s => `
@@ -744,53 +720,18 @@ async function initDashboard() {
       </div>
     `;
 
-    // ---- PORTFOLIO SECTION ----
-    html += `
-      <div class="mt-12 border-t pt-8">
-        <h2 class="text-2xl font-bold mb-4">📸 Portfolio</h2>
-        <p class="text-sm text-[var(--foreground-muted)] mb-4">Showcase your work to potential clients.</p>
-        
-        <div id="portfolioGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          ${portfolioItems.length ? portfolioItems.map(item => `
-            <div class="relative group border rounded-lg overflow-hidden bg-[var(--card-bg)]">
-              <img src="${escapeHtml(item.image_url)}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-              ${item.title ? `<p class="text-xs font-semibold p-2">${escapeHtml(item.title)}</p>` : ''}
-              <button onclick="deletePortfolioItem('${item.id}')" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-          `).join('') : '<div class="col-span-full text-center text-[var(--foreground-muted)] py-4">No portfolio images yet.</div>'}
-        </div>
-
-        <form id="addPortfolioForm" class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
-          <div class="flex-1">
-            <label class="block text-sm font-medium">Upload Image</label>
-            <input type="file" id="portfolioImageInput" accept="image/*" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Title (optional)</label>
-            <input type="text" id="portfolioTitle" placeholder="e.g., Wedding Decor" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-          </div>
-          <button type="submit" class="btn-primary whitespace-nowrap">Add to Portfolio</button>
-        </form>
-      </div>
-    `;
-
     content.innerHTML = html;
 
-    // Mark notifications as read
     document.getElementById('markNotificationsReadBtn')?.addEventListener('click', async () => {
       await apiFetch('/api/dashboard/notifications/read', { method: 'PUT' });
       alert('Notifications marked as read');
       location.reload();
     });
 
-    // Initialize Leaflet map picker
     if (typeof L !== 'undefined' && document.getElementById('locationPickerMap')) {
       initLocationPicker(profile.lat, profile.lng);
     }
 
-    // Render chart
     if (subInfo.subscription_tier !== 'basic' && viewData.length && document.getElementById('viewsChart') && typeof Chart !== 'undefined') {
       new Chart(document.getElementById('viewsChart'), {
         type: 'line',
@@ -801,42 +742,6 @@ async function initDashboard() {
       });
     }
 
-    // Portfolio upload
-    document.getElementById('addPortfolioForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById('portfolioImageInput');
-      const title = document.getElementById('portfolioTitle').value.trim();
-      if (!fileInput.files.length) {
-        alert('Please select an image.');
-        return;
-      }
-      const formData = new FormData();
-      formData.append('image', fileInput.files[0]);
-      try {
-        const uploadRes = await fetch('/api/upload/portfolio', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${authToken}` },
-          body: formData
-        });
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload failed');
-        const portfolioRes = await apiFetch('/api/dashboard/portfolio', {
-          method: 'POST',
-          body: JSON.stringify({ image_url: uploadData.url, title })
-        });
-        if (portfolioRes.ok) {
-          alert('Portfolio image added!');
-          location.reload();
-        } else {
-          const err = await portfolioRes.json();
-          alert(err.error || 'Failed to add portfolio item.');
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    });
-
-    // Event listeners
     document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
@@ -1226,18 +1131,6 @@ document.getElementById('closeModalBtn')?.addEventListener('click', function() {
 window.approveProvider = async (id) => { await apiFetch(`/api/admin/verify-provider/${id}`, { method: 'PUT' }); location.reload(); };
 window.rejectProvider = async (id) => { await apiFetch(`/api/admin/reject-provider/${id}`, { method: 'DELETE' }); location.reload(); };
 window.deactivateUser = async (id) => { await apiFetch(`/api/admin/users/${id}/deactivate`, { method: 'PUT' }); location.reload(); };
-
-// ========== PORTFOLIO DELETE HELPER ==========
-window.deletePortfolioItem = async (id) => {
-  if (!confirm('Delete this portfolio image?')) return;
-  const res = await apiFetch(`/api/dashboard/portfolio/${id}`, { method: 'DELETE' });
-  if (res.ok) {
-    alert('Deleted');
-    location.reload();
-  } else {
-    alert('Delete failed');
-  }
-};
 
 // ========== TESTIMONIALS ==========
 async function loadTestimonials() {

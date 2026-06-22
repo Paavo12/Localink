@@ -2,15 +2,8 @@ const express = require('express');
 const { authenticateToken } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const pool = require('../db/pool');
-const fs = require('fs');
-const path = require('path');
-const router = express.Router();
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+const router = express.Router();
 
 router.post('/logo', authenticateToken, upload.single('image'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -40,5 +33,6 @@ router.post('/service/:serviceId', authenticateToken, upload.single('image'), as
   );
   res.json({ url });
 });
+
 
 module.exports = router;
