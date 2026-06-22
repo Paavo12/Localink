@@ -956,7 +956,6 @@ window.toggleHoursDisabled = (checkbox, day) => {
 };
 
 // ========== ADMIN DASHBOARD ==========
-// ========== ADMIN DASHBOARD ==========
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {
     window.location.href = 'login.html';
@@ -973,155 +972,132 @@ async function initAdmin() {
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
 
-  // ---- HTML with fixed chart containers ----
   let html = `
-    <div class="grid grid-cols-4 gap-4 mb-8">
-      ${Object.entries(stats).map(([k, v]) => `<div class="p-4 bg-[var(--card-bg)] rounded-2xl border">${k}: ${v}</div>`).join('')}
-      <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">Active Providers (30d): ${analytics.activeProviders}</div>
+  <div class="grid grid-cols-4 gap-4 mb-8">
+    ${Object.entries(stats).map(([k, v]) => `<div class="p-4 bg-[var(--card-bg)] rounded-2xl border">${k}: ${v}</div>`).join('')}
+    <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">Active Providers (30d): ${analytics.activeProviders}</div>
+  </div>
+  <div class="grid grid-cols-2 gap-8 mb-8">
+    <div style="height: 200px; max-width: 100%;"><canvas id="regChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+    <div style="height: 200px; max-width: 100%;"><canvas id="catChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+  </div>
+  <div class="grid grid-cols-2 gap-8 mb-8">
+    <div style="height: 200px; max-width: 100%;"><canvas id="tierChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+    <div style="height: 200px; max-width: 100%;"><canvas id="cityChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+  </div>
+  <div class="grid grid-cols-2 gap-8 mb-8">
+    <div style="height: 200px; max-width: 100%;"><canvas id="revenueChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+    <div style="height: 200px; max-width: 100%;"><canvas id="bookingsByCategoryChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+  </div>
+  <div class="grid grid-cols-1 gap-8 mb-8">
+    <div style="height: 200px; max-width: 100%;"><canvas id="regionChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+  </div>
+  <!-- rest of the dashboard (bookings, verifications, users, feed) -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-4">All Bookings</h2>
+    <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
+      <table class="w-full text-sm">
+        <thead><tr><th>Client</th><th>Provider</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          ${bookings.map(b => `
+            <tr class="border-b">
+              <td>${escapeHtml(b.client_name)}</td>
+              <td>${escapeHtml(b.business_name)}</td>
+              <td>${escapeHtml(b.service_name || 'N/A')}</td>
+              <td>${new Date(b.start_time).toLocaleString()}</td>
+              <td><span class="px-2 py-1 rounded-full text-xs ${b.status === 'confirmed' ? 'bg-green-500/20 text-green-500' : b.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-red-500/20 text-red-500'}">${b.status}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
     </div>
-    <div class="grid grid-cols-2 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="regChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-      <div style="height: 200px; max-width: 100%;"><canvas id="catChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-    </div>
-    <div class="grid grid-cols-2 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="tierChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-      <div style="height: 200px; max-width: 100%;"><canvas id="cityChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-    </div>
-    <div class="grid grid-cols-2 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="revenueChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-      <div style="height: 200px; max-width: 100%;"><canvas id="bookingsByCategoryChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-    </div>
-    <div class="grid grid-cols-1 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="regionChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-    </div>
-    <div class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">All Bookings</h2>
-      <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
-        <table class="w-full text-sm">
-          <thead><tr><th>Client</th><th>Provider</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
-          <tbody>
-            ${bookings.map(b => `
-              <tr class="border-b">
-                <td>${escapeHtml(b.client_name)}</td>
-                <td>${escapeHtml(b.business_name)}</td>
-                <td>${escapeHtml(b.service_name || 'N/A')}</td>
-                <td>${new Date(b.start_time).toLocaleString()}</td>
-                <td><span class="px-2 py-1 rounded-full text-xs ${b.status === 'confirmed' ? 'bg-green-500/20 text-green-500' : b.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-red-500/20 text-red-500'}">${b.status}</span></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Pending Verifications</h2>
-      ${pending.map(p => `
-        <div class="p-4 border rounded mb-2 flex justify-between items-center">
-          <span>${escapeHtml(p.business_name)} (${escapeHtml(p.email)})</span>
-          <div>
-            <button onclick="approveProvider('${p.user_id}')" class="btn-primary text-sm mr-2">Approve</button>
-            <button onclick="rejectProvider('${p.user_id}')" class="btn-secondary text-sm">Reject</button>
-          </div>
+  </div>
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-4">Pending Verifications</h2>
+    ${pending.map(p => `
+      <div class="p-4 border rounded mb-2 flex justify-between items-center">
+        <span>${escapeHtml(p.business_name)} (${escapeHtml(p.email)})</span>
+        <div>
+          <button onclick="approveProvider('${p.user_id}')" class="btn-primary text-sm mr-2">Approve</button>
+          <button onclick="rejectProvider('${p.user_id}')" class="btn-secondary text-sm">Reject</button>
         </div>
-      `).join('')}
-    </div>
-    <div class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">All Users</h2>
-      <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
-        <table class="w-full text-sm">
-          <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${users.map(u => `
-              <tr class="border-b">
-                <td>${escapeHtml(u.email)}</td>
-                <td>${escapeHtml(u.role)}</td>
-                <td>${u.is_active ? 'Active' : 'Inactive'}</td>
-                <td>
-                  <button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>
-                  <button onclick="deactivateUser('${u.id}')" class="text-red-500 text-xs">Deactivate</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
       </div>
+    `).join('')}
+  </div>
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-4">All Users</h2>
+    <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
+      <table class="w-full text-sm">
+        <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${users.map(u => `
+            <tr class="border-b">
+              <td>${escapeHtml(u.email)}</td>
+              <td>${escapeHtml(u.role)}</td>
+              <td>${u.is_active ? 'Active' : 'Inactive'}</td>
+              <td>
+                <button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>
+                <button onclick="deactivateUser('${u.id}')" class="text-red-500 text-xs">Deactivate</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
     </div>
-    <div>
-      <h2 class="text-2xl font-bold mb-4">Activity Feed</h2>
-      ${feed.map(f => `
-        <div class="p-2 border-b">${escapeHtml(f.type)}: ${escapeHtml(f.name || f.comment || f.id)} – ${new Date(f.created_at).toLocaleString()}</div>
-      `).join('')}
-    </div>
-  `;
+  </div>
+  <div>
+    <h2 class="text-2xl font-bold mb-4">Activity Feed</h2>
+    ${feed.map(f => `
+      <div class="p-2 border-b">${escapeHtml(f.type)}: ${escapeHtml(f.name || f.comment || f.id)} – ${new Date(f.created_at).toLocaleString()}</div>
+    `).join('')}
+  </div>
+`;
 
   document.getElementById('adminContent').innerHTML = html;
 
-  // ---- Chart initialization with maintainAspectRatio: false ----
   if (typeof Chart !== 'undefined') {
-    const chartOptions = { responsive: true, maintainAspectRatio: false };
-
-    new Chart(document.getElementById('regChart'), {
+  const chartOptions = { responsive: true, maintainAspectRatio: false };
+  
+  new Chart(document.getElementById('regChart'), {
+    type: 'line',
+    data: { labels: chartData.registrations.map(r => r.date), datasets: [{ label: 'Registrations', data: chartData.registrations.map(r => parseInt(r.count)) }] },
+    options: chartOptions
+  });
+  new Chart(document.getElementById('catChart'), {
+    type: 'bar',
+    data: { labels: chartData.categories.map(c => c.category), datasets: [{ label: 'Providers', data: chartData.categories.map(c => parseInt(c.count)) }] },
+    options: chartOptions
+  });
+  new Chart(document.getElementById('tierChart'), {
+    type: 'pie',
+    data: { labels: chartData.tiers.map(t => t.subscription_tier), datasets: [{ data: chartData.tiers.map(t => parseInt(t.count)) }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+  new Chart(document.getElementById('cityChart'), {
+    type: 'bar',
+    data: { labels: chartData.cities.map(c => c.city), datasets: [{ label: 'Listings', data: chartData.cities.map(c => parseInt(c.count)) }] },
+    options: chartOptions
+  });
+  if (analytics.revenueOverTime.length) {
+    new Chart(document.getElementById('revenueChart'), {
       type: 'line',
-      data: {
-        labels: chartData.registrations.map(r => r.date),
-        datasets: [{ label: 'Registrations', data: chartData.registrations.map(r => parseInt(r.count)) }]
-      },
+      data: { labels: analytics.revenueOverTime.map(r => r.month), datasets: [{ label: 'Monthly Revenue (N$)', data: analytics.revenueOverTime.map(r => parseInt(r.revenue || 0)) }] },
       options: chartOptions
     });
-    new Chart(document.getElementById('catChart'), {
+  }
+  if (analytics.bookingsByCategory.length) {
+    new Chart(document.getElementById('bookingsByCategoryChart'), {
       type: 'bar',
-      data: {
-        labels: chartData.categories.map(c => c.category),
-        datasets: [{ label: 'Providers', data: chartData.categories.map(c => parseInt(c.count)) }]
-      },
+      data: { labels: analytics.bookingsByCategory.map(c => c.category), datasets: [{ label: 'Bookings', data: analytics.bookingsByCategory.map(c => parseInt(c.booking_count)) }] },
       options: chartOptions
     });
-    new Chart(document.getElementById('tierChart'), {
-      type: 'pie',
-      data: {
-        labels: chartData.tiers.map(t => t.subscription_tier),
-        datasets: [{ data: chartData.tiers.map(t => parseInt(t.count)) }]
-      },
-      options: { responsive: true, maintainAspectRatio: false }
-    });
-    new Chart(document.getElementById('cityChart'), {
+  }
+  if (analytics.registrationsByRegion.length) {
+    new Chart(document.getElementById('regionChart'), {
       type: 'bar',
-      data: {
-        labels: chartData.cities.map(c => c.city),
-        datasets: [{ label: 'Listings', data: chartData.cities.map(c => parseInt(c.count)) }]
-      },
+      data: { labels: analytics.registrationsByRegion.map(r => r.region), datasets: [{ label: 'Providers', data: analytics.registrationsByRegion.map(r => parseInt(r.count)) }] },
       options: chartOptions
     });
-    if (analytics.revenueOverTime.length) {
-      new Chart(document.getElementById('revenueChart'), {
-        type: 'line',
-        data: {
-          labels: analytics.revenueOverTime.map(r => r.month),
-          datasets: [{ label: 'Monthly Revenue (N$)', data: analytics.revenueOverTime.map(r => parseInt(r.revenue || 0)) }]
-        },
-        options: chartOptions
-      });
-    }
-    if (analytics.bookingsByCategory.length) {
-      new Chart(document.getElementById('bookingsByCategoryChart'), {
-        type: 'bar',
-        data: {
-          labels: analytics.bookingsByCategory.map(c => c.category),
-          datasets: [{ label: 'Bookings', data: analytics.bookingsByCategory.map(c => parseInt(c.booking_count)) }]
-        },
-        options: chartOptions
-      });
-    }
-    if (analytics.registrationsByRegion.length) {
-      new Chart(document.getElementById('regionChart'), {
-        type: 'bar',
-        data: {
-          labels: analytics.registrationsByRegion.map(r => r.region),
-          datasets: [{ label: 'Providers', data: analytics.registrationsByRegion.map(r => parseInt(r.count)) }]
-        },
-        options: chartOptions
-      });
-    }
   }
 }
 

@@ -956,7 +956,6 @@ window.toggleHoursDisabled = (checkbox, day) => {
 };
 
 // ========== ADMIN DASHBOARD ==========
-// ========== ADMIN DASHBOARD ==========
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {
     window.location.href = 'login.html';
@@ -973,26 +972,25 @@ async function initAdmin() {
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
 
-  // ---- HTML with fixed chart containers ----
   let html = `
     <div class="grid grid-cols-4 gap-4 mb-8">
       ${Object.entries(stats).map(([k, v]) => `<div class="p-4 bg-[var(--card-bg)] rounded-2xl border">${k}: ${v}</div>`).join('')}
       <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">Active Providers (30d): ${analytics.activeProviders}</div>
     </div>
     <div class="grid grid-cols-2 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="regChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-      <div style="height: 200px; max-width: 100%;"><canvas id="catChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+      <div><canvas id="regChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+      <div><canvas id="catChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
     </div>
     <div class="grid grid-cols-2 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="tierChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-      <div style="height: 200px; max-width: 100%;"><canvas id="cityChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+      <div><canvas id="tierChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+      <div><canvas id="cityChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
     </div>
     <div class="grid grid-cols-2 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="revenueChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
-      <div style="height: 200px; max-width: 100%;"><canvas id="bookingsByCategoryChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+      <div><canvas id="revenueChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+      <div><canvas id="bookingsByCategoryChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
     </div>
     <div class="grid grid-cols-1 gap-8 mb-8">
-      <div style="height: 200px; max-width: 100%;"><canvas id="regionChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
+      <div><canvas id="regionChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
     </div>
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">All Bookings</h2>
@@ -1056,41 +1054,34 @@ async function initAdmin() {
 
   document.getElementById('adminContent').innerHTML = html;
 
-  // ---- Chart initialization with maintainAspectRatio: false ----
   if (typeof Chart !== 'undefined') {
-    const chartOptions = { responsive: true, maintainAspectRatio: false };
-
     new Chart(document.getElementById('regChart'), {
       type: 'line',
       data: {
         labels: chartData.registrations.map(r => r.date),
         datasets: [{ label: 'Registrations', data: chartData.registrations.map(r => parseInt(r.count)) }]
-      },
-      options: chartOptions
+      }
     });
     new Chart(document.getElementById('catChart'), {
       type: 'bar',
       data: {
         labels: chartData.categories.map(c => c.category),
         datasets: [{ label: 'Providers', data: chartData.categories.map(c => parseInt(c.count)) }]
-      },
-      options: chartOptions
+      }
     });
     new Chart(document.getElementById('tierChart'), {
       type: 'pie',
       data: {
         labels: chartData.tiers.map(t => t.subscription_tier),
         datasets: [{ data: chartData.tiers.map(t => parseInt(t.count)) }]
-      },
-      options: { responsive: true, maintainAspectRatio: false }
+      }
     });
     new Chart(document.getElementById('cityChart'), {
       type: 'bar',
       data: {
         labels: chartData.cities.map(c => c.city),
         datasets: [{ label: 'Listings', data: chartData.cities.map(c => parseInt(c.count)) }]
-      },
-      options: chartOptions
+      }
     });
     if (analytics.revenueOverTime.length) {
       new Chart(document.getElementById('revenueChart'), {
@@ -1098,8 +1089,7 @@ async function initAdmin() {
         data: {
           labels: analytics.revenueOverTime.map(r => r.month),
           datasets: [{ label: 'Monthly Revenue (N$)', data: analytics.revenueOverTime.map(r => parseInt(r.revenue || 0)) }]
-        },
-        options: chartOptions
+        }
       });
     }
     if (analytics.bookingsByCategory.length) {
@@ -1108,8 +1098,7 @@ async function initAdmin() {
         data: {
           labels: analytics.bookingsByCategory.map(c => c.category),
           datasets: [{ label: 'Bookings', data: analytics.bookingsByCategory.map(c => parseInt(c.booking_count)) }]
-        },
-        options: chartOptions
+        }
       });
     }
     if (analytics.registrationsByRegion.length) {
@@ -1118,8 +1107,7 @@ async function initAdmin() {
         data: {
           labels: analytics.registrationsByRegion.map(r => r.region),
           datasets: [{ label: 'Providers', data: analytics.registrationsByRegion.map(r => parseInt(r.count)) }]
-        },
-        options: chartOptions
+        }
       });
     }
   }
