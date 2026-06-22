@@ -1119,7 +1119,6 @@ window.deactivateUser = async (id) => { await apiFetch(`/api/admin/users/${id}/d
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   await loadCurrentUser();
-  initNavbarScroll();
   console.log('Current user after load:', currentUser);
   const path = location.pathname;
 

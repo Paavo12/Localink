@@ -80,41 +80,7 @@ function initTheme() {
     });
   }
 }
-// ---------- Navbar scroll effect ----------
-function initNavbarScroll() {
-  const header = document.querySelector('header');
-  if (!header) return;
 
-  let lastScrollY = window.scrollY;
-
-  function handleScroll() {
-    const currentScrollY = window.scrollY;
-    
-    // Add 'scrolled' class when scrolled down more than 10px
-    if (currentScrollY > 10) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
-    }
-    
-    lastScrollY = currentScrollY;
-  }
-
-  // Initial check
-  handleScroll();
-
-  // Throttle the scroll event for performance
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        handleScroll();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  });
-}
 // ---------- Helper: Open Now ----------
 function isOpenNow(hours) {
   const now = new Date();
@@ -1119,7 +1085,6 @@ window.deactivateUser = async (id) => { await apiFetch(`/api/admin/users/${id}/d
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   await loadCurrentUser();
-  initNavbarScroll();
   console.log('Current user after load:', currentUser);
   const path = location.pathname;
 
