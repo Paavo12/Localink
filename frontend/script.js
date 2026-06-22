@@ -1,4 +1,4 @@
-// script.js – Final version with all features + full portfolio system
+// script.js – Final stable version (all features, fixed errors)
 let authToken = localStorage.getItem('token');
 let currentUser = null;
 
@@ -48,7 +48,10 @@ async function login(email, password) {
   return false;
 }
 
-async function logout() { setAuthToken(null); window.location.href = 'index.html'; }
+async function logout() {
+  setAuthToken(null);
+  window.location.href = 'index.html';
+}
 
 async function loadCurrentUser() {
   if (!authToken) return null;
@@ -58,9 +61,10 @@ async function loadCurrentUser() {
       currentUser = await res.json();
       return currentUser;
     }
-  } catch(e) {}
+  } catch (e) {}
   return null;
 }
+
 // ---------- NAVBAR AUTH TOGGLE ----------
 function updateNavbarAuth() {
   const loggedOutNav = document.getElementById('loggedOutNav');
@@ -70,8 +74,6 @@ function updateNavbarAuth() {
   if (currentUser) {
     loggedOutNav.classList.add('hidden');
     loggedInNav.classList.remove('hidden');
-    // If the user is a provider, show dashboard; if client, hide it?
-    // For simplicity, we always show dashboard if logged in, but you could check role.
   } else {
     loggedOutNav.classList.remove('hidden');
     loggedInNav.classList.add('hidden');
@@ -127,18 +129,18 @@ function isOpenNow(hours) {
   if (!today || today.is_closed) return false;
   const [openH, openM] = today.open_time.split(':').map(Number);
   const [closeH, closeM] = today.close_time.split(':').map(Number);
-  const open = openH*60 + openM;
-  const close = closeH*60 + closeM;
+  const open = openH * 60 + openM;
+  const close = closeH * 60 + closeM;
   return current >= open && current <= close;
 }
 
 // ---------- Distance ----------
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
-  const dLat = (lat2-lat1)*Math.PI/180;
-  const dLon = (lon2-lon1)*Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 // ---------- Image Upload Helpers ----------
@@ -166,7 +168,7 @@ async function uploadServiceImage(serviceId, file) {
   else alert('Upload failed');
 }
 
-// ========== SEARCH PAGE (with city & rating filters) ==========
+// ========== SEARCH PAGE ==========
 async function initSearchPage() {
   const searchInput = document.getElementById('searchInput');
   const categorySelect = document.getElementById('categorySelect');
@@ -194,7 +196,7 @@ async function initSearchPage() {
         <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)] hover:shadow-lg transition-shadow">
           <img src="${escapeHtml(b.logo_url || 'https://placehold.co/400x300')}" class="h-40 w-full object-cover rounded-xl mb-3" onerror="this.src='https://placehold.co/400x300'">
           <h3 class="text-xl font-black text-[var(--foreground)]">${escapeHtml(b.name)}</h3>
-          <p class="text-[var(--foreground-muted)] text-sm mt-2">${escapeHtml(b.description?.substring(0,100))}</p>
+          <p class="text-[var(--foreground-muted)] text-sm mt-2">${escapeHtml(b.description?.substring(0, 100))}</p>
           <div class="mt-4 flex justify-between items-center">
             <span>
               ${b.subscription_tier === 'premium' ? '<span class="badge-premium">⭐ Featured</span>' : ''}
@@ -232,7 +234,7 @@ async function initBusinessPage() {
   } catch (e) { console.error('Portfolio fetch error:', e); }
 
   const open = isOpenNow(b.hours);
-  
+
   let html = `
     <div class="relative mb-8">
       ${b.cover_image_url ? `<img src="${escapeHtml(b.cover_image_url)}" class="w-full h-64 object-cover rounded-2xl">` : ''}
@@ -248,22 +250,14 @@ async function initBusinessPage() {
     </div>
     <p class="text-[var(--foreground-secondary)] mb-6">${escapeHtml(b.description)}</p>
   `;
-  
-  // Location map (simplified Google Maps Embed)
+
+  // Location – simplified (no API key)
   if (b.lat && b.lng) {
     html += `
       <div class="mt-8">
         <h3 class="text-2xl font-bold mb-4">📍 Location</h3>
-        <iframe
-          src="https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY || ''}&q=${b.lat},${b.lng}&zoom=15"
-          width="100%"
-          height="300"
-          style="border:0; border-radius: 0.75rem;"
-          allowfullscreen=""
-          loading="lazy">
-        </iframe>
         <a href="https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}" 
-           target="_blank" class="btn-secondary mt-4 inline-flex items-center gap-2">
+           target="_blank" class="btn-secondary inline-flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-4-4m0 0l4-4m-4 4h14m-4-4l4 4-4 4"/>
           </svg>
@@ -276,12 +270,12 @@ async function initBusinessPage() {
       <div class="mt-8">
         <h3 class="text-2xl font-bold mb-4">📍 Location</h3>
         <p class="text-[var(--foreground-muted)]">${escapeHtml(b.address)}</p>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(b.address)}" target="_blank" class="btn-secondary mt-4 inline-flex items-center gap-2">Get Directions</a>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(b.address)}" target="_blank" class="btn-secondary inline-flex items-center gap-2">Get Directions</a>
       </div>
     `;
   }
-  
-  // ---- PORTFOLIO GALLERY (public) ----
+
+  // Portfolio gallery
   if (portfolioItems.length) {
     html += `
       <div class="mt-8">
@@ -297,7 +291,7 @@ async function initBusinessPage() {
       </div>
     `;
   }
-  
+
   // Services & Reviews
   html += `
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
@@ -374,7 +368,7 @@ async function initBusinessPage() {
       </div>
     ` : '<p class="mt-4 text-center"><a href="login.html" class="text-[var(--orange)] hover:underline">Login to leave a review</a></p>'}
     
-    <!-- Quote Form (improved) -->
+    <!-- Quote Form -->
     <div class="mt-8 p-6 border rounded-2xl bg-[var(--card-bg)]">
       <h3 class="text-xl font-bold mb-4">Request a Quote</h3>
       <form id="quoteForm" class="space-y-4">
@@ -396,10 +390,10 @@ async function initBusinessPage() {
     
     ${currentUser ? `<button id="reportBtn" class="btn-secondary mt-4">Report this business</button>` : ''}
   `;
-  
+
   container.innerHTML = html;
-  
-  // ---- Flatpickr initialization ----
+
+  // Flatpickr init
   if (typeof flatpickr !== 'undefined') {
     document.querySelectorAll('[id^="bookingTime-"]').forEach(input => {
       flatpickr(input, {
@@ -411,8 +405,8 @@ async function initBusinessPage() {
       });
     });
   }
-  
-  // ---- Event listeners ----
+
+  // Event listeners
   document.querySelectorAll('.book-service-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       const serviceId = this.dataset.serviceId;
@@ -427,8 +421,7 @@ async function initBusinessPage() {
       submitBooking(serviceId, providerId);
     });
   });
-  
-  // Anonymous comment
+
   document.getElementById('anonCommentForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const comment = e.target.querySelector('textarea').value;
@@ -436,15 +429,13 @@ async function initBusinessPage() {
     alert('Comment added');
     location.reload();
   });
-  
-  // Report
+
   document.getElementById('reportBtn')?.addEventListener('click', async () => {
     const reason = prompt('Reason for report?');
     if (reason) await fetch(`/api/businesses/${id}/report`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }, body: JSON.stringify({ reason }) });
     alert('Report sent');
   });
-  
-  // Quote form
+
   document.getElementById('quoteForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('quoteName').value.trim();
@@ -475,8 +466,7 @@ async function initBusinessPage() {
       alert('Network error. Please try again.');
     }
   });
-  
-  // Review form
+
   document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const rating = document.getElementById('reviewRating').value;
@@ -606,7 +596,6 @@ async function initDashboard() {
       if (notifRes.ok) notifications = await notifRes.json();
     } catch (e) { console.error('Notifications error:', e); }
 
-    // ---- FETCH PORTFOLIO ----
     try {
       const portfolioRes = await apiFetch('/api/dashboard/portfolio');
       if (portfolioRes.ok) portfolioItems = await portfolioRes.json();
@@ -760,12 +749,11 @@ async function initDashboard() {
       </div>
     `;
 
-    // ---- PORTFOLIO SECTION ----
+    // Portfolio section
     html += `
       <div class="mt-12 border-t pt-8">
         <h2 class="text-2xl font-bold mb-4">📸 Portfolio</h2>
         <p class="text-sm text-[var(--foreground-muted)] mb-4">Showcase your work to potential clients.</p>
-        
         <div id="portfolioGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           ${portfolioItems.length ? portfolioItems.map(item => `
             <div class="relative group border rounded-lg overflow-hidden bg-[var(--card-bg)]">
@@ -777,7 +765,6 @@ async function initDashboard() {
             </div>
           `).join('') : '<div class="col-span-full text-center text-[var(--foreground-muted)] py-4">No portfolio images yet.</div>'}
         </div>
-
         <form id="addPortfolioForm" class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
           <div class="flex-1">
             <label class="block text-sm font-medium">Upload Image</label>
@@ -801,12 +788,12 @@ async function initDashboard() {
       location.reload();
     });
 
-    // Initialize Leaflet map picker
+    // Leaflet map picker
     if (typeof L !== 'undefined' && document.getElementById('locationPickerMap')) {
       initLocationPicker(profile.lat, profile.lng);
     }
 
-    // Render chart
+    // Chart
     if (subInfo.subscription_tier !== 'basic' && viewData.length && document.getElementById('viewsChart') && typeof Chart !== 'undefined') {
       new Chart(document.getElementById('viewsChart'), {
         type: 'line',
@@ -914,16 +901,16 @@ function initLocationPicker(initialLat, initialLng) {
   const defaultLng = 17.0658;
   const lat = initialLat ? parseFloat(initialLat) : defaultLat;
   const lng = initialLng ? parseFloat(initialLng) : defaultLng;
-  
+
   locationMap = L.map(mapContainer).setView([lat, lng], 15);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB'
   }).addTo(locationMap);
-  
+
   if (initialLat && initialLng) {
     locationMarker = L.marker([lat, lng]).addTo(locationMap);
   }
-  
+
   locationMap.on('click', function(e) {
     const newLat = e.latlng.lat;
     const newLng = e.latlng.lng;
@@ -958,16 +945,22 @@ window.toggleHoursDisabled = (checkbox, day) => {
   const openInput = document.querySelector(`[name="open_${day}"]`);
   const closeInput = document.querySelector(`[name="close_${day}"]`);
   if (checkbox.checked) {
-    openInput.disabled = true; closeInput.disabled = true;
-    openInput.value = ''; closeInput.value = '';
+    openInput.disabled = true;
+    closeInput.disabled = true;
+    openInput.value = '';
+    closeInput.value = '';
   } else {
-    openInput.disabled = false; closeInput.disabled = false;
+    openInput.disabled = false;
+    closeInput.disabled = false;
   }
 };
 
 // ========== ADMIN DASHBOARD ==========
 async function initAdmin() {
-  if (!currentUser || currentUser.role !== 'admin') { window.location.href = 'login.html'; return; }
+  if (!currentUser || currentUser.role !== 'admin') {
+    window.location.href = 'login.html';
+    return;
+  }
   const logoutBtn = document.getElementById('logoutAdminBtn');
   if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
@@ -981,7 +974,7 @@ async function initAdmin() {
 
   let html = `
     <div class="grid grid-cols-4 gap-4 mb-8">
-      ${Object.entries(stats).map(([k,v])=>`<div class="p-4 bg-[var(--card-bg)] rounded-2xl border">${k}: ${v}</div>`).join('')}
+      ${Object.entries(stats).map(([k, v]) => `<div class="p-4 bg-[var(--card-bg)] rounded-2xl border">${k}: ${v}</div>`).join('')}
       <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">Active Providers (30d): ${analytics.activeProviders}</div>
     </div>
     <div class="grid grid-cols-2 gap-8 mb-8">
@@ -1137,12 +1130,6 @@ async function viewProvider(userId) {
       throw new Error(`HTTP ${res.status}: ${errText}`);
     }
     const data = await res.json();
-    // ... rest of the modal rendering (unchanged)
-  } catch (err) {
-    console.error('View provider error:', err);
-    content.innerHTML = `<div class="text-red-500">Failed to load provider details: ${err.message}</div>`;
-  }
-}
 
     content.innerHTML = `
       <form id="adminEditProviderForm">
@@ -1197,7 +1184,7 @@ async function viewProvider(userId) {
       `).join('') : '<p class="text-gray-500">No services</p>'}
 
       <h3 class="text-lg font-bold mt-4 mb-2">Reviews (${data.reviews.length})</h3>
-      ${data.reviews.slice(0,5).map(r => `
+      ${data.reviews.slice(0, 5).map(r => `
         <div class="text-sm border-b py-1">${escapeHtml(r.full_name)}: ⭐${r.rating} – ${escapeHtml(r.comment || '')}</div>
       `).join('')}
       ${data.reviews.length > 5 ? `<p class="text-xs text-gray-500">... and ${data.reviews.length - 5} more</p>` : ''}
@@ -1233,6 +1220,7 @@ async function viewProvider(userId) {
     });
 
   } catch (err) {
+    console.error('View provider error:', err);
     content.innerHTML = `<div class="text-red-500">Failed to load provider details: ${err.message}</div>`;
   }
 }
@@ -1249,9 +1237,18 @@ document.getElementById('closeModalBtn')?.addEventListener('click', function() {
   document.getElementById('providerModal').classList.add('hidden');
 });
 
-window.approveProvider = async (id) => { await apiFetch(`/api/admin/verify-provider/${id}`, { method: 'PUT' }); location.reload(); };
-window.rejectProvider = async (id) => { await apiFetch(`/api/admin/reject-provider/${id}`, { method: 'DELETE' }); location.reload(); };
-window.deactivateUser = async (id) => { await apiFetch(`/api/admin/users/${id}/deactivate`, { method: 'PUT' }); location.reload(); };
+window.approveProvider = async (id) => {
+  await apiFetch(`/api/admin/verify-provider/${id}`, { method: 'PUT' });
+  location.reload();
+};
+window.rejectProvider = async (id) => {
+  await apiFetch(`/api/admin/reject-provider/${id}`, { method: 'DELETE' });
+  location.reload();
+};
+window.deactivateUser = async (id) => {
+  await apiFetch(`/api/admin/users/${id}/deactivate`, { method: 'PUT' });
+  location.reload();
+};
 
 // ========== PORTFOLIO DELETE HELPER ==========
 window.deletePortfolioItem = async (id) => {
