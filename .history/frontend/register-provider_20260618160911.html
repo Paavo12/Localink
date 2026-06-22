@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Registration – Localink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+  <style>
+    .step { display: none; }
+    .step.active { display: block; }
+    .progress-bar { height: 6px; background: var(--border-main); border-radius: 9999px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: var(--accent-color); transition: width 0.3s; }
+  </style>
+</head>
+<body class="bg-[var(--bg-main)] text-[var(--text-main)]">
+
+  <!-- Navbar (same as other pages) -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+      <div class="flex justify-between h-full items-center">
+        <a href="index.html" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 bg-accent rounded-lg flex items-center justify-center transition-transform group-hover:rotate-12 shadow-neon">
+            <span class="text-white font-display font-black text-xl">L</span>
+          </div>
+          <span class="font-display font-black text-2xl tracking-tighter text-[var(--text-main)]">Localink</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="index.html" class="text-sm font-bold text-gray-400 hover:text-[var(--text-main)] transition-colors">Home</a>
+          <a href="search.html" class="text-sm font-bold text-gray-400 hover:text-[var(--text-main)] transition-colors">Find Local Pros</a>
+          <a href="pricing.html" class="text-sm font-bold text-gray-400 hover:text-[var(--text-main)] transition-colors">Pricing</a>
+          <a href="about.html" class="text-sm font-bold text-gray-400 hover:text-[var(--text-main)] transition-colors">About</a>
+        </div>
+        <div class="hidden md:flex items-center gap-6">
+          <button id="themeToggle" class="p-2.5 rounded-xl border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--border-main)] transition-all">
+            <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          </button>
+          <div class="flex items-center gap-4 border-l border-[var(--border-main)] pl-6">
+            <a href="login.html" class="text-sm font-bold text-gray-500 hover:text-[var(--text-main)] transition-colors">Login</a>
+            <a href="register.html" class="text-sm font-bold text-gray-500 hover:text-[var(--text-main)] transition-colors">Client Register</a>
+            <a href="register-provider.html" class="btn-primary text-sm">Provider Sign Up</a>
+          </div>
+        </div>
+        <div class="md:hidden">
+          <button id="mobileMenuBtn" class="p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-[var(--card-bg)] border-t border-[var(--border-main)]">
+      <div class="px-4 py-6 space-y-4">
+        <a href="search.html" class="block text-lg font-medium">Find Services</a>
+        <a href="pricing.html" class="block text-lg font-medium">Pricing</a>
+        <a href="about.html" class="block text-lg font-medium">About</a>
+        <a href="login.html" class="block text-lg font-medium">Login</a>
+        <a href="register.html" class="block text-lg font-medium">Client Register</a>
+        <a href="register-provider.html" class="block btn-primary text-center">Provider Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Registration Form -->
+  <div class="min-h-screen flex items-center justify-center px-4 pt-32 pb-20">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border-main)] p-10 w-full max-w-2xl">
+      <h1 class="text-3xl font-black uppercase italic tracking-tighter text-center mb-2">Provider Registration</h1>
+      <p class="text-center text-gray-500 mb-6">Complete all steps to list your business</p>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar mb-6">
+        <div id="progressFill" class="fill" style="width: 0%;"></div>
+      </div>
+      <div class="flex justify-between text-xs text-gray-400 mb-8">
+        <span>Account</span>
+        <span>Business</span>
+        <span>Location</span>
+        <span>Services</span>
+        <span>Hours</span>
+      </div>
+
+      <form id="registerProviderForm" class="space-y-6">
+        <!-- Step 1: Account Details -->
+        <div id="step1" class="step active">
+          <h2 class="text-xl font-bold mb-4">Step 1: Your Account</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="text-xs font-black">Full Name</label><input type="text" id="fullName" required class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+            <div><label class="text-xs font-black">Email</label><input type="email" id="email" required class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+            <div><label class="text-xs font-black">Phone (optional)</label><input type="tel" id="phone" class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+            <div><label class="text-xs font-black">Password (min 6 chars)</label><input type="password" id="password" required class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+          </div>
+          <button type="button" class="btn-primary mt-4" onclick="goToStep(2)">Next →</button>
+        </div>
+
+        <!-- Step 2: Business Details -->
+        <div id="step2" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 2: Business Info</h2>
+          <div class="space-y-4">
+            <div><label class="text-xs font-black">Business Name</label><input type="text" id="businessName" required class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+            <div><label class="text-xs font-black">Category</label><input type="text" id="category" placeholder="e.g., Hair Salon, Plumbing" class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+            <div><label class="text-xs font-black">Description</label><textarea id="description" rows="3" class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></textarea></div>
+          </div>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(1)">← Back</button>
+            <button type="button" class="btn-primary" onclick="goToStep(3)">Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Location & Contact -->
+        <div id="step3" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 3: Location & Contact</h2>
+          <div class="space-y-4">
+            <div><label class="text-xs font-black">Address</label><input type="text" id="address" class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+            <div><label class="text-xs font-black">WhatsApp Number</label><input type="tel" id="whatsapp" placeholder="e.g., +264811234567" class="w-full bg-[var(--bg-main)] border rounded-xl p-3"></div>
+          </div>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(2)">← Back</button>
+            <button type="button" class="btn-primary" onclick="goToStep(4)">Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Services -->
+        <div id="step4" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 4: Services (optional)</h2>
+          <p class="text-sm text-gray-500 mb-4">You can add services later from your dashboard, but you can add a few now.</p>
+          <div id="servicesContainer">
+            <div class="service-entry grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+              <input type="text" placeholder="Service name" class="p-2 border rounded-lg bg-[var(--bg-main)]">
+              <input type="number" placeholder="Price (N$)" class="p-2 border rounded-lg bg-[var(--bg-main)]">
+              <input type="number" placeholder="Duration (min)" class="p-2 border rounded-lg bg-[var(--bg-main)]">
+            </div>
+          </div>
+          <button type="button" class="btn-secondary text-sm" onclick="addServiceField()">+ Add another service</button>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(3)">← Back</button>
+            <button type="button" class="btn-primary" onclick="goToStep(5)">Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Business Hours -->
+        <div id="step5" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 5: Business Hours</h2>
+          <p class="text-sm text-gray-500 mb-4">You can update these later.</p>
+          <div id="hoursContainer">
+            <!-- Will be populated by JS -->
+          </div>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(4)">← Back</button>
+            <button type="submit" class="btn-primary">Complete Registration</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="bg-[var(--bg-main)] border-t border-[var(--border-main)] py-10 text-center text-gray-500 mt-12">
+    <p>© 2026 Localink. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileBtn && mobileMenu) {
+      mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    }
+
+    // ========== Multi-step navigation ==========
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function goToStep(step) {
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step${step}`).classList.add('active');
+      currentStep = step;
+      document.getElementById('progressFill').style.width = `${(step / totalSteps) * 100}%`;
+    }
+
+    // ========== Dynamic services ==========
+    function addServiceField() {
+      const container = document.getElementById('servicesContainer');
+      const entry = document.createElement('div');
+      entry.className = 'service-entry grid grid-cols-1 md:grid-cols-3 gap-3 mb-3';
+      entry.innerHTML = `
+        <input type="text" placeholder="Service name" class="p-2 border rounded-lg bg-[var(--bg-main)]">
+        <input type="number" placeholder="Price (N$)" class="p-2 border rounded-lg bg-[var(--bg-main)]">
+        <input type="number" placeholder="Duration (min)" class="p-2 border rounded-lg bg-[var(--bg-main)]">
+      `;
+      container.appendChild(entry);
+    }
+
+    // ========== Business hours ==========
+    function generateHours() {
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const container = document.getElementById('hoursContainer');
+      container.innerHTML = days.map((day, i) => `
+        <div class="grid grid-cols-3 gap-3 items-center mb-2">
+          <span class="font-bold">${day}</span>
+          <input type="time" id="open_${i}" class="p-2 border rounded-lg bg-[var(--bg-main)]" value="09:00">
+          <input type="time" id="close_${i}" class="p-2 border rounded-lg bg-[var(--bg-main)]" value="17:00">
+        </div>
+      `).join('');
+    }
+    generateHours();
+
+    // ========== Form submission – single API call ==========
+    document.getElementById('registerProviderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Collect all data
+      const full_name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const business_name = document.getElementById('businessName').value;
+      const category = document.getElementById('category').value;
+      const description = document.getElementById('description').value;
+      const address = document.getElementById('address').value;
+      const whatsapp_number = document.getElementById('whatsapp').value;
+
+      // Collect services
+      const serviceEntries = document.querySelectorAll('.service-entry');
+      const services = Array.from(serviceEntries).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return {
+          name: inputs[0].value,
+          price: parseFloat(inputs[1].value),
+          duration_minutes: parseInt(inputs[2].value),
+          description: ''
+        };
+      }).filter(s => s.name && s.price && s.duration_minutes);
+
+      // Collect hours
+      const hours = [];
+      for (let i = 0; i < 7; i++) {
+        const open = document.getElementById(`open_${i}`).value;
+        const close = document.getElementById(`close_${i}`).value;
+        if (open && close) {
+          hours.push({ day_of_week: i, open_time: open, close_time: close });
+        }
+      }
+
+      // Show loading state
+      const submitBtn = document.querySelector('#registerProviderForm button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Registering...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/auth/register-provider', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            full_name, email, phone, password,
+            business_name, category, description, address, whatsapp_number,
+            services, hours
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Registration failed');
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        alert('Registration complete! Welcome to Localink.');
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        console.error(err);
+        alert('Server error. Please try again.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Theme toggle (already in script.js, but ensure it runs)
+    if (document.getElementById('themeToggle')) {
+      document.getElementById('themeToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+  </script>
+</body>
+</html>
