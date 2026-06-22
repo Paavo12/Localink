@@ -1287,7 +1287,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initNavbarScroll();
   await loadCurrentUser();
-  updateNavbarAuth();
   const path = location.pathname;
 
   if (path.includes('admin.html')) {

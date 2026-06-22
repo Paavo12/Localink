@@ -61,22 +61,7 @@ async function loadCurrentUser() {
   } catch(e) {}
   return null;
 }
-// ---------- NAVBAR AUTH TOGGLE ----------
-function updateNavbarAuth() {
-  const loggedOutNav = document.getElementById('loggedOutNav');
-  const loggedInNav = document.getElementById('loggedInNav');
-  if (!loggedOutNav || !loggedInNav) return;
 
-  if (currentUser) {
-    loggedOutNav.classList.add('hidden');
-    loggedInNav.classList.remove('hidden');
-    // If the user is a provider, show dashboard; if client, hide it?
-    // For simplicity, we always show dashboard if logged in, but you could check role.
-  } else {
-    loggedOutNav.classList.remove('hidden');
-    loggedInNav.classList.add('hidden');
-  }
-}
 
 // ---------- THEME TOGGLE ----------
 function initTheme() {
@@ -1287,7 +1272,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initNavbarScroll();
   await loadCurrentUser();
-  updateNavbarAuth();
   const path = location.pathname;
 
   if (path.includes('admin.html')) {
