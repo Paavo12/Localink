@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <title>About – Localink</title>
+  <title>How It Works – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap" />
@@ -10,7 +10,7 @@
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR ======== -->
+  <!-- ======== NAVBAR (same as index.html) ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -59,25 +59,30 @@
     </div>
   </header>
 
-  <!-- ======== MAIN CONTENT ======== -->
   <main class="pt-32 pb-20 max-w-4xl mx-auto px-4">
-    <h1 class="text-5xl font-black uppercase italic tracking-tighter mb-8">About Localink</h1>
-    <div class="prose prose-invert max-w-none space-y-6 text-[var(--foreground-secondary)]">
-      <p>Localink is Namibia's fastest‑growing marketplace for local services. We connect consumers with trusted, vetted professionals across 14 regions – from hairdressers and plumbers to car rentals and caterers.</p>
-      <h2 class="text-2xl font-bold text-[var(--foreground)] mt-8">Our Mission</h2>
-      <p>To empower Namibian small businesses with an affordable, easy‑to‑use online presence, while giving customers a reliable way to find and book quality local services.</p>
-      <h2 class="text-2xl font-bold text-[var(--foreground)] mt-8">Why Choose Us</h2>
-      <ul class="list-disc pl-6 space-y-2">
-        <li>✓ Every business is manually verified by our team</li>
-        <li>✓ Transparent reviews and anonymous comments for honest feedback</li>
-        <li>✓ Direct WhatsApp contact – no middlemen</li>
-        <li>✓ Supports local economy – 100% Namibian owned and operated</li>
-      </ul>
-      <div class="mt-12 text-center"><a href="checkout.html" class="btn-primary">List Your Business →</a></div>
+    <h1 class="text-5xl font-black uppercase italic tracking-tighter mb-12 text-center">How It Works</h1>
+    <div class="space-y-16">
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">1</div>
+        <div><h2 class="text-2xl font-bold mb-2">Search for a service</h2><p class="text-[var(--foreground-secondary)]">Use our smart search to find local professionals by category, keyword, or region.</p></div>
+      </div>
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">2</div>
+        <div><h2 class="text-2xl font-bold mb-2">Compare & choose</h2><p class="text-[var(--foreground-secondary)]">View detailed profiles, check verified badges, read reviews, and see operating hours.</p></div>
+      </div>
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">3</div>
+        <div><h2 class="text-2xl font-bold mb-2">Book or request a quote</h2><p class="text-[var(--foreground-secondary)]">Select a service, pick a time, and confirm. Or submit a quote request for custom projects.</p></div>
+      </div>
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">4</div>
+        <div><h2 class="text-2xl font-bold mb-2">Get service & review</h2><p class="text-[var(--foreground-secondary)]">Receive your service, then leave a rating and comment. Your feedback helps the community.</p></div>
+      </div>
     </div>
+    <div class="mt-20 text-center"><a href="search.html" class="btn-primary">Find a professional now →</a></div>
   </main>
 
-  <!-- ======== FOOTER ======== -->
+  <!-- ======== FOOTER (same as index.html) ======== -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
@@ -112,73 +117,4 @@
                 <span>+264 XX XXX XXXX</span>
               </a>
               <a href="mailto:hello@localink.na" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
-                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M19,4H5A3,3,0,0,0,2,7V17a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V7A3,3,0,0,0,19,4Zm-.41,2-5.88,5.88a1,1,0,0,1-1.42,0L5.41,6ZM20,17a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V7.41l5.88,5.88a3,3,0,0,0,4.24,0L20,7.41Z"/></svg>
-                </div>
-                <span>hello@localink.na</span>
-              </a>
-            </div>
-          </div>
-          <div class="lg:col-span-3">
-            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Services</h4>
-            <ul class="space-y-3">
-              <li><a href="search.html?category=Salons" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Salons &amp; Beauty</a></li>
-              <li><a href="search.html?category=Cleaning" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Cleaning</a></li>
-              <li><a href="search.html?category=Car Rental" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Car Rentals</a></li>
-              <li><a href="accommodation.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Accommodation</a></li>
-              <li><a href="search.html?category=Plumbing" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Plumbing</a></li>
-              <li><a href="search.html?category=Electrician" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Electrical</a></li>
-            </ul>
-          </div>
-          <div class="lg:col-span-2">
-            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Company</h4>
-            <ul class="space-y-3">
-              <li><a href="about.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">About Us</a></li>
-              <li><a href="how-it-works.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">How It Works</a></li>
-              <li><a href="register-provider.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">For Providers</a></li>
-              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Contact</a></li>
-            </ul>
-          </div>
-          <div class="lg:col-span-3">
-            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Legal</h4>
-            <ul class="space-y-3">
-              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Terms &amp; Conditions</a></li>
-              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Privacy Policy</a></li>
-              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Disclaimer</a></li>
-            </ul>
-            <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
-              <p class="text-xs text-white/60 mb-2.5 font-medium">Need help? Chat with us</p>
-              <a href="https://wa.me/264XXXXXXXX?text=Hi%20Localink!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-display font-semibold text-green-400 hover:text-green-300 transition-colors">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                WhatsApp Us
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="mt-14 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p class="text-xs text-white/40">© 2026 Localink. All rights reserved. Made in Namibia.</p>
-          <p class="text-xs text-white/30 font-display tracking-wide">Connecting communities, one service at a time.</p>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const mobileBtn = document.getElementById('mobileMenuBtn');
-      const mobileMenu = document.getElementById('mobileMenu');
-      if (mobileBtn && mobileMenu) {
-        mobileBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          mobileMenu.classList.toggle('hidden');
-        });
-        document.addEventListener('click', function(e) {
-          if (!mobileMenu.contains(e.target) && !mobileBtn.contains(e.target)) {
-            mobileMenu.classList.add('hidden');
-          }
-        });
-      }
-    });
-  </script>
-</body>
-</html>
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var
