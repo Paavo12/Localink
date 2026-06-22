@@ -19,7 +19,7 @@ router.get('/users', async (req, res) => {
     `);
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching users:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -31,6 +31,7 @@ router.put('/users/:id/deactivate', async (req, res) => {
     await pool.query('UPDATE users SET is_active = false WHERE id = $1', [id]);
     res.json({ message: 'User deactivated' });
   } catch (err) {
+    console.error('Error deactivating user:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -42,6 +43,7 @@ router.put('/users/:id/reactivate', async (req, res) => {
     await pool.query('UPDATE users SET is_active = true WHERE id = $1', [id]);
     res.json({ message: 'User reactivated' });
   } catch (err) {
+    console.error('Error reactivating user:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -53,6 +55,7 @@ router.delete('/users/:id', async (req, res) => {
     await pool.query('DELETE FROM users WHERE id = $1', [id]);
     res.json({ message: 'User deleted' });
   } catch (err) {
+    console.error('Error deleting user:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -68,100 +71,132 @@ router.get('/providers/subscriptions', async (req, res) => {
     `);
     res.json(result.rows);
   } catch (err) {
+    console.error('Error fetching subscriptions:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // ---------- GET PENDING VERIFICATIONS ----------
 router.get('/pending-verifications', async (req, res) => {
-  const result = await pool.query(
-    `SELECT p.*, u.email, u.full_name 
-     FROM provider_profiles p
-     JOIN users u ON p.user_id = u.id
-     WHERE p.is_verified = false AND p.business_name IS NOT NULL`
-  );
-  res.json(result.rows);
+  try {
+    const result = await pool.query(`
+      SELECT p.*, u.email, u.full_name 
+      FROM provider_profiles p
+      JOIN users u ON p.user_id = u.id
+      WHERE p.is_verified = false AND p.business_name IS NOT NULL
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching pending verifications:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // ---------- APPROVE PROVIDER ----------
 router.put('/verify-provider/:userId', async (req, res) => {
   const { userId } = req.params;
-  await pool.query('UPDATE provider_profiles SET is_verified = true WHERE user_id = $1', [userId]);
-  res.json({ message: 'Provider verified' });
+  try {
+    await pool.query('UPDATE provider_profiles SET is_verified = true WHERE user_id = $1', [userId]);
+    res.json({ message: 'Provider verified' });
+  } catch (err) {
+    console.error('Error verifying provider:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // ---------- REJECT PROVIDER (DELETE PROFILE) ----------
 router.delete('/reject-provider/:userId', async (req, res) => {
-  await pool.query('DELETE FROM provider_profiles WHERE user_id = $1', [req.params.userId]);
-  res.json({ message: 'Provider rejected' });
+  const { userId } = req.params;
+  try {
+    await pool.query('DELETE FROM provider_profiles WHERE user_id = $1', [userId]);
+    res.json({ message: 'Provider rejected' });
+  } catch (err) {
+    console.error('Error rejecting provider:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // ---------- ADMIN STATS ----------
 router.get('/stats', async (req, res) => {
-  const totalProviders = await pool.query('SELECT COUNT(*) FROM provider_profiles');
-  const totalBookings = await pool.query('SELECT COUNT(*) FROM appointments');
-  const totalUsers = await pool.query('SELECT COUNT(*) FROM users WHERE role = $1', ['client']);
-  const monthlyRevenue = await pool.query(
-    `SELECT SUM(CASE 
-       WHEN subscription_tier = 'verified' THEN 149 
-       WHEN subscription_tier = 'premium' THEN 399 
-       ELSE 0 END) as revenue 
-     FROM provider_profiles`
-  );
-  res.json({
-    totalProviders: parseInt(totalProviders.rows[0].count),
-    totalBookings: parseInt(totalBookings.rows[0].count),
-    totalUsers: parseInt(totalUsers.rows[0].count),
-    monthlyRevenue: monthlyRevenue.rows[0].revenue || 0
-  });
+  try {
+    const totalProviders = await pool.query('SELECT COUNT(*) FROM provider_profiles');
+    const totalBookings = await pool.query('SELECT COUNT(*) FROM appointments');
+    const totalUsers = await pool.query('SELECT COUNT(*) FROM users WHERE role = $1', ['client']);
+    const monthlyRevenue = await pool.query(`
+      SELECT SUM(CASE 
+        WHEN subscription_tier = 'verified' THEN 149 
+        WHEN subscription_tier = 'premium' THEN 399 
+        ELSE 0 END) as revenue 
+      FROM provider_profiles
+    `);
+    res.json({
+      totalProviders: parseInt(totalProviders.rows[0].count),
+      totalBookings: parseInt(totalBookings.rows[0].count),
+      totalUsers: parseInt(totalUsers.rows[0].count),
+      monthlyRevenue: monthlyRevenue.rows[0].revenue || 0
+    });
+  } catch (err) {
+    console.error('Error fetching stats:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // ---------- CHART DATA ----------
 router.get('/chart-data', async (req, res) => {
-  const registrations = await pool.query(`
-    SELECT DATE(created_at) as date, COUNT(*) FROM users 
-    WHERE created_at >= NOW() - INTERVAL '30 days' 
-    GROUP BY DATE(created_at) ORDER BY date
-  `);
-  const categories = await pool.query(`
-    SELECT category, COUNT(*) FROM provider_profiles 
-    WHERE category IS NOT NULL GROUP BY category
-  `);
-  const tiers = await pool.query(`
-    SELECT subscription_tier, COUNT(*) FROM provider_profiles 
-    GROUP BY subscription_tier
-  `);
-  const cities = await pool.query(`
-    SELECT split_part(address, ',', -1) as city, COUNT(*) 
-    FROM provider_profiles WHERE address IS NOT NULL 
-    GROUP BY city
-  `);
-  res.json({ 
-    registrations: registrations.rows, 
-    categories: categories.rows, 
-    tiers: tiers.rows, 
-    cities: cities.rows 
-  });
+  try {
+    const registrations = await pool.query(`
+      SELECT DATE(created_at) as date, COUNT(*) FROM users 
+      WHERE created_at >= NOW() - INTERVAL '30 days' 
+      GROUP BY DATE(created_at) ORDER BY date
+    `);
+    const categories = await pool.query(`
+      SELECT category, COUNT(*) FROM provider_profiles 
+      WHERE category IS NOT NULL GROUP BY category
+    `);
+    const tiers = await pool.query(`
+      SELECT subscription_tier, COUNT(*) FROM provider_profiles 
+      GROUP BY subscription_tier
+    `);
+    const cities = await pool.query(`
+      SELECT split_part(address, ',', -1) as city, COUNT(*) 
+      FROM provider_profiles WHERE address IS NOT NULL 
+      GROUP BY city
+    `);
+    res.json({
+      registrations: registrations.rows,
+      categories: categories.rows,
+      tiers: tiers.rows,
+      cities: cities.rows
+    });
+  } catch (err) {
+    console.error('Error fetching chart data:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // ---------- ACTIVITY FEED ----------
 router.get('/activity-feed', async (req, res) => {
-  const providers = await pool.query(`
-    SELECT 'provider' as type, business_name as name, created_at 
-    FROM provider_profiles ORDER BY created_at DESC LIMIT 5
-  `);
-  const bookings = await pool.query(`
-    SELECT 'booking' as type, id::text as name, created_at 
-    FROM appointments ORDER BY created_at DESC LIMIT 5
-  `);
-  const reviews = await pool.query(`
-    SELECT 'review' as type, comment as name, created_at 
-    FROM reviews ORDER BY created_at DESC LIMIT 5
-  `);
-  const feed = [...providers.rows, ...bookings.rows, ...reviews.rows]
-    .sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0,10);
-  res.json(feed);
+  try {
+    const providers = await pool.query(`
+      SELECT 'provider' as type, business_name as name, created_at 
+      FROM provider_profiles ORDER BY created_at DESC LIMIT 5
+    `);
+    const bookings = await pool.query(`
+      SELECT 'booking' as type, id::text as name, created_at 
+      FROM appointments ORDER BY created_at DESC LIMIT 5
+    `);
+    const reviews = await pool.query(`
+      SELECT 'review' as type, comment as name, created_at 
+      FROM reviews ORDER BY created_at DESC LIMIT 5
+    `);
+    const feed = [...providers.rows, ...bookings.rows, ...reviews.rows]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 10);
+    res.json(feed);
+  } catch (err) {
+    console.error('Error fetching activity feed:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // ---------- BOOKING OVERVIEW ----------
@@ -182,7 +217,7 @@ router.get('/bookings', async (req, res) => {
     `);
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching bookings:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -240,21 +275,18 @@ router.get('/advanced-analytics', async (req, res) => {
       activeProviders: activeProviders.rows[0].count || 0,
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching advanced analytics:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// ========== PROVIDER DETAILS (VIEW & EDIT) ==========
+// ========== PROVIDER DETAILS (VIEW & EDIT) – FIXED ==========
 router.get('/provider/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
     // Check if user exists and is a provider
-    const userCheck = await pool.query('SELECT id, email, full_name, phone, is_active FROM users WHERE id = $1 AND role = $1', [userId]);
-    // NOTE: The above query has a bug – 'role = $1' should be 'role = \'provider\''. I'll fix below.
-    // Corrected:
-    const userCheckFixed = await pool.query('SELECT id, email, full_name, phone, is_active FROM users WHERE id = $1 AND role = \'provider\'', [userId]);
-    if (userCheckFixed.rows.length === 0) {
+    const userCheck = await pool.query('SELECT id, email, full_name, phone, is_active FROM users WHERE id = $1 AND role = $2', [userId, 'provider']);
+    if (userCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Provider not found' });
     }
 
@@ -277,7 +309,7 @@ router.get('/provider/:userId', async (req, res) => {
     const bookingsCount = await pool.query('SELECT COUNT(*) FROM appointments WHERE provider_id = $1', [userId]);
 
     res.json({
-      user: userCheckFixed.rows[0],
+      user: userCheck.rows[0],
       profile: profile.rows[0],
       services: services.rows,
       hours: hours.rows,
@@ -287,7 +319,7 @@ router.get('/provider/:userId', async (req, res) => {
       bookingsCount: parseInt(bookingsCount.rows[0].count)
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching provider details:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -319,7 +351,7 @@ router.put('/provider/:userId', async (req, res) => {
 
     res.json({ message: 'Provider updated successfully' });
   } catch (err) {
-    console.error(err);
+    console.error('Error updating provider:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
