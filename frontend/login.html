@@ -5,12 +5,12 @@
   <title>Login – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
   <script src="script.js" defer></script>
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR (same as index.html) ======== -->
+  <!-- ======== NAVBAR ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -23,17 +23,40 @@
         </a>
         <div class="hidden lg:flex items-center gap-1">
           <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
-          <a href="search.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Services</a>
+          <div class="relative" id="servicesDropdown">
+            <button id="servicesDropdownBtn" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] focus:outline-none">
+              Services
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="servicesDropdownArrow">
+                <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z" />
+              </svg>
+            </button>
+            <div id="servicesDropdownMenu" class="absolute left-0 mt-1 w-56 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+              <a href="search.html?category=Salons" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Salons &amp; Beauty</a>
+              <a href="search.html?category=Cleaning" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Cleaning</a>
+              <a href="search.html?category=Car Rental" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Car Rentals</a>
+              <a href="accommodation.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Accommodation</a>
+              <a href="search.html?category=Plumbing" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Plumbing</a>
+              <a href="search.html?category=Electrician" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Electrical</a>
+              <a href="search.html?category=Catering" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Catering</a>
+              <a href="search.html?category=Events" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Events</a>
+              <a href="search.html?category=Home Repairs" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Home Repairs</a>
+              <a href="search.html?category=Photographer" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Photographer</a>
+            </div>
+          </div>
           <a href="accommodation.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
           <a href="pricing.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
           <a href="about.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
         </div>
         <div class="flex items-center gap-2">
           <a href="search.html" class="w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Search">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]"><path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]">
+              <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+            </svg>
           </a>
-          <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Switch theme">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/></svg>
+          <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--orange)] focus-visible:ring-offset-2" aria-label="Switch theme">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white">
+              <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+            </svg>
           </button>
           <a href="login.html" class="hidden md:block">
             <button class="relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] border-2 border-[var(--navy)] text-[var(--navy)] bg-transparent hover:bg-[var(--navy)] hover:text-white dark:border-[var(--foreground-muted)] dark:text-[var(--foreground)] dark:hover:bg-[var(--foreground-muted)]/10 px-3.5 py-1.5 text-sm gap-1.5">Provider Login</button>
@@ -42,7 +65,9 @@
             <button class="relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] bg-[var(--orange)] text-white shadow-[0_2px_8px_rgba(255,146,28,0.3)] hover:bg-[var(--orange-dark)] hover:shadow-[0_4px_16px_rgba(255,146,28,0.4)] active:shadow-[0_1px_4px_rgba(255,146,28,0.3)] px-3.5 py-1.5 text-sm gap-1.5">List Your Business</button>
           </a>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z" />
+            </svg>
           </button>
         </div>
       </nav>
@@ -59,34 +84,83 @@
     </div>
   </header>
 
+  <!-- ======== LOGIN FORM ======== -->
   <div class="min-h-screen flex items-center justify-center px-4 pt-20">
     <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-10 w-full max-w-md">
       <h1 class="text-3xl font-black uppercase italic tracking-tighter text-center mb-8">Sign In</h1>
       <form id="loginForm" class="space-y-6">
-        <div><label class="text-xs font-black">Email</label><input type="email" id="email" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
-        <div><label class="text-xs font-black">Password</label><input type="password" id="password" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+        <div>
+          <label class="text-xs font-black">Email</label>
+          <input type="email" id="email" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]" placeholder="admin@localink.com">
+        </div>
+        <div>
+          <label class="text-xs font-black">Password</label>
+          <input type="password" id="password" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]" placeholder="Admin123!">
+        </div>
         <button type="submit" class="w-full btn-primary">Login</button>
       </form>
-      <p class="text-center text-xs mt-6 text-[var(--foreground-muted)]">Don't have an account? <a href="register.html" class="text-[var(--orange)] hover:underline">Register</a></p>
+      <p class="text-center text-xs mt-6 text-[var(--foreground-muted)]">
+        Don't have an account? <a href="register.html" class="text-[var(--orange)] hover:underline">Register</a>
+      </p>
     </div>
   </div>
 
+  <!-- ======== FOOTER ======== -->
+  <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
+    <!-- ... (same footer as other pages, but we can include a simplified one) ... -->
+    <div class="text-center py-6 text-white/40 text-xs">
+      © 2026 Localink. All rights reserved.
+    </div>
+  </footer>
+
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const success = await login(email, password);
-      if (success) {
-        const role = localStorage.getItem('userRole');
-        if (role === 'admin') {
-          window.location.href = 'admin.html';
-        } else {
-          window.location.href = 'index.html';
-        }
+    // ===== LOGIN HANDLER =====
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('loginForm');
+      if (!form) {
+        console.error('Login form not found!');
+        return;
       }
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('Login form submitted');
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!email || !password) {
+          alert('Please fill in both email and password.');
+          return;
+        }
+
+        // Check if login function is available globally
+        if (typeof login !== 'function') {
+          console.error('login function is not defined! Check script.js');
+          alert('Login function not loaded. Please refresh and try again.');
+          return;
+        }
+
+        try {
+          const success = await login(email, password);
+          console.log('Login success?', success);
+          if (success) {
+            const role = localStorage.getItem('userRole');
+            console.log('User role:', role);
+            if (role === 'admin') {
+              window.location.href = 'admin.html';
+            } else {
+              window.location.href = 'index.html';
+            }
+          } else {
+            // login function already shows alert on failure
+          }
+        } catch (err) {
+          console.error('Login error:', err);
+          alert('An error occurred during login. Please try again.');
+        }
+      });
     });
   </script>
-
 </body>
 </html>
