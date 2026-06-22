@@ -355,22 +355,6 @@ router.put('/provider/:userId', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-// ========== CLIENT DETAILS (VIEW ONLY) ==========
-router.get('/client/:userId', async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const user = await pool.query(
-      'SELECT id, email, full_name, phone, is_active, role, created_at FROM users WHERE id = $1 AND role = $2',
-      [userId, 'client']
-    );
-    if (user.rows.length === 0) {
-      return res.status(404).json({ error: 'Client not found' });
-    }
-    res.json(user.rows[0]);
-  } catch (err) {
-    console.error('Error fetching client details:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+
 
 module.exports = router;

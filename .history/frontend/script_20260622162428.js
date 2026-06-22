@@ -1262,47 +1262,7 @@ window.deactivateUser = async (id) => {
   location.reload();
 };
 
-// ---------- ADMIN: Client Details Modal ----------
-async function viewClient(userId) {
-  const modal = document.getElementById('providerModal');
-  const content = document.getElementById('modalContent');
-  if (!modal || !content) return;
 
-  modal.classList.remove('hidden');
-  content.innerHTML = 'Loading...';
-
-  try {
-    const res = await apiFetch(`/api/admin/client/${userId}`);
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error('Client fetch error:', res.status, errText);
-      throw new Error(`HTTP ${res.status}: ${errText}`);
-    }
-    const data = await res.json();
-
-    content.innerHTML = `
-      <div class="space-y-4">
-        <div><strong>Name:</strong> ${escapeHtml(data.full_name || 'N/A')}</div>
-        <div><strong>Email:</strong> ${escapeHtml(data.email)}</div>
-        <div><strong>Phone:</strong> ${escapeHtml(data.phone || 'N/A')}</div>
-        <div><strong>Role:</strong> ${escapeHtml(data.role)}</div>
-        <div><strong>Status:</strong> ${data.is_active ? 'Active' : 'Inactive'}</div>
-        <div><strong>Joined:</strong> ${new Date(data.created_at).toLocaleString()}</div>
-      </div>
-      <div class="mt-4 flex justify-end">
-        <button id="modalCancelBtn2" class="btn-secondary">Close</button>
-      </div>
-    `;
-
-    document.getElementById('modalCancelBtn2').addEventListener('click', () => {
-      modal.classList.add('hidden');
-    });
-
-  } catch (err) {
-    console.error('View client error:', err);
-    content.innerHTML = `<div class="text-red-500">Failed to load client details: ${err.message}</div>`;
-  }
-}
 
 // ========== PORTFOLIO DELETE HELPER ==========
 window.deletePortfolioItem = async (id) => {
