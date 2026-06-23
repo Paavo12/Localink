@@ -372,5 +372,26 @@ router.get('/client/:userId', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+// ---------- PERMANENTLY DELETE USER (cascade) ----------
+router.delete('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Check if it's the last admin
+    const adminCheck = await pool.query('SELECT COUNT(*) FROM users WHERE role = $1 AND is_active = true', ['admin']);
+    if (parseInt(adminCheck.rows[0].count) === 1) {
+      const user = await pool.query('SELECT role FROM users WHERE id = $1', [id]);
+      if (user.rows[0]?.role === 'admin') {
+        return res.status(400).json({ error: 'Cannot delete the only admin account' });
+      }
+    }
+    
+    // ON DELETE CASCADE will remove all related data
+    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    res.json({ message: 'User permanently deleted' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router;

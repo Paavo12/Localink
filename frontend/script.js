@@ -1304,6 +1304,31 @@ async function viewClient(userId) {
     content.innerHTML = `<div class="text-red-500">Failed to load client details: ${err.message}</div>`;
   }
 }
+// ---------- PERMANENTLY DELETE USER ----------
+window.deleteUser = async (id) => {
+  // Double confirmation
+  if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
+    return;
+  }
+  
+  if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
+    return;
+  }
+  
+  try {
+    const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('User permanently deleted.');
+      // Reload the admin page to refresh the list
+      location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.error || 'Delete failed.');
+    }
+  } catch (err) {
+    alert('Network error. Please try again.');
+  }
+};
 
 // ========== PORTFOLIO DELETE HELPER ==========
 window.deletePortfolioItem = async (id) => {
