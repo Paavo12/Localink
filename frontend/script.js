@@ -542,28 +542,24 @@ window.submitBooking = async (serviceId, providerId) => {
 
 // ========== PROVIDER DASHBOARD ==========
 async function initDashboard() {
-  const authBtn = document.getElementById('dashboardAuthBtn');
   const content = document.getElementById('dashboardContent');
 
+  // Check if user is authenticated
   if (!authToken) {
-    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-accent">login</a> as a provider.</div>';
-    if (authBtn) { authBtn.textContent = 'Login'; authBtn.onclick = () => { window.location.href = 'login.html'; }; }
+    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
     return;
   }
 
+  // Load current user if not already loaded
   if (!currentUser) await loadCurrentUser();
 
+  // Check if user is a provider
   if (!currentUser || currentUser.role !== 'provider') {
-    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-accent">login</a> as a provider.</div>';
-    if (authBtn) { authBtn.textContent = 'Login'; authBtn.onclick = () => { window.location.href = 'login.html'; }; }
+    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
     return;
   }
 
-  if (authBtn) {
-    authBtn.textContent = 'Logout';
-    authBtn.onclick = () => { localStorage.removeItem('token'); window.location.href = 'index.html'; };
-  }
-
+  // User is a provider – load the dashboard
   content.innerHTML = '<div class="text-center py-20">Loading dashboard...</div>';
 
   try {
@@ -734,11 +730,11 @@ async function initDashboard() {
           <form id="profileForm" class="bg-[var(--card-bg)] p-4 rounded-xl border space-y-3">
             <input name="business_name" value="${escapeHtml(profile.business_name || '')}" placeholder="Business Name" class="w-full p-2 border rounded-lg">
             <textarea name="description" placeholder="Description" rows="3" class="w-full p-2 border rounded-lg">${escapeHtml(profile.description || '')}</textarea>
-<select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-  <option value="">Select Category</option>
-  ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-</select>    
-        <input name="address" id="businessAddress" value="${escapeHtml(profile.address || '')}" placeholder="Address" class="w-full p-2 border rounded-lg">
+            <select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
+              <option value="">Select Category</option>
+              ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+            </select>
+            <input name="address" id="businessAddress" value="${escapeHtml(profile.address || '')}" placeholder="Address" class="w-full p-2 border rounded-lg">
             <input type="hidden" id="businessLat" name="lat" value="${profile.lat || ''}">
             <input type="hidden" id="businessLng" name="lng" value="${profile.lng || ''}">
             <input name="whatsapp_number" value="${escapeHtml(profile.whatsapp_number || '')}" placeholder="WhatsApp Number" class="w-full p-2 border rounded-lg">
