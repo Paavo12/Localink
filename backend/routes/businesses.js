@@ -3,165 +3,68 @@ const { authenticateToken } = require('../middleware/auth');
 const pool = require('../db/pool');
 const router = express.Router();
 
-// GET /api/businesses – Full-text search + advanced filters + pagination
+// GET /api/businesses – search with tier ranking + filtering (city, rating)
 router.get('/', async (req, res) => {
-  let { 
-    search, category, city, rating, 
-    sort_by, min_price, max_price, open_now,
-    limit = 12, offset = 0 
-  } = req.query;
-
+  let { search, category, city, rating } = req.query;
   search = search ? search.trim() : '';
   category = category ? category.trim() : '';
   city = city ? city.trim() : '';
   rating = rating ? parseFloat(rating) : null;
-  min_price = min_price ? parseFloat(min_price) : null;
-  max_price = max_price ? parseFloat(max_price) : null;
-  limit = Math.min(parseInt(limit) || 12, 50);
-  offset = parseInt(offset) || 0;
-  const isOpenNow = open_now === 'true';
 
-  // Build the base query with ranking
   let query = `
-    SELECT 
-      p.user_id as id, 
-      p.business_name as name, 
-      p.description, 
-      p.category, 
-      p.address, 
-      p.lat, 
-      p.lng, 
-      p.logo_url, 
-      p.cover_image_url, 
-      p.whatsapp_number,
-      p.is_verified, 
-      p.subscription_tier,
-      COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) as avg_rating,
-      COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 999999) as min_price,
-      CASE p.subscription_tier
-        WHEN 'premium' THEN 3
-        WHEN 'verified' THEN 2
-        ELSE 1
-      END as rank,
-      -- Full-text search relevance score
-      ts_rank(to_tsvector('english', p.business_name || ' ' || COALESCE(p.description, '') || ' ' || COALESCE(p.category, '')), plainto_tsquery('english', $1)) as relevance
+    SELECT p.user_id as id, p.business_name as name, p.description, p.category, 
+           p.address, p.lat, p.lng, p.logo_url, p.cover_image_url, p.whatsapp_number,
+           p.is_verified, p.subscription_tier,
+           COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) as avg_rating,
+           COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 0) as min_price,
+           CASE p.subscription_tier
+             WHEN 'premium' THEN 3
+             WHEN 'verified' THEN 2
+             ELSE 1
+           END as rank
     FROM provider_profiles p
     JOIN users u ON p.user_id = u.id
     WHERE u.is_active = true
   `;
-
-  const params = [search || ''];
+  const params = [];
   const conditions = [];
 
-  // ---------- Full‑Text Search ----------
   if (search) {
-    conditions.push(`to_tsvector('english', p.business_name || ' ' || COALESCE(p.description, '') || ' ' || COALESCE(p.category, '')) @@ plainto_tsquery('english', $${params.length})`);
+    conditions.push(`(p.business_name ILIKE $${params.length+1} OR p.description ILIKE $${params.length+1} OR p.category ILIKE $${params.length+1})`);
+    params.push(`%${search}%`);
   }
 
-  // ---------- Exact Category (case-insensitive) ----------
   if (category) {
-    conditions.push(`LOWER(p.category) = LOWER($${params.length + 1})`);
-    params.push(category);
+    conditions.push(`p.category ILIKE $${params.length+1} AND p.category IS NOT NULL`);
+    params.push(`%${category}%`);
   }
 
-  // ---------- City (safer matching) ----------
   if (city) {
-    conditions.push(`p.address ILIKE '%' || $${params.length + 1} || '%'`);
-    params.push(city);
+    conditions.push(`p.address ILIKE $${params.length+1}`);
+    params.push(`%${city}%`);
   }
 
-  // ---------- Rating ----------
   if (rating !== null && !isNaN(rating)) {
-    conditions.push(`COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) >= $${params.length + 1}`);
+    conditions.push(`COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) >= $${params.length+1}`);
     params.push(rating);
   }
 
-  // ---------- Price Range ----------
-  if (min_price !== null && !isNaN(min_price)) {
-    conditions.push(`COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 999999) >= $${params.length + 1}`);
-    params.push(min_price);
-  }
-  if (max_price !== null && !isNaN(max_price)) {
-    conditions.push(`COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 999999) <= $${params.length + 1}`);
-    params.push(max_price);
-  }
-
-  // ---------- "Open Now" ----------
-  if (isOpenNow) {
-    const now = new Date();
-    const day = now.getDay();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    conditions.push(`
-      EXISTS (
-        SELECT 1 FROM business_hours h
-        WHERE h.provider_id = p.user_id
-          AND h.day_of_week = $${params.length + 1}
-          AND h.is_closed = false
-          AND (EXTRACT(HOUR FROM h.open_time) * 60 + EXTRACT(MINUTE FROM h.open_time)) <= $${params.length + 2}
-          AND (EXTRACT(HOUR FROM h.close_time) * 60 + EXTRACT(MINUTE FROM h.close_time)) >= $${params.length + 2}
-      )
-    `);
-    params.push(day, currentMinutes);
-  }
-
-  // ---------- Build WHERE ----------
   if (conditions.length > 0) {
     query += ' AND ' + conditions.join(' AND ');
   }
 
-  // ---------- Sorting ----------
-  let orderBy = `rank DESC, p.business_name ASC`; // default
-  switch (sort_by) {
-    case 'rating':
-      orderBy = `avg_rating DESC NULLS LAST, rank DESC`;
-      break;
-    case 'price_low':
-      orderBy = `min_price ASC NULLS LAST, rank DESC`;
-      break;
-    case 'price_high':
-      orderBy = `min_price DESC NULLS LAST, rank DESC`;
-      break;
-    case 'newest':
-      orderBy = `p.created_at DESC, rank DESC`;
-      break;
-    case 'relevance':
-      if (search) orderBy = `relevance DESC, rank DESC`;
-      break;
-    default:
-      orderBy = `rank DESC, p.business_name ASC`;
-  }
-
-  // ---------- Pagination ----------
-  // Count query (remove ORDER BY and LIMIT/OFFSET)
-  let countQuery = query.replace(/ORDER BY .*?(LIMIT|$)/i, '');
-  // Remove the SELECT part and replace with COUNT(*)
-  countQuery = countQuery.replace(/SELECT .*? FROM/i, 'SELECT COUNT(*) as total FROM');
-
-  query += ` ORDER BY ${orderBy} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-  params.push(limit, offset);
+  query += ` ORDER BY rank DESC, p.business_name ASC`;
 
   try {
-    const countResult = await pool.query(countQuery, params.slice(0, -2));
-    const total = parseInt(countResult.rows[0]?.total || 0);
-
     const result = await pool.query(query, params);
-    res.json({
-      data: result.rows,
-      pagination: {
-        total,
-        limit,
-        offset,
-        pages: Math.ceil(total / limit),
-        currentPage: Math.floor(offset / limit) + 1
-      }
-    });
+    res.json(result.rows);
   } catch (err) {
-    console.error('Search error:', err);
+    console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// GET /api/businesses/:id – full profile (unchanged)
+// GET /api/businesses/:id – full profile
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -200,7 +103,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/businesses/:id/comment – anonymous comment (unchanged)
+// POST /api/businesses/:id/comment – anonymous comment
 router.post('/:id/comment', async (req, res) => {
   const { id } = req.params;
   const { comment } = req.body;
@@ -216,7 +119,7 @@ router.post('/:id/comment', async (req, res) => {
   res.json({ message: 'Comment added' });
 });
 
-// POST /api/businesses/:id/report – report business (auth required, unchanged)
+// POST /api/businesses/:id/report – report business (auth required)
 router.post('/:id/report', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
@@ -227,10 +130,11 @@ router.post('/:id/report', authenticateToken, async (req, res) => {
   res.json({ message: 'Reported' });
 });
 
-// POST /api/businesses/reviews/:reviewId/respond – provider reply (unchanged)
+// POST /api/businesses/reviews/:reviewId/respond – provider reply to review (auth)
 router.post('/reviews/:reviewId/respond', authenticateToken, async (req, res) => {
   const { reviewId } = req.params;
   const { response } = req.body;
+  // Check ownership
   const reviewCheck = await pool.query(
     `SELECT r.provider_id FROM reviews r 
      JOIN provider_profiles p ON r.provider_id = p.user_id 
