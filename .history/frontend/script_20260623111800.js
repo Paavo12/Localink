@@ -168,107 +168,53 @@ async function uploadServiceImage(serviceId, file) {
   else alert('Upload failed');
 }
 
-// ========== SEARCH PAGE (with pagination and all filters) ==========
+// ========== SEARCH PAGE ==========
 async function initSearchPage() {
   const searchInput = document.getElementById('searchInput');
   const categorySelect = document.getElementById('categorySelect');
   const cityFilter = document.getElementById('cityFilter');
   const ratingFilter = document.getElementById('ratingFilter');
-  const minPrice = document.getElementById('minPrice');
-  const maxPrice = document.getElementById('maxPrice');
-  const openNowFilter = document.getElementById('openNowFilter');
-  const sortSelect = document.getElementById('sortSelect');
   const searchBtn = document.getElementById('searchBtn');
   const grid = document.getElementById('gridContainer');
-  const prevBtn = document.getElementById('prevPageBtn');
-  const nextBtn = document.getElementById('nextPageBtn');
-  const pageInfo = document.getElementById('pageInfo');
 
-  let currentOffset = 0;
-  const limit = 12;
-  let totalPages = 1;
-
-  async function fetchAndRender(offset = 0) {
+  async function fetchAndRender() {
     const search = searchInput?.value || '';
     const category = categorySelect?.value || '';
     const city = cityFilter?.value || '';
     const rating = ratingFilter?.value || '';
-    const min = minPrice?.value || '';
-    const max = maxPrice?.value || '';
-    const openNow = openNowFilter?.checked || false;
-    const sort = sortSelect?.value || 'relevance';
-
-    let url = `/api/businesses?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&city=${encodeURIComponent(city)}&rating=${encodeURIComponent(rating)}&sort_by=${encodeURIComponent(sort)}&limit=${limit}&offset=${offset}`;
-    if (min) url += `&min_price=${encodeURIComponent(min)}`;
-    if (max) url += `&max_price=${encodeURIComponent(max)}`;
-    if (openNow) url += `&open_now=true`;
-
-    try {
-      const res = await fetch(url);
-      const result = await res.json();
-      const businesses = result.data || [];
-      totalPages = result.pagination?.pages || 1;
-      currentOffset = offset;
-
-      // Update pagination UI
-      if (pageInfo) {
-        const currentPage = Math.floor(offset / limit) + 1;
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    let url = `/api/businesses?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
+    if (city) url += `&city=${encodeURIComponent(city)}`;
+    if (rating) url += `&rating=${encodeURIComponent(rating)}`;
+    const res = await fetch(url);
+    const businesses = await res.json();
+    if (grid) {
+      if (businesses.length === 0) {
+        grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)] py-20">No businesses found. Try adjusting your filters.</div>';
+        return;
       }
-      if (prevBtn) prevBtn.disabled = offset === 0;
-      if (nextBtn) nextBtn.disabled = offset + limit >= (result.pagination?.total || 0);
-
-      if (grid) {
-        if (businesses.length === 0) {
-          grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)] py-20">No businesses found. Try adjusting your filters.</div>';
-          return;
-        }
-        grid.innerHTML = businesses.map(b => `
-          <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)] hover:shadow-lg transition-shadow">
-            <img src="${escapeHtml(b.logo_url || 'https://placehold.co/400x300')}" class="h-40 w-full object-cover rounded-xl mb-3" onerror="this.src='https://placehold.co/400x300'">
-            <h3 class="text-xl font-black text-[var(--foreground)]">${escapeHtml(b.name)}</h3>
-            <p class="text-[var(--foreground-muted)] text-sm mt-2">${escapeHtml(b.description?.substring(0, 100))}</p>
-            <div class="mt-2 flex items-center gap-2 text-sm">
-              <span class="text-yellow-400">★</span> ${b.avg_rating ? b.avg_rating.toFixed(1) : 'New'}
-              <span class="text-[var(--foreground-muted)]">·</span>
-              <span>N$${b.min_price === 999999 ? '—' : b.min_price}</span>
-            </div>
-            <div class="mt-4 flex justify-between items-center">
-              <span>
-                ${b.subscription_tier === 'premium' ? '<span class="badge-premium">⭐ Featured</span>' : ''}
-                ${b.subscription_tier === 'verified' ? '<span class="badge-verified">✅ Verified</span>' : ''}
-              </span>
-              <a href="business.html?id=${b.id}" class="btn-primary text-sm">View</a>
-            </div>
+      grid.innerHTML = businesses.map(b => `
+        <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)] hover:shadow-lg transition-shadow">
+          <img src="${escapeHtml(b.logo_url || 'https://placehold.co/400x300')}" class="h-40 w-full object-cover rounded-xl mb-3" onerror="this.src='https://placehold.co/400x300'">
+          <h3 class="text-xl font-black text-[var(--foreground)]">${escapeHtml(b.name)}</h3>
+          <p class="text-[var(--foreground-muted)] text-sm mt-2">${escapeHtml(b.description?.substring(0, 100))}</p>
+          <div class="mt-4 flex justify-between items-center">
+            <span>
+              ${b.subscription_tier === 'premium' ? '<span class="badge-premium">⭐ Featured</span>' : ''}
+              ${b.subscription_tier === 'verified' ? '<span class="badge-verified">✅ Verified</span>' : ''}
+              ${b.subscription_tier === 'basic' ? '<span class="text-xs text-[var(--foreground-muted)]">Basic</span>' : ''}
+            </span>
+            <a href="business.html?id=${b.id}" class="btn-primary text-sm">View</a>
           </div>
-        `).join('');
-      }
-    } catch (err) {
-      console.error('Search error:', err);
-      if (grid) grid.innerHTML = '<div class="col-span-3 text-center text-red-500 py-20">Failed to load results.</div>';
+        </div>
+      `).join('');
     }
   }
 
-  // Event listeners
-  searchBtn?.addEventListener('click', () => fetchAndRender(0));
-  searchInput?.addEventListener('keyup', (e) => { if (e.key === 'Enter') fetchAndRender(0); });
-  categorySelect?.addEventListener('change', () => fetchAndRender(0));
-  cityFilter?.addEventListener('change', () => fetchAndRender(0));
-  ratingFilter?.addEventListener('change', () => fetchAndRender(0));
-  minPrice?.addEventListener('change', () => fetchAndRender(0));
-  maxPrice?.addEventListener('change', () => fetchAndRender(0));
-  openNowFilter?.addEventListener('change', () => fetchAndRender(0));
-  sortSelect?.addEventListener('change', () => fetchAndRender(0));
-
-  prevBtn?.addEventListener('click', () => {
-    if (currentOffset - limit >= 0) fetchAndRender(currentOffset - limit);
-  });
-  nextBtn?.addEventListener('click', () => {
-    fetchAndRender(currentOffset + limit);
-  });
-
-  // Initial load
-  await fetchAndRender(0);
+  searchBtn?.addEventListener('click', fetchAndRender);
+  searchInput?.addEventListener('keyup', fetchAndRender);
+  cityFilter?.addEventListener('change', fetchAndRender);
+  ratingFilter?.addEventListener('change', fetchAndRender);
+  await fetchAndRender();
 }
 
 // ========== BUSINESS PAGE ==========
@@ -1009,6 +955,7 @@ window.toggleHoursDisabled = (checkbox, day) => {
   }
 };
 
+// ========== ADMIN DASHBOARD ==========
 // ========== ADMIN DASHBOARD ==========
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {

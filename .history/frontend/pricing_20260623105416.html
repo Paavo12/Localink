@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search – Localink</title>
+  <title>Pricing – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
@@ -11,7 +11,7 @@
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR (same as index.html) ======== -->
+  <!-- ======== NAVBAR ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -89,71 +89,45 @@
     </div>
   </header>
 
-  <!-- ======== SEARCH BAR ======== -->
-  <div class="pt-24 pb-12 border-b border-[var(--border)] bg-[var(--card-bg)]">
-    <div class="max-w-7xl mx-auto px-4">
-      <!-- Row 1: Search + Category + City -->
-      <div class="flex flex-col md:flex-row gap-4 mb-4">
-        <input type="text" id="searchInput" placeholder="Search services..." class="flex-1 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
-        <select id="categorySelect" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
-          <option value="">All Categories</option>
-          <option>Hair Salon</option>
-          <option>Barbershop</option>
-          <option>Car Rental</option>
-          <option>Plumbing</option>
-          <option>Cleaning Services</option>
-          <option>Electrician</option>
-          <option>Catering</option>
-          <option>Accommodation</option>
-        </select>
-        <select id="cityFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
-          <option value="">All Cities</option>
-          <option>Windhoek</option>
-          <option>Swakopmund</option>
-          <option>Walvis Bay</option>
-          <option>Oshakati</option>
-          <option>Otjiwarongo</option>
-        </select>
-      </div>
-      <!-- Row 2: Rating, Price, Open Now, Sort, Search Button -->
-      <div class="flex flex-col md:flex-row gap-4">
-        <select id="ratingFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)] flex-1">
-          <option value="">Any Rating</option>
-          <option value="4">4+ Stars</option>
-          <option value="4.5">4.5+ Stars</option>
-          <option value="5">5 Stars</option>
-        </select>
-        <div class="flex gap-2 flex-1">
-          <input type="number" id="minPrice" placeholder="Min N$" class="w-1/2 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
-          <input type="number" id="maxPrice" placeholder="Max N$" class="w-1/2 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
-        </div>
-        <label class="flex items-center gap-2 px-4 py-2 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] whitespace-nowrap">
-          <input type="checkbox" id="openNowFilter"> Open Now
-        </label>
-        <select id="sortSelect" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
-          <option value="relevance">Relevance</option>
-          <option value="rating">Top Rated</option>
-          <option value="price_low">Price: Low → High</option>
-          <option value="price_high">Price: High → Low</option>
-          <option value="newest">Newest</option>
-        </select>
-        <button id="searchBtn" class="btn-primary px-10">Search</button>
-      </div>
-    </div>
-  </div>
+  <main class="pt-32 pb-20 max-w-7xl mx-auto px-4">
+    <h1 class="text-5xl font-black uppercase italic tracking-tighter text-center mb-4">Simple, transparent pricing</h1>
+    <p class="text-center text-[var(--foreground-muted)] mb-12">Choose the plan that fits your business. Upgrade or downgrade anytime.</p>
 
-  <!-- Results Grid -->
-  <main class="max-w-7xl mx-auto px-4 py-16">
-    <div id="gridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
-    <!-- Pagination Controls -->
-    <div id="paginationControls" class="flex justify-between items-center mt-12">
-      <button id="prevPageBtn" class="btn-secondary px-6" disabled>← Previous</button>
-      <span id="pageInfo" class="text-sm text-[var(--foreground-muted)]">Page 1</span>
-      <button id="nextPageBtn" class="btn-secondary px-6">Next →</button>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border)] p-8">
+        <h2 class="text-2xl font-bold">Basic</h2>
+        <div class="mt-4 mb-6"><span class="text-5xl font-black">N$0</span><span class="text-[var(--foreground-muted)]">/month</span></div>
+        <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
+          <li>✓ Public business listing</li><li>✓ Up to 5 services</li><li>✓ 200‑char description</li>
+          <li>✓ WhatsApp contact</li><li>✗ Verified badge</li><li>✗ Search ranking boost</li><li>✗ Analytics</li>
+        </ul>
+        <div class="mt-8"><a href="register.html" class="btn-secondary w-full text-center block">Get Started</a></div>
+      </div>
+      <div class="bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] p-8 relative">
+        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
+        <h2 class="text-2xl font-bold">Verified</h2>
+        <div class="mt-4 mb-6"><span class="text-5xl font-black">N$149</span><span class="text-[var(--foreground-muted)]">/month</span></div>
+        <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
+          <li>✓ Everything in Basic</li><li>✓ Verified badge</li><li>✓ 2x search ranking boost</li>
+          <li>✓ Up to 15 services</li><li>✓ 1,000‑char description</li><li>✓ 7‑day profile analytics</li>
+          <li>✓ Review responses</li>
+        </ul>
+        <div class="mt-8"><a href="checkout.html?plan=verified" class="btn-primary w-full text-center block">Upgrade Now</a></div>
+      </div>
+      <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border)] p-8">
+        <h2 class="text-2xl font-bold">Premium</h2>
+        <div class="mt-4 mb-6"><span class="text-5xl font-black">N$399</span><span class="text-[var(--foreground-muted)]">/month</span></div>
+        <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
+          <li>✓ Everything in Verified</li><li>✓ Featured badge</li><li>✓ 5x search ranking boost</li>
+          <li>✓ Homepage feature slot</li><li>✓ Unlimited services & images</li><li>✓ 30‑day analytics</li>
+          <li>✓ Priority WhatsApp support</li>
+        </ul>
+        <div class="mt-8"><a href="checkout.html?plan=premium" class="btn-primary w-full text-center block">Upgrade Now</a></div>
+      </div>
     </div>
   </main>
 
-  <!-- ======== FOOTER (same as index.html) ======== -->
+  <!-- ======== FOOTER ======== -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
@@ -241,7 +215,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Mobile menu toggle
       const mobileBtn = document.getElementById('mobileMenuBtn');
       const mobileMenu = document.getElementById('mobileMenu');
       if (mobileBtn && mobileMenu) {
@@ -256,7 +229,6 @@
         });
       }
 
-      // Services dropdown toggle
       const dropdownBtn = document.getElementById('servicesDropdownBtn');
       const dropdownMenu = document.getElementById('servicesDropdownMenu');
       const arrow = document.getElementById('servicesDropdownArrow');
@@ -279,8 +251,6 @@
           });
         });
       }
-
-      // The search logic is now handled by script.js's initSearchPage()
     });
   </script>
 </body>

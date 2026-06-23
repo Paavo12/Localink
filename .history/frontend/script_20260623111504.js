@@ -168,8 +168,16 @@ async function uploadServiceImage(serviceId, file) {
   else alert('Upload failed');
 }
 
-// ========== SEARCH PAGE (with pagination and all filters) ==========
+// ========== SEARCH PAGE ==========
 async function initSearchPage() {
+  const searchInput = document.getElementById('searchInput');
+  const categorySelect = document.getElementById('categorySelect');
+  const cityFilter = document.getElementById('cityFilter');
+  const ratingFilter = document.getElementById('ratingFilter');
+  const searchBtn = document.getElementById('searchBtn');
+  const grid = document.getElementById('gridContainer');
+
+ async function initSearchPage() {
   const searchInput = document.getElementById('searchInput');
   const categorySelect = document.getElementById('categorySelect');
   const cityFilter = document.getElementById('cityFilter');
@@ -1009,6 +1017,7 @@ window.toggleHoursDisabled = (checkbox, day) => {
   }
 };
 
+// ========== ADMIN DASHBOARD ==========
 // ========== ADMIN DASHBOARD ==========
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {

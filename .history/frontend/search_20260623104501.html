@@ -92,9 +92,8 @@
   <!-- ======== SEARCH BAR ======== -->
   <div class="pt-24 pb-12 border-b border-[var(--border)] bg-[var(--card-bg)]">
     <div class="max-w-7xl mx-auto px-4">
-      <!-- Row 1: Search + Category + City -->
-      <div class="flex flex-col md:flex-row gap-4 mb-4">
-        <input type="text" id="searchInput" placeholder="Search services..." class="flex-1 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
+      <div class="flex flex-col md:flex-row gap-4">
+        <input type="text" id="searchInput" placeholder="Search service..." class="flex-1 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
         <select id="categorySelect" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
           <option value="">All Categories</option>
           <option>Hair Salon</option>
@@ -114,43 +113,19 @@
           <option>Oshakati</option>
           <option>Otjiwarongo</option>
         </select>
-      </div>
-      <!-- Row 2: Rating, Price, Open Now, Sort, Search Button -->
-      <div class="flex flex-col md:flex-row gap-4">
-        <select id="ratingFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)] flex-1">
+        <select id="ratingFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
           <option value="">Any Rating</option>
           <option value="4">4+ Stars</option>
           <option value="4.5">4.5+ Stars</option>
           <option value="5">5 Stars</option>
-        </select>
-        <div class="flex gap-2 flex-1">
-          <input type="number" id="minPrice" placeholder="Min N$" class="w-1/2 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
-          <input type="number" id="maxPrice" placeholder="Max N$" class="w-1/2 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
-        </div>
-        <label class="flex items-center gap-2 px-4 py-2 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] whitespace-nowrap">
-          <input type="checkbox" id="openNowFilter"> Open Now
-        </label>
-        <select id="sortSelect" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
-          <option value="relevance">Relevance</option>
-          <option value="rating">Top Rated</option>
-          <option value="price_low">Price: Low → High</option>
-          <option value="price_high">Price: High → Low</option>
-          <option value="newest">Newest</option>
         </select>
         <button id="searchBtn" class="btn-primary px-10">Search</button>
       </div>
     </div>
   </div>
 
-  <!-- Results Grid -->
   <main class="max-w-7xl mx-auto px-4 py-16">
     <div id="gridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
-    <!-- Pagination Controls -->
-    <div id="paginationControls" class="flex justify-between items-center mt-12">
-      <button id="prevPageBtn" class="btn-secondary px-6" disabled>← Previous</button>
-      <span id="pageInfo" class="text-sm text-[var(--foreground-muted)]">Page 1</span>
-      <button id="nextPageBtn" class="btn-secondary px-6">Next →</button>
-    </div>
   </main>
 
   <!-- ======== FOOTER (same as index.html) ======== -->
@@ -241,7 +216,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Mobile menu toggle
       const mobileBtn = document.getElementById('mobileMenuBtn');
       const mobileMenu = document.getElementById('mobileMenu');
       if (mobileBtn && mobileMenu) {
@@ -256,7 +230,6 @@
         });
       }
 
-      // Services dropdown toggle
       const dropdownBtn = document.getElementById('servicesDropdownBtn');
       const dropdownMenu = document.getElementById('servicesDropdownMenu');
       const arrow = document.getElementById('servicesDropdownArrow');
@@ -279,8 +252,6 @@
           });
         });
       }
-
-      // The search logic is now handled by script.js's initSearchPage()
     });
   </script>
 </body>

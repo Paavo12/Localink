@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Registration – Localink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
+  <script src="script.js" defer></script>
+  <style>
+    .step { display: none; }
+    .step.active { display: block; }
+    .progress-bar { height: 6px; background: var(--border); border-radius: 9999px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: var(--orange); transition: width 0.3s; }
+  </style>
+</head>
+<body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
+
+  <!-- ======== NAVBAR ======== -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
+    <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <nav class="flex items-center justify-between h-16 md:h-18">
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <div class="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--navy)] to-[var(--orange)] flex items-center justify-center overflow-hidden shadow-[0_2px_8px_rgba(0,35,73,0.2)] group-hover:shadow-[0_4px_16px_rgba(255,146,28,0.3)] transition-shadow duration-500">
+            <span class="text-white font-display font-bold text-sm relative z-10 tracking-tight">L</span>
+            <div class="absolute inset-0 bg-gradient-to-br from-[var(--orange)] to-[var(--navy)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </div>
+          <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">ink</span></span>
+        </a>
+        <div class="hidden lg:flex items-center gap-1">
+          <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
+          <div class="relative" id="servicesDropdown">
+            <button id="servicesDropdownBtn" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] focus:outline-none">
+              Services
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="servicesDropdownArrow">
+                <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z" />
+              </svg>
+            </button>
+            <div id="servicesDropdownMenu" class="absolute left-0 mt-1 w-56 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+              <a href="search.html?category=Salons" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Salons &amp; Beauty</a>
+              <a href="search.html?category=Cleaning" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Cleaning</a>
+              <a href="search.html?category=Car Rental" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Car Rentals</a>
+              <a href="accommodation.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Accommodation</a>
+              <a href="search.html?category=Plumbing" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Plumbing</a>
+              <a href="search.html?category=Electrician" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Electrical</a>
+              <a href="search.html?category=Catering" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Catering</a>
+              <a href="search.html?category=Events" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Events</a>
+              <a href="search.html?category=Home Repairs" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Home Repairs</a>
+              <a href="search.html?category=Photographer" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Photographer</a>
+            </div>
+          </div>
+          <a href="accommodation.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
+          <a href="pricing.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
+          <a href="about.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="search.html" class="w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]">
+              <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+            </svg>
+          </a>
+          <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--orange)] focus-visible:ring-offset-2" aria-label="Switch theme">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white">
+              <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+            </svg>
+          </button>
+          <div id="authButtons" class="flex items-center gap-4 border-l border-[var(--border)] pl-6">
+            <div id="loggedOutNav" class="flex items-center gap-4">
+              <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
+              <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
+            </div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+              <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
+              <button id="logoutNavBtn" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors">Logout</button>
+            </div>
+          </div>
+          <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-[var(--background-secondary)] border-t border-[var(--border)] px-4 py-4 space-y-2">
+      <a href="index.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
+      <a href="search.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Services</a>
+      <a href="accommodation.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
+      <a href="pricing.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
+      <a href="about.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+      <hr class="border-[var(--border)]" />
+      <a href="login.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Provider Login</a>
+      <a href="register-provider.html" class="block btn-primary text-center text-sm">List Your Business</a>
+    </div>
+  </header>
+
+  <div class="min-h-screen flex items-center justify-center px-4 pt-32 pb-20">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-10 w-full max-w-2xl">
+      <h1 class="text-3xl font-black uppercase italic tracking-tighter text-center mb-2">Provider Registration</h1>
+      <p class="text-center text-[var(--foreground-muted)] mb-6">Complete all steps to list your business</p>
+
+      <div class="progress-bar mb-6">
+        <div id="progressFill" class="fill" style="width: 0%;"></div>
+      </div>
+      <div class="flex justify-between text-xs text-[var(--foreground-muted)] mb-8">
+        <span>Account</span>
+        <span>Business</span>
+        <span>Location</span>
+        <span>Services</span>
+        <span>Hours</span>
+      </div>
+
+      <form id="registerProviderForm" class="space-y-6">
+        <div id="step1" class="step active">
+          <h2 class="text-xl font-bold mb-4">Step 1: Your Account</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="text-xs font-black">Full Name</label><input type="text" id="fullName" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+            <div><label class="text-xs font-black">Email</label><input type="email" id="email" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+            <div><label class="text-xs font-black">Phone (optional)</label><input type="tel" id="phone" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+            <div><label class="text-xs font-black">Password (min 6 chars)</label><input type="password" id="password" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+          </div>
+          <button type="button" class="btn-primary mt-4" onclick="goToStep(2)">Next →</button>
+        </div>
+
+        <div id="step2" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 2: Business Info</h2>
+          <div class="space-y-4">
+            <div><label class="text-xs font-black">Business Name</label><input type="text" id="businessName" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+            <div><label class="text-xs font-black">Category</label><input type="text" id="category" placeholder="e.g., Hair Salon, Plumbing" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+            <div><label class="text-xs font-black">Description</label><textarea id="description" rows="3" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></textarea></div>
+          </div>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(1)">← Back</button>
+            <button type="button" class="btn-primary" onclick="goToStep(3)">Next →</button>
+          </div>
+        </div>
+
+        <div id="step3" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 3: Location & Contact</h2>
+          <div class="space-y-4">
+            <div><label class="text-xs font-black">Address</label><input type="text" id="address" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+            <div><label class="text-xs font-black">WhatsApp Number</label><input type="tel" id="whatsapp" placeholder="e.g., +264811234567" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+          </div>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(2)">← Back</button>
+            <button type="button" class="btn-primary" onclick="goToStep(4)">Next →</button>
+          </div>
+        </div>
+
+        <div id="step4" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 4: Services (optional)</h2>
+          <p class="text-sm text-[var(--foreground-muted)] mb-4">You can add services later from your dashboard, but you can add a few now.</p>
+          <div id="servicesContainer">
+            <div class="service-entry grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+              <input type="text" placeholder="Service name" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
+              <input type="number" placeholder="Price (N$)" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
+              <input type="number" placeholder="Duration (min)" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
+            </div>
+          </div>
+          <button type="button" class="btn-secondary text-sm" onclick="addServiceField()">+ Add another service</button>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(3)">← Back</button>
+            <button type="button" class="btn-primary" onclick="goToStep(5)">Next →</button>
+          </div>
+        </div>
+
+        <div id="step5" class="step">
+          <h2 class="text-xl font-bold mb-4">Step 5: Business Hours</h2>
+          <p class="text-sm text-[var(--foreground-muted)] mb-4">You can update these later.</p>
+          <div id="hoursContainer"></div>
+          <div class="flex justify-between mt-4">
+            <button type="button" class="btn-secondary" onclick="goToStep(4)">← Back</button>
+            <button type="submit" class="btn-primary">Complete Registration</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="bg-[var(--background)] border-t border-[var(--border)] py-10 text-center text-[var(--foreground-muted)]">
+    <p>© 2026 Localink. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileBtn && mobileMenu) {
+      mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    }
+
+    // Dropdown
+    const dropdownBtn = document.getElementById('servicesDropdownBtn');
+    const dropdownMenu = document.getElementById('servicesDropdownMenu');
+    const arrow = document.getElementById('servicesDropdownArrow');
+    if (dropdownBtn && dropdownMenu) {
+      dropdownBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+      });
+      document.addEventListener('click', function(e) {
+        if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.add('hidden');
+          arrow.classList.remove('rotate-180');
+        }
+      });
+      dropdownMenu.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() {
+          dropdownMenu.classList.add('hidden');
+          arrow.classList.remove('rotate-180');
+        });
+      });
+    }
+
+    // Multi-step navigation
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function goToStep(step) {
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step${step}`).classList.add('active');
+      currentStep = step;
+      document.getElementById('progressFill').style.width = `${(step / totalSteps) * 100}%`;
+    }
+
+    function addServiceField() {
+      const container = document.getElementById('servicesContainer');
+      const entry = document.createElement('div');
+      entry.className = 'service-entry grid grid-cols-1 md:grid-cols-3 gap-3 mb-3';
+      entry.innerHTML = `
+        <input type="text" placeholder="Service name" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
+        <input type="number" placeholder="Price (N$)" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
+        <input type="number" placeholder="Duration (min)" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
+      `;
+      container.appendChild(entry);
+    }
+
+    function generateHours() {
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const container = document.getElementById('hoursContainer');
+      container.innerHTML = days.map((day, i) => `
+        <div class="grid grid-cols-3 gap-3 items-center mb-2">
+          <span class="font-bold">${day}</span>
+          <input type="time" id="open_${i}" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]" value="09:00">
+          <input type="time" id="close_${i}" class="p-2 border rounded-lg bg-[var(--input-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]" value="17:00">
+        </div>
+      `).join('');
+    }
+    generateHours();
+
+    // Form submission – single API call
+    document.getElementById('registerProviderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const full_name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const business_name = document.getElementById('businessName').value;
+      const category = document.getElementById('category').value;
+      const description = document.getElementById('description').value;
+      const address = document.getElementById('address').value;
+      const whatsapp_number = document.getElementById('whatsapp').value;
+
+      const serviceEntries = document.querySelectorAll('.service-entry');
+      const services = Array.from(serviceEntries).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return {
+          name: inputs[0].value,
+          price: parseFloat(inputs[1].value),
+          duration_minutes: parseInt(inputs[2].value),
+          description: ''
+        };
+      }).filter(s => s.name && s.price && s.duration_minutes);
+
+      const hours = [];
+      for (let i = 0; i < 7; i++) {
+        const open = document.getElementById(`open_${i}`).value;
+        const close = document.getElementById(`close_${i}`).value;
+        if (open && close) {
+          hours.push({ day_of_week: i, open_time: open, close_time: close });
+        }
+      }
+
+      const submitBtn = document.querySelector('#registerProviderForm button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Registering...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/auth/register-provider', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            full_name, email, phone, password,
+            business_name, category, description, address, whatsapp_number,
+            services, hours
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Registration failed');
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        alert('Registration complete! Welcome to Localink.');
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        console.error(err);
+        alert('Server error. Please try again.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Theme toggle (already in script.js)
+    if (document.getElementById('themeToggle')) {
+      document.getElementById('themeToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+    }
+  </script>
+</body>
+</html>
