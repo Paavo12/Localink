@@ -6,7 +6,7 @@
   <title>Provider Registration – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
   <script src="script.js" defer></script>
   <style>
     .step { display: none; }
@@ -30,26 +30,55 @@
         </a>
         <div class="hidden lg:flex items-center gap-1">
           <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
-          <a href="search.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Services</a>
+          <div class="relative" id="servicesDropdown">
+            <button id="servicesDropdownBtn" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] focus:outline-none">
+              Services
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="servicesDropdownArrow">
+                <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z" />
+              </svg>
+            </button>
+            <div id="servicesDropdownMenu" class="absolute left-0 mt-1 w-56 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+              <a href="search.html?category=Salons" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Salons &amp; Beauty</a>
+              <a href="search.html?category=Cleaning" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Cleaning</a>
+              <a href="search.html?category=Car Rental" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Car Rentals</a>
+              <a href="accommodation.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Accommodation</a>
+              <a href="search.html?category=Plumbing" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Plumbing</a>
+              <a href="search.html?category=Electrician" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Electrical</a>
+              <a href="search.html?category=Catering" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Catering</a>
+              <a href="search.html?category=Events" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Events</a>
+              <a href="search.html?category=Home Repairs" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Home Repairs</a>
+              <a href="search.html?category=Photographer" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Photographer</a>
+            </div>
+          </div>
           <a href="accommodation.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
           <a href="pricing.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
           <a href="about.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
         </div>
         <div class="flex items-center gap-2">
           <a href="search.html" class="w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Search">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]"><path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]">
+              <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+            </svg>
           </a>
-          <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Switch theme">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/></svg>
+          <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--orange)] focus-visible:ring-offset-2" aria-label="Switch theme">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white">
+              <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+            </svg>
           </button>
-          <a href="login.html" class="hidden md:block">
-            <button class="relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] border-2 border-[var(--navy)] text-[var(--navy)] bg-transparent hover:bg-[var(--navy)] hover:text-white dark:border-[var(--foreground-muted)] dark:text-[var(--foreground)] dark:hover:bg-[var(--foreground-muted)]/10 px-3.5 py-1.5 text-sm gap-1.5">Provider Login</button>
-          </a>
-          <a href="register-provider.html" class="hidden md:block">
-            <button class="relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] bg-[var(--orange)] text-white shadow-[0_2px_8px_rgba(255,146,28,0.3)] hover:bg-[var(--orange-dark)] hover:shadow-[0_4px_16px_rgba(255,146,28,0.4)] active:shadow-[0_1px_4px_rgba(255,146,28,0.3)] px-3.5 py-1.5 text-sm gap-1.5">List Your Business</button>
-          </a>
+          <div id="authButtons" class="flex items-center gap-4 border-l border-[var(--border)] pl-6">
+            <div id="loggedOutNav" class="flex items-center gap-4">
+              <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
+              <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
+            </div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+              <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
+              <button id="logoutNavBtn" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors">Logout</button>
+            </div>
+          </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z" />
+            </svg>
           </button>
         </div>
       </nav>
@@ -149,7 +178,7 @@
     </div>
   </div>
 
-  <footer class="bg-[var(--background)] border-t border-[var(--border)] py-10 text-center text-[var(--foreground-muted)] mt-12">
+  <footer class="bg-[var(--background)] border-t border-[var(--border)] py-10 text-center text-[var(--foreground-muted)]">
     <p>© 2026 Localink. All rights reserved.</p>
   </footer>
 
@@ -161,6 +190,31 @@
       mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
     }
 
+    // Dropdown
+    const dropdownBtn = document.getElementById('servicesDropdownBtn');
+    const dropdownMenu = document.getElementById('servicesDropdownMenu');
+    const arrow = document.getElementById('servicesDropdownArrow');
+    if (dropdownBtn && dropdownMenu) {
+      dropdownBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+      });
+      document.addEventListener('click', function(e) {
+        if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.add('hidden');
+          arrow.classList.remove('rotate-180');
+        }
+      });
+      dropdownMenu.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() {
+          dropdownMenu.classList.add('hidden');
+          arrow.classList.remove('rotate-180');
+        });
+      });
+    }
+
+    // Multi-step navigation
     let currentStep = 1;
     const totalSteps = 5;
 
@@ -196,6 +250,7 @@
     }
     generateHours();
 
+    // Form submission – single API call
     document.getElementById('registerProviderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -264,6 +319,7 @@
       }
     });
 
+    // Theme toggle (already in script.js)
     if (document.getElementById('themeToggle')) {
       document.getElementById('themeToggle').addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');
