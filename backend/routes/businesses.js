@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
            END as rank
     FROM provider_profiles p
     JOIN users u ON p.user_id = u.id
-    WHERE u.is_active = true
+    WHERE u.is_active = true AND p.is_verified = true
   `;
   const params = [];
   const conditions = [];
