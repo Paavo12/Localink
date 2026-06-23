@@ -49,17 +49,70 @@ router.put('/users/:id/reactivate', async (req, res) => {
 });
 
 // ---------- PERMANENTLY DELETE USER ----------
+// ---------- PERMANENTLY DELETE USER (CASCADE) ----------
 router.delete('/users/:id', async (req, res) => {
   const { id } = req.params;
+  
   try {
+    // Prevent deleting the only admin
+    const adminCheck = await pool.query('SELECT COUNT(*) FROM users WHERE role = $1 AND is_active = true', ['admin']);
+    if (parseInt(adminCheck.rows[0].count) === 1) {
+      const user = await pool.query('SELECT role FROM users WHERE id = $1', [id]);
+      if (user.rows[0]?.role === 'admin') {
+        return res.status(400).json({ error: 'Cannot delete the only admin account' });
+      }
+    }
+
+    // Check if the user is a provider, get the provider_id
+    const provider = await pool.query('SELECT user_id FROM provider_profiles WHERE user_id = $1', [id]);
+    if (provider.rows.length === 0) {
+      // Not a provider – just delete the user (cascade will remove nothing else)
+      await pool.query('DELETE FROM users WHERE id = $1', [id]);
+      return res.json({ message: 'User deleted successfully' });
+    }
+
+    // Begin transaction to ensure consistency
+    await pool.query('BEGIN');
+
+    // 1. Delete all appointments for this provider
+    await pool.query('DELETE FROM appointments WHERE provider_id = $1', [id]);
+
+    // 2. Delete all quote requests for this provider
+    await pool.query('DELETE FROM quote_requests WHERE provider_id = $1', [id]);
+
+    // 3. Delete all reviews for this provider
+    await pool.query('DELETE FROM reviews WHERE provider_id = $1', [id]);
+
+    // 4. Delete all anonymous comments
+    await pool.query('DELETE FROM anonymous_comments WHERE provider_id = $1', [id]);
+
+    // 5. Delete all profile views
+    await pool.query('DELETE FROM profile_views WHERE provider_id = $1', [id]);
+
+    // 6. Delete all portfolio items
+    await pool.query('DELETE FROM portfolio_items WHERE provider_id = $1', [id]);
+
+    // 7. Delete all services (and their images) – services are referenced by appointments, but we already deleted appointments
+    await pool.query('DELETE FROM services WHERE provider_id = $1', [id]);
+
+    // 8. Delete all business hours
+    await pool.query('DELETE FROM business_hours WHERE provider_id = $1', [id]);
+
+    // 9. Delete the provider profile itself
+    await pool.query('DELETE FROM provider_profiles WHERE user_id = $1', [id]);
+
+    // 10. Finally, delete the user
     await pool.query('DELETE FROM users WHERE id = $1', [id]);
-    res.json({ message: 'User deleted' });
+
+    await pool.query('COMMIT');
+    res.json({ message: 'User and all associated data permanently deleted' });
+
   } catch (err) {
+    await pool.query('ROLLBACK');
     console.error('Error deleting user:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 // ---------- GET PROVIDER SUBSCRIPTIONS ----------
 router.get('/providers/subscriptions', async (req, res) => {
   try {
