@@ -972,6 +972,31 @@ async function initAdmin() {
   const feed = await (await apiFetch('/api/admin/activity-feed')).json();
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
+// ---------- PERMANENTLY DELETE USER ----------
+window.deleteUser = async (id) => {
+  // Double confirmation
+  if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
+    return;
+  }
+  
+  if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
+    return;
+  }
+  
+  try {
+    const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('User permanently deleted.');
+      // Reload the admin page to refresh the list
+      location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.error || 'Delete failed.');
+    }
+  } catch (err) {
+    alert('Network error. Please try again.');
+  }
+};
 
   // ---- HTML with fixed chart containers ----
   let html = `
@@ -1025,7 +1050,7 @@ async function initAdmin() {
         </div>
       `).join('')}
     </div>
-  <div class="mb-8">
+ <div class="mb-8">
   <h2 class="text-2xl font-bold mb-4">All Users</h2>
   <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
     <table class="w-full text-sm">
@@ -1033,13 +1058,14 @@ async function initAdmin() {
       <tbody>
         ${users.map(u => `
           <tr class="border-b">
-            <td>${escapeHtml(u.email)}</td>
-            <td>${escapeHtml(u.role)}</td>
-            <td>${u.is_active ? 'Active' : 'Inactive'}</td>
-            <td>
+            <td class="p-2">${escapeHtml(u.email)}</td>
+            <td class="p-2">${escapeHtml(u.role)}</td>
+            <td class="p-2">${u.is_active ? 'Active' : 'Inactive'}</td>
+            <td class="p-2">
               ${u.role === 'provider' ? `<button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>` : ''}
               ${u.role === 'client' ? `<button onclick="viewClient('${u.id}')" class="btn-secondary text-xs py-1 px-2 mr-1">View</button>` : ''}
-              <button onclick="deactivateUser('${u.id}')" class="text-red-500 text-xs">Deactivate</button>
+              <button onclick="deactivateUser('${u.id}')" class="text-yellow-600 dark:text-yellow-400 text-xs mr-1 hover:underline">Deactivate</button>
+              ${u.email !== 'admin@localink.com' ? `<button onclick="deleteUser('${u.id}')" class="text-red-600 dark:text-red-400 text-xs font-bold hover:underline">Delete</button>` : ''}
             </td>
           </tr>
         `).join('')}
@@ -1304,31 +1330,6 @@ async function viewClient(userId) {
     content.innerHTML = `<div class="text-red-500">Failed to load client details: ${err.message}</div>`;
   }
 }
-// ---------- PERMANENTLY DELETE USER ----------
-window.deleteUser = async (id) => {
-  // Double confirmation
-  if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
-    return;
-  }
-  
-  if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
-    return;
-  }
-  
-  try {
-    const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      alert('User permanently deleted.');
-      // Reload the admin page to refresh the list
-      location.reload();
-    } else {
-      const data = await res.json();
-      alert(data.error || 'Delete failed.');
-    }
-  } catch (err) {
-    alert('Network error. Please try again.');
-  }
-};
 
 // ========== PORTFOLIO DELETE HELPER ==========
 window.deletePortfolioItem = async (id) => {
