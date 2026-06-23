@@ -1208,8 +1208,7 @@ async function viewProvider(userId) {
 <select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
   <option value="">Select Category</option>
   ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-</select>
-          </div>
+</select>          </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-bold">Description</label>
             <textarea name="description" rows="2" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">${escapeHtml(data.profile.description || '')}</textarea>

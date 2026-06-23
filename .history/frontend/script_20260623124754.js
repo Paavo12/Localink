@@ -177,20 +177,6 @@ async function initSearchPage() {
   const searchBtn = document.getElementById('searchBtn');
   const grid = document.getElementById('gridContainer');
 
-  // ---------- Read URL params ----------
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryParam = urlParams.get('category');
-  if (categoryParam) {
-    // Set the select value if it matches an option
-    const optionExists = Array.from(categorySelect.options).some(opt => opt.value === categoryParam);
-    if (optionExists) {
-      categorySelect.value = categoryParam;
-    } else {
-      // If not an exact option, we can still set it as a fallback
-      categorySelect.value = categoryParam;
-    }
-  }
-
   async function fetchAndRender() {
     const search = searchInput?.value || '';
     const category = categorySelect?.value || '';
@@ -199,44 +185,35 @@ async function initSearchPage() {
     let url = `/api/businesses?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
     if (city) url += `&city=${encodeURIComponent(city)}`;
     if (rating) url += `&rating=${encodeURIComponent(rating)}`;
-    try {
-      const res = await fetch(url);
-      const businesses = await res.json();
-      if (grid) {
-        if (businesses.length === 0) {
-          grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)] py-20">No businesses found. Try adjusting your filters.</div>';
-          return;
-        }
-        grid.innerHTML = businesses.map(b => `
-          <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)] hover:shadow-lg transition-shadow">
-            <img src="${escapeHtml(b.logo_url || 'https://placehold.co/400x300')}" class="h-40 w-full object-cover rounded-xl mb-3" onerror="this.src='https://placehold.co/400x300'">
-            <h3 class="text-xl font-black text-[var(--foreground)]">${escapeHtml(b.name)}</h3>
-            <p class="text-[var(--foreground-muted)] text-sm mt-2">${escapeHtml(b.description?.substring(0, 100))}</p>
-            <div class="mt-4 flex justify-between items-center">
-              <span>
-                ${b.subscription_tier === 'premium' ? '<span class="badge-premium">⭐ Featured</span>' : ''}
-                ${b.subscription_tier === 'verified' ? '<span class="badge-verified">✅ Verified</span>' : ''}
-                ${b.subscription_tier === 'basic' ? '<span class="text-xs text-[var(--foreground-muted)]">Basic</span>' : ''}
-              </span>
-              <a href="business.html?id=${b.id}" class="btn-primary text-sm">View</a>
-            </div>
-          </div>
-        `).join('');
+    const res = await fetch(url);
+    const businesses = await res.json();
+    if (grid) {
+      if (businesses.length === 0) {
+        grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)] py-20">No businesses found. Try adjusting your filters.</div>';
+        return;
       }
-    } catch (err) {
-      console.error('Search error:', err);
-      if (grid) grid.innerHTML = '<div class="col-span-3 text-center text-red-500 py-20">Failed to load results.</div>';
+      grid.innerHTML = businesses.map(b => `
+        <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)] hover:shadow-lg transition-shadow">
+          <img src="${escapeHtml(b.logo_url || 'https://placehold.co/400x300')}" class="h-40 w-full object-cover rounded-xl mb-3" onerror="this.src='https://placehold.co/400x300'">
+          <h3 class="text-xl font-black text-[var(--foreground)]">${escapeHtml(b.name)}</h3>
+          <p class="text-[var(--foreground-muted)] text-sm mt-2">${escapeHtml(b.description?.substring(0, 100))}</p>
+          <div class="mt-4 flex justify-between items-center">
+            <span>
+              ${b.subscription_tier === 'premium' ? '<span class="badge-premium">⭐ Featured</span>' : ''}
+              ${b.subscription_tier === 'verified' ? '<span class="badge-verified">✅ Verified</span>' : ''}
+              ${b.subscription_tier === 'basic' ? '<span class="text-xs text-[var(--foreground-muted)]">Basic</span>' : ''}
+            </span>
+            <a href="business.html?id=${b.id}" class="btn-primary text-sm">View</a>
+          </div>
+        </div>
+      `).join('');
     }
   }
 
-  // Event listeners
   searchBtn?.addEventListener('click', fetchAndRender);
   searchInput?.addEventListener('keyup', fetchAndRender);
   cityFilter?.addEventListener('change', fetchAndRender);
   ratingFilter?.addEventListener('change', fetchAndRender);
-  categorySelect?.addEventListener('change', fetchAndRender); // Add this!
-
-  // Initial load
   await fetchAndRender();
 }
 
@@ -734,11 +711,8 @@ async function initDashboard() {
           <form id="profileForm" class="bg-[var(--card-bg)] p-4 rounded-xl border space-y-3">
             <input name="business_name" value="${escapeHtml(profile.business_name || '')}" placeholder="Business Name" class="w-full p-2 border rounded-lg">
             <textarea name="description" placeholder="Description" rows="3" class="w-full p-2 border rounded-lg">${escapeHtml(profile.description || '')}</textarea>
-<select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-  <option value="">Select Category</option>
-  ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-</select>    
-        <input name="address" id="businessAddress" value="${escapeHtml(profile.address || '')}" placeholder="Address" class="w-full p-2 border rounded-lg">
+            <input name="category" value="${escapeHtml(profile.category || '')}" placeholder="Category" class="w-full p-2 border rounded-lg">
+            <input name="address" id="businessAddress" value="${escapeHtml(profile.address || '')}" placeholder="Address" class="w-full p-2 border rounded-lg">
             <input type="hidden" id="businessLat" name="lat" value="${profile.lat || ''}">
             <input type="hidden" id="businessLng" name="lng" value="${profile.lng || ''}">
             <input name="whatsapp_number" value="${escapeHtml(profile.whatsapp_number || '')}" placeholder="WhatsApp Number" class="w-full p-2 border rounded-lg">
@@ -998,31 +972,6 @@ async function initAdmin() {
   const feed = await (await apiFetch('/api/admin/activity-feed')).json();
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
-// ---------- PERMANENTLY DELETE USER ----------
-window.deleteUser = async (id) => {
-  // Double confirmation
-  if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
-    return;
-  }
-  
-  if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
-    return;
-  }
-  
-  try {
-    const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      alert('User permanently deleted.');
-      // Reload the admin page to refresh the list
-      location.reload();
-    } else {
-      const data = await res.json();
-      alert(data.error || 'Delete failed.');
-    }
-  } catch (err) {
-    alert('Network error. Please try again.');
-  }
-};
 
   // ---- HTML with fixed chart containers ----
   let html = `
@@ -1076,7 +1025,7 @@ window.deleteUser = async (id) => {
         </div>
       `).join('')}
     </div>
- <div class="mb-8">
+  <div class="mb-8">
   <h2 class="text-2xl font-bold mb-4">All Users</h2>
   <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
     <table class="w-full text-sm">
@@ -1084,14 +1033,13 @@ window.deleteUser = async (id) => {
       <tbody>
         ${users.map(u => `
           <tr class="border-b">
-            <td class="p-2">${escapeHtml(u.email)}</td>
-            <td class="p-2">${escapeHtml(u.role)}</td>
-            <td class="p-2">${u.is_active ? 'Active' : 'Inactive'}</td>
-            <td class="p-2">
+            <td>${escapeHtml(u.email)}</td>
+            <td>${escapeHtml(u.role)}</td>
+            <td>${u.is_active ? 'Active' : 'Inactive'}</td>
+            <td>
               ${u.role === 'provider' ? `<button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>` : ''}
               ${u.role === 'client' ? `<button onclick="viewClient('${u.id}')" class="btn-secondary text-xs py-1 px-2 mr-1">View</button>` : ''}
-              <button onclick="deactivateUser('${u.id}')" class="text-yellow-600 dark:text-yellow-400 text-xs mr-1 hover:underline">Deactivate</button>
-              ${u.email !== 'admin@localink.com' ? `<button onclick="deleteUser('${u.id}')" class="text-red-600 dark:text-red-400 text-xs font-bold hover:underline">Delete</button>` : ''}
+              <button onclick="deactivateUser('${u.id}')" class="text-red-500 text-xs">Deactivate</button>
             </td>
           </tr>
         `).join('')}
@@ -1205,10 +1153,7 @@ async function viewProvider(userId) {
           </div>
           <div>
             <label class="block text-sm font-bold">Category</label>
-<select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-  <option value="">Select Category</option>
-  ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-</select>
+            <input name="category" value="${escapeHtml(data.profile.category || '')}" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-bold">Description</label>
@@ -1359,6 +1304,31 @@ async function viewClient(userId) {
     content.innerHTML = `<div class="text-red-500">Failed to load client details: ${err.message}</div>`;
   }
 }
+// ---------- PERMANENTLY DELETE USER ----------
+window.deleteUser = async (id) => {
+  // Double confirmation
+  if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
+    return;
+  }
+  
+  if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
+    return;
+  }
+  
+  try {
+    const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('User permanently deleted.');
+      // Reload the admin page to refresh the list
+      location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.error || 'Delete failed.');
+    }
+  } catch (err) {
+    alert('Network error. Please try again.');
+  }
+};
 
 // ========== PORTFOLIO DELETE HELPER ==========
 window.deletePortfolioItem = async (id) => {

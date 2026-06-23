@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – Localink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
+  <script src="script.js" defer></script>
+</head>
+<body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
+
+  <!-- ======== NAVBAR (same as index.html) ======== -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
+    <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <nav class="flex items-center justify-between h-16 md:h-18">
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <div class="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--navy)] to-[var(--orange)] flex items-center justify-center overflow-hidden shadow-[0_2px_8px_rgba(0,35,73,0.2)] group-hover:shadow-[0_4px_16px_rgba(255,146,28,0.3)] transition-shadow duration-500">
+            <span class="text-white font-display font-bold text-sm relative z-10 tracking-tight">L</span>
+            <div class="absolute inset-0 bg-gradient-to-br from-[var(--orange)] to-[var(--navy)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </div>
+          <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">ink</span></span>
+        </a>
+        <div class="hidden lg:flex items-center gap-1">
+          <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
+          <div class="relative" id="servicesDropdown">
+            <button id="servicesDropdownBtn" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] focus:outline-none">
+              Services
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="servicesDropdownArrow">
+                <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z" />
+              </svg>
+            </button>
+            <div id="servicesDropdownMenu" class="absolute left-0 mt-1 w-56 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+              <a href="search.html?category=Salons" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Salons &amp; Beauty</a>
+              <a href="search.html?category=Cleaning" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Cleaning</a>
+              <a href="search.html?category=Car Rental" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Car Rentals</a>
+              <a href="accommodation.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Accommodation</a>
+              <a href="search.html?category=Plumbing" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Plumbing</a>
+              <a href="search.html?category=Electrician" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Electrical</a>
+              <a href="search.html?category=Catering" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Catering</a>
+              <a href="search.html?category=Events" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Events</a>
+              <a href="search.html?category=Home Repairs" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Home Repairs</a>
+              <a href="search.html?category=Photographer" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Photographer</a>
+            </div>
+          </div>
+          <a href="accommodation.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
+          <a href="pricing.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
+          <a href="about.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="search.html" class="w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]">
+              <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+            </svg>
+          </a>
+          <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--orange)] focus-visible:ring-offset-2" aria-label="Switch theme">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white">
+              <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+            </svg>
+          </button>
+          <div id="authButtons" class="flex items-center gap-4 border-l border-[var(--border)] pl-6">
+            <div id="loggedOutNav" class="flex items-center gap-4">
+              <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
+              <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
+            </div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+              <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
+              <button id="logoutNavBtn" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors">Logout</button>
+            </div>
+          </div>
+          <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-[var(--background-secondary)] border-t border-[var(--border)] px-4 py-4 space-y-2">
+      <a href="index.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
+      <a href="search.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Services</a>
+      <a href="accommodation.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
+      <a href="pricing.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
+      <a href="about.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+      <hr class="border-[var(--border)]" />
+      <a href="login.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Provider Login</a>
+      <a href="register-provider.html" class="block btn-primary text-center text-sm">List Your Business</a>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-4 py-8 pt-28">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-black">Admin Control Panel</h1>
+      <button id="logoutAdminBtn" class="btn-secondary">Logout</button>
+    </div>
+    <div id="adminContent">Loading...</div>
+  </div>
+
+  <!-- Provider Details Modal -->
+  <div id="providerModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold" id="modalTitle">Provider Details</h2>
+        <button id="closeModalBtn" class="text-3xl leading-none">&times;</button>
+      </div>
+      <div id="modalContent">Loading...</div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
+
+    // ========== PERMANENT DELETE USER ==========
+    window.deleteUser = async function(id) {
+      // Double confirmation to prevent accidents
+      if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, portfolio, etc.). This CANNOT be undone!')) {
+        return;
+      }
+      if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to permanently delete this user?')) {
+        return;
+      }
+      try {
+        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          alert('✅ User permanently deleted.');
+          location.reload();
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Delete failed.');
+        }
+      } catch (err) {
+        alert('Network error. Please try again.');
+      }
+    };
+  </script>
+</body>
+</html>

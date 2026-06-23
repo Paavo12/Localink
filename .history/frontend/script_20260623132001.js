@@ -734,11 +734,8 @@ async function initDashboard() {
           <form id="profileForm" class="bg-[var(--card-bg)] p-4 rounded-xl border space-y-3">
             <input name="business_name" value="${escapeHtml(profile.business_name || '')}" placeholder="Business Name" class="w-full p-2 border rounded-lg">
             <textarea name="description" placeholder="Description" rows="3" class="w-full p-2 border rounded-lg">${escapeHtml(profile.description || '')}</textarea>
-<select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-  <option value="">Select Category</option>
-  ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-</select>    
-        <input name="address" id="businessAddress" value="${escapeHtml(profile.address || '')}" placeholder="Address" class="w-full p-2 border rounded-lg">
+            <input name="category" value="${escapeHtml(profile.category || '')}" placeholder="Category" class="w-full p-2 border rounded-lg">
+            <input name="address" id="businessAddress" value="${escapeHtml(profile.address || '')}" placeholder="Address" class="w-full p-2 border rounded-lg">
             <input type="hidden" id="businessLat" name="lat" value="${profile.lat || ''}">
             <input type="hidden" id="businessLng" name="lng" value="${profile.lng || ''}">
             <input name="whatsapp_number" value="${escapeHtml(profile.whatsapp_number || '')}" placeholder="WhatsApp Number" class="w-full p-2 border rounded-lg">
@@ -1205,10 +1202,7 @@ async function viewProvider(userId) {
           </div>
           <div>
             <label class="block text-sm font-bold">Category</label>
-<select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-  <option value="">Select Category</option>
-  ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-</select>
+            <input name="category" value="${escapeHtml(data.profile.category || '')}" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-bold">Description</label>
