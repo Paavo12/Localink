@@ -409,18 +409,3 @@ header {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
-/* Booking filter buttons */
-.booking-filter {
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.booking-filter.active {
-  background-color: var(--orange) !important;
-  color: white !important;
-  border-color: var(--orange) !important;
-}
-
-.booking-filter:hover:not(.active) {
-  background-color: var(--background-tertiary);
-}

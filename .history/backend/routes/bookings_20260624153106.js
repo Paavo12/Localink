@@ -103,24 +103,6 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-// Cancel a booking (client only)
-router.put('/:id/cancel', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  try {
-    const booking = await pool.query('SELECT client_id, status FROM appointments WHERE id = $1', [id]);
-    if (booking.rows.length === 0) return res.status(404).json({ error: 'Booking not found' });
-    if (booking.rows[0].client_id !== req.user.id) {
-      return res.status(403).json({ error: 'Not authorized' });
-    }
-    if (booking.rows[0].status === 'completed') {
-      return res.status(400).json({ error: 'Cannot cancel a completed booking' });
-    }
-    await pool.query('UPDATE appointments SET status = $1 WHERE id = $2', ['cancelled', id]);
-    res.json({ message: 'Booking cancelled' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+
 
 module.exports = router;
