@@ -116,99 +116,112 @@
   <!-- ============ MAIN CONTENT (same as before) ============ -->
   <main class="min-h-screen">
 
-    <!-- HERO SECTION -->
-    <section class="relative py-16 md:py-24 pt-28 pb-8 bg-gradient-to-br from-[var(--navy)]/5 via-transparent to-[var(--orange)]/5 dark:from-[var(--navy)]/20 dark:to-[var(--orange)]/10">
-      <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div class="max-w-3xl mx-auto text-center mb-8">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--card-bg)] border border-[var(--border)] text-[10px] font-black uppercase tracking-widest text-[var(--foreground-muted)] mb-6 mx-auto shadow-sm">
-            <div class="w-2 bg-[var(--orange)] h-2 rounded-full animate-pulse"></div>
-            Namibia's Local Services Marketplace
-          </div>
-          <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black text-[var(--foreground)] leading-[1.1] tracking-tight">
-            Find trusted local services <br class="hidden md:block" />
-            in <span class="text-[var(--orange)]">Windhoek &amp; beyond</span>
-          </h1>
-          <p class="mt-4 text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
-            Book salons, hire plumbers, rent cars, and discover 12+ service categories
-            — all from verified Namibian providers.
-          </p>
-        </div>
-        <form id="heroSearchForm" class="mx-auto max-w-3xl relative" onsubmit="return false;">
-          <div class="relative flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-1">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                id="heroSearchInput"
-                placeholder="Search for services... e.g. hair salon, plumber, car rent"
-                class="w-full rounded-xl border bg-[var(--card-bg)] py-3.5 pl-12 pr-4 text-sm text-[var(--foreground)] transition-all duration-300 placeholder:text-[var(--foreground-muted)] focus:outline-none border-[var(--border)] hover:border-[var(--border-hover)]"
-              />
-            </div>
-            <div class="flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl text-[var(--foreground-muted)] text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]">
-                <path d="M17.657,16.657L13.414,20.9a1.998,1.998,0,0,1-2.827,0l-4.244-4.243a8,8,0,1,1,11.314,0Z" />
-                <path d="M15,11a3,3,0,1,1-6,0,3,3,0,0,1,6,0Z" />
-              </svg>
-              <span>Windhoek</span>
-            </div>
-            <button
-              type="button"
-              id="heroFindBtn"
-              class="relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] bg-[var(--orange)] text-white shadow-[0_2px_8px_rgba(255,146,28,0.3)] hover:bg-[var(--orange-dark)] hover:shadow-[0_4px_16px_rgba(255,146,28,0.4)] active:shadow-[0_1px_4px_rgba(255,146,28,0.3)] px-7 py-3 text-base gap-2.5">
-              Search
-            </button>
-          </div>
-        </form>
-        <div class="mt-6 flex flex-wrap justify-center gap-2 text-xs text-[var(--foreground-muted)]">
-          <span class="font-semibold">Popular:</span>
-          <a href="search.html?category=Salons" class="hover:text-[var(--orange)] transition-colors">Hair Salon</a>
-          <span>|</span>
-          <a href="search.html?category=Cleaning" class="hover:text-[var(--orange)] transition-colors">Cleaning</a>
-          <span>|</span>
-          <a href="search.html?category=Plumbing" class="hover:text-[var(--orange)] transition-colors">Plumber</a>
-          <span>|</span>
-          <a href="search.html?category=Car Rental" class="hover:text-[var(--orange)] transition-colors">Car Rental</a>
-          <span>|</span>
-          <a href="search.html?category=Electrician" class="hover:text-[var(--orange)] transition-colors">Electrician</a>
-        </div>
+ <!-- HERO SECTION -->
+<section class="relative py-16 md:py-24 pt-28 pb-8 bg-gradient-to-br from-[var(--navy)]/5 via-transparent to-[var(--orange)]/5 dark:from-[var(--navy)]/20 dark:to-[var(--orange)]/10">
+  <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
+    <div class="max-w-3xl mx-auto text-center mb-8">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--card-bg)] border border-[var(--border)] text-[10px] font-black uppercase tracking-widest text-[var(--foreground-muted)] mb-6 mx-auto shadow-sm">
+        <div class="w-2 bg-[var(--orange)] h-2 rounded-full animate-pulse"></div>
+        Namibia's Local Services Marketplace
       </div>
-    </section>
+      <h1 class="font-display text-3xl md:text-5xl lg:text-6xl font-black text-[var(--foreground)] leading-[1.1] tracking-tight">
+        Find trusted local services <br class="hidden md:block" />
+        in <span class="text-[var(--orange)]">Windhoek &amp; beyond</span>
+      </h1>
+      <p class="mt-4 text-base md:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto px-4">
+        Book salons, hire plumbers, rent cars, and discover 12+ service categories
+        — all from verified Namibian providers.
+      </p>
+    </div>
 
-    <!-- QUICK ACCESS -->
-    <section class="py-8 border-b border-[var(--border)] bg-[var(--background)]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-wrap justify-center gap-3">
-          <a href="search.html?category=Salons" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">✂️</span> Book a Salon
-          </a>
-          <a href="search.html?category=Plumbing" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">🔧</span> Find a Plumber
-          </a>
-          <a href="search.html?category=Car Rental" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">🚗</span> Rent a Car
-          </a>
-          <a href="accommodation.html" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">🏨</span> Book a Stay
-          </a>
-          <a href="search.html?category=Electrician" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">⚡</span> Get an Electrician
-          </a>
-          <a href="search.html?category=Home Repairs" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">🛠️</span> Home Repairs
-          </a>
-          <a href="search.html?category=Catering" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">🍽️</span> Hire a Caterer
-          </a>
-          <a href="search.html?category=Cleaning" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-            <span class="text-lg">🧹</span> Cleaning
-          </a>
+    <!-- SEARCH FORM - FIXED MOBILE LAYOUT -->
+    <form id="heroSearchForm" class="mx-auto max-w-3xl relative px-4" onsubmit="return false;">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Search Input -->
+        <div class="relative flex-1 w-full">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+            </svg>
+          </span>
+          <input
+            type="text"
+            id="heroSearchInput"
+            placeholder="Search for services... e.g. hair salon, plumber, car rent"
+            class="w-full rounded-xl border bg-[var(--card-bg)] py-3.5 pl-11 pr-4 text-sm text-[var(--foreground)] transition-all duration-300 placeholder:text-[var(--foreground-muted)] focus:outline-none border-[var(--border)] hover:border-[var(--border-hover)]"
+          />
         </div>
+
+        <!-- Location Badge -->
+        <div class="flex items-center gap-2 px-4 py-2.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl text-[var(--foreground-muted)] text-sm whitespace-nowrap w-full sm:w-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]">
+            <path d="M17.657,16.657L13.414,20.9a1.998,1.998,0,0,1-2.827,0l-4.244-4.243a8,8,0,1,1,11.314,0Z" />
+            <path d="M15,11a3,3,0,1,1-6,0,3,3,0,0,1,6,0Z" />
+          </svg>
+          <span>Windhoek</span>
+        </div>
+
+        <!-- Search Button -->
+        <button
+          type="button"
+          id="heroFindBtn"
+          class="relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] bg-[var(--orange)] text-white shadow-[0_2px_8px_rgba(255,146,28,0.3)] hover:bg-[var(--orange-dark)] hover:shadow-[0_4px_16px_rgba(255,146,28,0.4)] active:shadow-[0_1px_4px_rgba(255,146,28,0.3)] px-6 py-3.5 text-sm gap-2.5 w-full sm:w-auto"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+          </svg>
+          Search
+        </button>
       </div>
-    </section>
+    </form>
+
+    <!-- Popular Tags -->
+    <div class="mt-6 flex flex-wrap justify-center gap-2 text-xs text-[var(--foreground-muted)] px-4">
+      <span class="font-semibold">Popular:</span>
+      <a href="search.html?category=Salons" class="hover:text-[var(--orange)] transition-colors">Hair Salon</a>
+      <span>|</span>
+      <a href="search.html?category=Cleaning" class="hover:text-[var(--orange)] transition-colors">Cleaning</a>
+      <span>|</span>
+      <a href="search.html?category=Plumbing" class="hover:text-[var(--orange)] transition-colors">Plumber</a>
+      <span>|</span>
+      <a href="search.html?category=Car Rental" class="hover:text-[var(--orange)] transition-colors">Car Rental</a>
+      <span>|</span>
+      <a href="search.html?category=Electrician" class="hover:text-[var(--orange)] transition-colors">Electrician</a>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK ACCESS - Fixed mobile layout -->
+<section class="py-6 border-b border-[var(--border)] bg-[var(--background)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap justify-center gap-2 sm:gap-3">
+      <a href="search.html?category=Salons" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">✂️</span> <span class="hidden xs:inline">Book a</span> Salon
+      </a>
+      <a href="search.html?category=Plumbing" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">🔧</span> <span class="hidden xs:inline">Find a</span> Plumber
+      </a>
+      <a href="search.html?category=Car Rental" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">🚗</span> <span class="hidden xs:inline">Rent a</span> Car
+      </a>
+      <a href="accommodation.html" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">🏨</span> <span class="hidden xs:inline">Book a</span> Stay
+      </a>
+      <a href="search.html?category=Electrician" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">⚡</span> <span class="hidden xs:inline">Get an</span> Electrician
+      </a>
+      <a href="search.html?category=Home Repairs" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">🛠️</span> <span class="hidden xs:inline">Home</span> Repairs
+      </a>
+      <a href="search.html?category=Catering" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">🍽️</span> <span class="hidden xs:inline">Hire a</span> Caterer
+      </a>
+      <a href="search.html?category=Cleaning" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
+        <span class="text-base sm:text-lg">🧹</span> Cleaning
+      </a>
+    </div>
+  </div>
+</section>
 
     <!-- STATS BAR -->
     <section class="py-12 border-b border-[var(--border)] bg-[var(--background)]">
