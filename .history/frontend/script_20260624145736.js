@@ -2,6 +2,8 @@
 let authToken = localStorage.getItem('token');
 let currentUser = null;
 
+app.use(express.static('frontend'));
+
 // XSS protection
 function escapeHtml(str) {
   if (!str) return '';
@@ -12,7 +14,6 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-
 // ========== TOAST NOTIFICATIONS ==========
 function showToast(message, type = 'info', duration = 4000) {
   const container = document.getElementById('toastContainer') || createToastContainer();
@@ -34,10 +35,12 @@ function showToast(message, type = 'info', duration = 4000) {
   
   container.appendChild(toast);
   
+  // Close button
   toast.querySelector('.toast-close').addEventListener('click', () => {
     removeToast(toast);
   });
   
+  // Auto-remove after duration
   setTimeout(() => {
     removeToast(toast);
   }, duration);
@@ -92,7 +95,7 @@ async function login(email, password) {
     localStorage.setItem('userRole', data.user.role);
     return true;
   }
-  showToast(data.error || 'Login failed', 'error');
+ showToast(data.error || 'Login failed', 'error');
   return false;
 }
 
@@ -190,7 +193,6 @@ function getDistance(lat1, lon1, lat2, lon2) {
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-
 // ========== LOADING STATES ==========
 function showLoading(container, message = 'Loading...') {
   if (!container) return;
@@ -223,24 +225,24 @@ async function uploadLogo(file) {
   const formData = new FormData();
   formData.append('image', file);
   const res = await fetch('/api/upload/logo', { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
-  if (res.ok) showToast('Logo uploaded!', 'success');
-  else showToast('Upload failed', 'error');
+  if (res.ok) alert('Logo uploaded!');
+  else alert('Upload failed');
 }
 
 async function uploadCover(file) {
   const formData = new FormData();
   formData.append('image', file);
   const res = await fetch('/api/upload/cover', { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
-  if (res.ok) showToast('Cover image uploaded!', 'success');
-  else showToast('Upload failed', 'error');
+  if (res.ok) alert('Cover image uploaded!');
+  else alert('Upload failed');
 }
 
 async function uploadServiceImage(serviceId, file) {
   const formData = new FormData();
   formData.append('image', file);
   const res = await fetch(`/api/upload/service/${serviceId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
-  if (res.ok) showToast('Service image added!', 'success');
-  else showToast('Upload failed', 'error');
+  if (res.ok) alert('Service image added!');
+  else alert('Upload failed');
 }
 
 // ========== SEARCH PAGE ==========
@@ -256,18 +258,17 @@ async function initSearchPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const categoryParam = urlParams.get('category');
   if (categoryParam) {
+    // Set the select value if it matches an option
     const optionExists = Array.from(categorySelect.options).some(opt => opt.value === categoryParam);
     if (optionExists) {
       categorySelect.value = categoryParam;
     } else {
+      // If not an exact option, we can still set it as a fallback
       categorySelect.value = categoryParam;
     }
   }
 
   async function fetchAndRender() {
-    // Show skeleton loading while fetching
-    if (grid) showSkeletonCards(grid, 6);
-    
     const search = searchInput?.value || '';
     const category = categorySelect?.value || '';
     const city = cityFilter?.value || '';
@@ -275,19 +276,12 @@ async function initSearchPage() {
     let url = `/api/businesses?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`;
     if (city) url += `&city=${encodeURIComponent(city)}`;
     if (rating) url += `&rating=${encodeURIComponent(rating)}`;
-    
     try {
       const res = await fetch(url);
       const businesses = await res.json();
-      
       if (grid) {
         if (businesses.length === 0) {
-          grid.innerHTML = `
-            <div class="col-span-3 text-center py-20">
-              <p class="text-[var(--foreground-muted)] text-lg">No businesses found</p>
-              <p class="text-sm mt-2 text-[var(--foreground-muted)]">Try adjusting your filters</p>
-            </div>
-          `;
+          grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)] py-20">No businesses found. Try adjusting your filters.</div>';
           return;
         }
         grid.innerHTML = businesses.map(b => `
@@ -308,23 +302,16 @@ async function initSearchPage() {
       }
     } catch (err) {
       console.error('Search error:', err);
-      if (grid) {
-        grid.innerHTML = `
-          <div class="col-span-3 text-center py-20">
-            <p class="text-red-500">Failed to load results</p>
-            <p class="text-sm mt-2 text-[var(--foreground-muted)]">Please try again</p>
-          </div>
-        `;
-      }
+      if (grid) grid.innerHTML = '<div class="col-span-3 text-center text-red-500 py-20">Failed to load results.</div>';
     }
   }
 
   // Event listeners
   searchBtn?.addEventListener('click', fetchAndRender);
-  searchInput?.addEventListener('keyup', (e) => { if (e.key === 'Enter') fetchAndRender(); });
+  searchInput?.addEventListener('keyup', fetchAndRender);
   cityFilter?.addEventListener('change', fetchAndRender);
   ratingFilter?.addEventListener('change', fetchAndRender);
-  categorySelect?.addEventListener('change', fetchAndRender);
+  categorySelect?.addEventListener('change', fetchAndRender); // Add this!
 
   // Initial load
   await fetchAndRender();
@@ -539,14 +526,14 @@ async function initBusinessPage() {
     e.preventDefault();
     const comment = e.target.querySelector('textarea').value;
     await fetch(`/api/businesses/${id}/comment`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ comment }) });
-    showToast('Comment added', 'success');
+    alert('Comment added');
     location.reload();
   });
 
   document.getElementById('reportBtn')?.addEventListener('click', async () => {
     const reason = prompt('Reason for report?');
     if (reason) await fetch(`/api/businesses/${id}/report`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }, body: JSON.stringify({ reason }) });
-    showToast('Report sent', 'success');
+    alert('Report sent');
   });
 
   document.getElementById('quoteForm')?.addEventListener('submit', async (e) => {
@@ -556,7 +543,7 @@ async function initBusinessPage() {
     const phone = document.getElementById('quotePhone').value.trim();
     const message = document.getElementById('quoteMessage').value.trim();
     if (!name || !email || !message) {
-      showToast('Please fill in all required fields.', 'warning');
+      alert('Please fill in all required fields.');
       return;
     }
     try {
@@ -573,10 +560,10 @@ async function initBusinessPage() {
         }, 5000);
       } else {
         const err = await res.json();
-        showToast(err.error || 'Failed to send. Please try again.', 'error');
+        alert(err.error || 'Failed to send. Please try again.');
       }
     } catch (err) {
-      showToast('Network error. Please try again.', 'error');
+      alert('Network error. Please try again.');
     }
   });
 
@@ -585,21 +572,16 @@ async function initBusinessPage() {
     const rating = document.getElementById('reviewRating').value;
     const comment = document.getElementById('reviewComment').value;
     const isAnonymous = document.getElementById('reviewAnonymous')?.checked || false;
-    if (!rating) {
-      showToast('Please select a rating.', 'warning');
-      return;
-    }
+    if (!rating) return alert('Select a rating');
     const res = await fetch('/api/reviews', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({ providerId: id, rating: parseInt(rating), comment, isAnonymous })
     });
     if (res.ok) {
-      showToast('Review submitted!', 'success');
+      alert('Review submitted!');
       location.reload();
-    } else {
-      showToast('Failed to submit review.', 'error');
-    }
+    } else alert('Failed');
   });
 }
 
@@ -614,27 +596,24 @@ window.showBookingForm = (serviceId) => {
 window.submitBooking = async (serviceId, providerId) => {
   const token = localStorage.getItem('token');
   if (!token) {
-    showToast('Please login to book.', 'warning');
+    alert('Please login to book.');
     window.location.href = 'login.html';
     return;
   }
   const startTime = document.getElementById(`bookingTime-${serviceId}`).value;
   const notes = document.getElementById(`bookingNotes-${serviceId}`).value;
-  if (!startTime) {
-    showToast('Please select a date and time.', 'warning');
-    return;
-  }
+  if (!startTime) return alert('Select date/time');
   const res = await fetch('/api/bookings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: JSON.stringify({ providerId, serviceId, startTime, notes })
   });
   if (res.ok) {
-    showToast('Booking sent!', 'success');
+    alert('Booking sent!');
     location.reload();
   } else {
     const data = await res.json();
-    showToast(data.error || 'Booking failed', 'error');
+    alert(data.error || 'Booking failed');
   }
 };
 
@@ -642,18 +621,22 @@ window.submitBooking = async (serviceId, providerId) => {
 async function initDashboard() {
   const content = document.getElementById('dashboardContent');
 
+  // Check if user is authenticated
   if (!authToken) {
     content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
     return;
   }
 
+  // Load current user if not already loaded
   if (!currentUser) await loadCurrentUser();
 
+  // Check if user is a provider
   if (!currentUser || currentUser.role !== 'provider') {
     content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
     return;
   }
 
+  // User is a provider – load the dashboard
   content.innerHTML = '<div class="text-center py-20">Loading dashboard...</div>';
 
   try {
@@ -900,7 +883,7 @@ async function initDashboard() {
     // Mark notifications as read
     document.getElementById('markNotificationsReadBtn')?.addEventListener('click', async () => {
       await apiFetch('/api/dashboard/notifications/read', { method: 'PUT' });
-      showToast('Notifications marked as read', 'success');
+      alert('Notifications marked as read');
       location.reload();
     });
 
@@ -926,7 +909,7 @@ async function initDashboard() {
       const fileInput = document.getElementById('portfolioImageInput');
       const title = document.getElementById('portfolioTitle').value.trim();
       if (!fileInput.files.length) {
-        showToast('Please select an image.', 'warning');
+        alert('Please select an image.');
         return;
       }
       const formData = new FormData();
@@ -944,14 +927,14 @@ async function initDashboard() {
           body: JSON.stringify({ image_url: uploadData.url, title })
         });
         if (portfolioRes.ok) {
-          showToast('Portfolio image added!', 'success');
+          alert('Portfolio image added!');
           location.reload();
         } else {
           const err = await portfolioRes.json();
-          showToast(err.error || 'Failed to add portfolio item.', 'error');
+          alert(err.error || 'Failed to add portfolio item.');
         }
       } catch (err) {
-        showToast('Error: ' + err.message, 'error');
+        alert('Error: ' + err.message);
       }
     });
 
@@ -961,7 +944,7 @@ async function initDashboard() {
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData);
       await apiFetch('/api/dashboard/profile', { method: 'PUT', body: JSON.stringify(data) });
-      showToast('Profile updated', 'success');
+      alert('Profile updated');
       location.reload();
     });
 
@@ -970,8 +953,8 @@ async function initDashboard() {
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData);
       const res = await apiFetch('/api/dashboard/services', { method: 'POST', body: JSON.stringify(data) });
-      if (res.ok) { showToast('Service added', 'success'); location.reload(); }
-      else showToast('Failed to add service', 'error');
+      if (res.ok) { alert('Service added'); location.reload(); }
+      else alert('Failed');
     });
 
     document.getElementById('hoursForm')?.addEventListener('submit', async (e) => {
@@ -986,7 +969,7 @@ async function initDashboard() {
         if (is_closed) { open_time = ''; close_time = ''; }
         await apiFetch('/api/dashboard/hours', { method: 'POST', body: JSON.stringify({ day_of_week: day, open_time: open_time || null, close_time: close_time || null, is_closed }) });
       }
-      showToast('Hours saved', 'success');
+      alert('Hours saved');
       location.reload();
     });
 
@@ -1044,22 +1027,19 @@ window.updateBookingStatus = async (id, status) => {
   await apiFetch(`/api/dashboard/bookings/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
   location.reload();
 };
-
 window.deleteService = async (id) => {
   if (!confirm('Delete this service?')) return;
   const res = await apiFetch(`/api/dashboard/services/${id}`, { method: 'DELETE' });
-  if (res.ok) { showToast('Deleted', 'success'); location.reload(); }
-  else showToast('Delete failed', 'error');
+  if (res.ok) { alert('Deleted'); location.reload(); }
+  else alert('Delete failed');
 };
-
 window.uploadServiceImage = async (serviceId, file) => {
   const formData = new FormData();
   formData.append('image', file);
   const res = await fetch(`/api/upload/service/${serviceId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
-  if (res.ok) { showToast('Image uploaded', 'success'); location.reload(); }
-  else showToast('Upload failed', 'error');
+  if (res.ok) { alert('Image uploaded'); location.reload(); }
+  else alert('Upload failed');
 };
-
 window.toggleHoursDisabled = (checkbox, day) => {
   const openInput = document.querySelector(`[name="open_${day}"]`);
   const closeInput = document.querySelector(`[name="close_${day}"]`);
@@ -1074,6 +1054,7 @@ window.toggleHoursDisabled = (checkbox, day) => {
   }
 };
 
+// ========== ADMIN DASHBOARD ==========
 // ========== ADMIN DASHBOARD ==========
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {
@@ -1090,30 +1071,31 @@ async function initAdmin() {
   const feed = await (await apiFetch('/api/admin/activity-feed')).json();
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
-
-  // ---------- PERMANENTLY DELETE USER ----------
-  window.deleteUser = async (id) => {
-    if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
-      return;
+// ---------- PERMANENTLY DELETE USER ----------
+window.deleteUser = async (id) => {
+  // Double confirmation
+  if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
+    return;
+  }
+  
+  if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
+    return;
+  }
+  
+  try {
+    const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('User permanently deleted.');
+      // Reload the admin page to refresh the list
+      location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.error || 'Delete failed.');
     }
-    
-    if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
-      return;
-    }
-    
-    try {
-      const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        showToast('User permanently deleted.', 'success');
-        location.reload();
-      } else {
-        const data = await res.json();
-        showToast(data.error || 'Delete failed.', 'error');
-      }
-    } catch (err) {
-      showToast('Network error. Please try again.', 'error');
-    }
-  };
+  } catch (err) {
+    alert('Network error. Please try again.');
+  }
+};
 
   // ---- HTML with fixed chart containers ----
   let html = `
@@ -1167,29 +1149,29 @@ async function initAdmin() {
         </div>
       `).join('')}
     </div>
-    <div class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">All Users</h2>
-      <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
-        <table class="w-full text-sm">
-          <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${users.map(u => `
-              <tr class="border-b">
-                <td class="p-2">${escapeHtml(u.email)}</td>
-                <td class="p-2">${escapeHtml(u.role)}</td>
-                <td class="p-2">${u.is_active ? 'Active' : 'Inactive'}</td>
-                <td class="p-2">
-                  ${u.role === 'provider' ? `<button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>` : ''}
-                  ${u.role === 'client' ? `<button onclick="viewClient('${u.id}')" class="btn-secondary text-xs py-1 px-2 mr-1">View</button>` : ''}
-                  <button onclick="deactivateUser('${u.id}')" class="text-yellow-600 dark:text-yellow-400 text-xs mr-1 hover:underline">Deactivate</button>
-                  ${u.email !== 'admin@localink.com' ? `<button onclick="deleteUser('${u.id}')" class="text-red-600 dark:text-red-400 text-xs font-bold hover:underline">Delete</button>` : ''}
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
+ <div class="mb-8">
+  <h2 class="text-2xl font-bold mb-4">All Users</h2>
+  <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
+    <table class="w-full text-sm">
+      <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${users.map(u => `
+          <tr class="border-b">
+            <td class="p-2">${escapeHtml(u.email)}</td>
+            <td class="p-2">${escapeHtml(u.role)}</td>
+            <td class="p-2">${u.is_active ? 'Active' : 'Inactive'}</td>
+            <td class="p-2">
+              ${u.role === 'provider' ? `<button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>` : ''}
+              ${u.role === 'client' ? `<button onclick="viewClient('${u.id}')" class="btn-secondary text-xs py-1 px-2 mr-1">View</button>` : ''}
+              <button onclick="deactivateUser('${u.id}')" class="text-yellow-600 dark:text-yellow-400 text-xs mr-1 hover:underline">Deactivate</button>
+              ${u.email !== 'admin@localink.com' ? `<button onclick="deleteUser('${u.id}')" class="text-red-600 dark:text-red-400 text-xs font-bold hover:underline">Delete</button>` : ''}
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>
     <div>
       <h2 class="text-2xl font-bold mb-4">Activity Feed</h2>
       ${feed.map(f => `
@@ -1287,6 +1269,7 @@ async function viewProvider(userId) {
     }
     const data = await res.json();
 
+    // Check if profile exists
     if (!data.profile) {
       content.innerHTML = `
         <div class="text-red-500">No provider profile found for this user.</div>
@@ -1372,15 +1355,15 @@ async function viewProvider(userId) {
           body: JSON.stringify(dataObj)
         });
         if (res.ok) {
-          showToast('Provider updated successfully!', 'success');
+          alert('Provider updated successfully!');
           modal.classList.add('hidden');
           initAdmin();
         } else {
           const err = await res.json();
-          showToast(err.error || 'Update failed', 'error');
+          alert(err.error || 'Update failed');
         }
       } catch (err) {
-        showToast('Network error', 'error');
+        alert('Network error');
       }
     });
 
@@ -1408,19 +1391,14 @@ document.getElementById('closeModalBtn')?.addEventListener('click', function() {
 
 window.approveProvider = async (id) => {
   await apiFetch(`/api/admin/verify-provider/${id}`, { method: 'PUT' });
-  showToast('Provider approved', 'success');
   location.reload();
 };
-
 window.rejectProvider = async (id) => {
   await apiFetch(`/api/admin/reject-provider/${id}`, { method: 'DELETE' });
-  showToast('Provider rejected', 'info');
   location.reload();
 };
-
 window.deactivateUser = async (id) => {
   await apiFetch(`/api/admin/users/${id}/deactivate`, { method: 'PUT' });
-  showToast('User deactivated', 'info');
   location.reload();
 };
 
@@ -1471,10 +1449,10 @@ window.deletePortfolioItem = async (id) => {
   if (!confirm('Delete this portfolio image?')) return;
   const res = await apiFetch(`/api/dashboard/portfolio/${id}`, { method: 'DELETE' });
   if (res.ok) {
-    showToast('Deleted', 'success');
+    alert('Deleted');
     location.reload();
   } else {
-    showToast('Delete failed', 'error');
+    alert('Delete failed');
   }
 };
 

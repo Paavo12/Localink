@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use(express.static('frontend'));
+
 // Health check endpoint – must respond quickly
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
