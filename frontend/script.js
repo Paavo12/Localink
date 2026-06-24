@@ -1178,10 +1178,25 @@ async function initAdmin() {
 
   // ---- HTML with fixed chart containers ----
   let html = `
-    <div class="grid grid-cols-4 gap-4 mb-8">
-      ${Object.entries(stats).map(([k, v]) => `<div class="p-4 bg-[var(--card-bg)] rounded-2xl border">${k}: ${v}</div>`).join('')}
-      <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">Active Providers (30d): ${analytics.activeProviders}</div>
-    </div>
+   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  ${Object.entries(stats).map(([k, v]) => {
+    // Format the key: totalProviders -> Total Providers
+    const label = k
+      .replace(/([A-Z])/g, ' $1') // insert space before capitals
+      .replace(/^./, str => str.toUpperCase()) // capitalize first letter
+      .replace(/([a-z])([A-Z])/g, '$1 $2'); // handle mixed case
+    return `
+      <div class="p-4 bg-[var(--card-bg)] rounded-2xl border overflow-hidden">
+        <div class="text-2xl font-black text-accent">${v}</div>
+        <div class="text-xs text-[var(--foreground-muted)] break-words">${label}</div>
+      </div>
+    `;
+  }).join('')}
+  <div class="p-4 bg-[var(--card-bg)] rounded-2xl border overflow-hidden">
+    <div class="text-2xl font-black text-accent">${analytics.activeProviders || 0}</div>
+    <div class="text-xs text-[var(--foreground-muted)] break-words">Active Providers (30d)</div>
+  </div>
+</div>
     <div class="grid grid-cols-2 gap-8 mb-8">
       <div style="height: 200px; max-width: 100%;"><canvas id="regChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
       <div style="height: 200px; max-width: 100%;"><canvas id="catChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
