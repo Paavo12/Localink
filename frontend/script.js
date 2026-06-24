@@ -1192,6 +1192,20 @@ async function viewProvider(userId) {
     }
     const data = await res.json();
 
+    // Check if profile exists
+    if (!data.profile) {
+      content.innerHTML = `
+        <div class="text-red-500">No provider profile found for this user.</div>
+        <div class="mt-4 flex justify-end">
+          <button id="modalCancelBtn3" class="btn-secondary">Close</button>
+        </div>
+      `;
+      document.getElementById('modalCancelBtn3')?.addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+      return;
+    }
+
     content.innerHTML = `
       <form id="adminEditProviderForm">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1201,10 +1215,7 @@ async function viewProvider(userId) {
           </div>
           <div>
             <label class="block text-sm font-bold">Category</label>
-<select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-  <option value="">Select Category</option>
-  ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-</select>
+            <input name="category" value="${escapeHtml(data.profile.category || '')}" class="w-full p-2 border rounded-lg bg-[var(--bg-main)]">
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-bold">Description</label>
@@ -1243,17 +1254,17 @@ async function viewProvider(userId) {
       <hr class="my-4 border-[var(--border-main)]">
 
       <h3 class="text-lg font-bold mb-2">Services</h3>
-      ${data.services.length ? data.services.map(s => `
+      ${data.services && data.services.length ? data.services.map(s => `
         <div class="text-sm border-b py-1">${escapeHtml(s.name)} – N$${s.price} / ${s.duration_minutes}min</div>
       `).join('') : '<p class="text-gray-500">No services</p>'}
 
-      <h3 class="text-lg font-bold mt-4 mb-2">Reviews (${data.reviews.length})</h3>
-      ${data.reviews.slice(0, 5).map(r => `
+      <h3 class="text-lg font-bold mt-4 mb-2">Reviews (${data.reviews ? data.reviews.length : 0})</h3>
+      ${data.reviews && data.reviews.slice(0, 5).map(r => `
         <div class="text-sm border-b py-1">${escapeHtml(r.full_name)}: ⭐${r.rating} – ${escapeHtml(r.comment || '')}</div>
       `).join('')}
-      ${data.reviews.length > 5 ? `<p class="text-xs text-gray-500">... and ${data.reviews.length - 5} more</p>` : ''}
+      ${data.reviews && data.reviews.length > 5 ? `<p class="text-xs text-gray-500">... and ${data.reviews.length - 5} more</p>` : ''}
 
-      <h3 class="text-lg font-bold mt-4 mb-2">Bookings: ${data.bookingsCount}</h3>
+      <h3 class="text-lg font-bold mt-4 mb-2">Bookings: ${data.bookingsCount || 0}</h3>
     `;
 
     document.getElementById('adminEditProviderForm').addEventListener('submit', async (e) => {
