@@ -1178,13 +1178,13 @@ async function initAdmin() {
 
   // ---- HTML with fixed chart containers ----
   let html = `
-   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  // Inside initAdmin(), replace the stats grid with this:
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
   ${Object.entries(stats).map(([k, v]) => {
-    // Format the key: totalProviders -> Total Providers
     const label = k
-      .replace(/([A-Z])/g, ' $1') // insert space before capitals
-      .replace(/^./, str => str.toUpperCase()) // capitalize first letter
-      .replace(/([a-z])([A-Z])/g, '$1 $2'); // handle mixed case
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .replace(/([a-z])([A-Z])/g, '$1 $2');
     return `
       <div class="p-4 bg-[var(--card-bg)] rounded-2xl border overflow-hidden">
         <div class="text-2xl font-black text-accent">${v}</div>

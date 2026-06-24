@@ -9,19 +9,40 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css" />
   <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="alternate icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap" />
   <script src="script.js" defer></script>
+  <style>
+    /* Mobile tweaks for search bar and quick actions */
+    @media (max-width: 480px) {
+      .hero-search-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      .quick-action-btn {
+        font-size: 0.7rem !important;
+        padding: 0.3rem 0.6rem !important;
+      }
+      .quick-action-btn span {
+        font-size: 1rem !important;
+      }
+      .location-badge {
+        justify-content: center !important;
+      }
+    }
+    .location-badge {
+      white-space: nowrap;
+    }
+  </style>
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ============ NAVBAR ============ -->
+  <!-- ============ NAVBAR (unchanged) ============ -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
-        <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 group">
           <div class="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--navy)] to-[var(--orange)] flex items-center justify-center overflow-hidden shadow-[0_2px_8px_rgba(0,35,73,0.2)] group-hover:shadow-[0_4px_16px_rgba(255,146,28,0.3)] transition-shadow duration-500">
             <span class="text-white font-display font-bold text-sm relative z-10 tracking-tight">L</span>
@@ -29,12 +50,8 @@
           </div>
           <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">ink</span></span>
         </a>
-
-        <!-- Desktop nav links -->
         <div class="hidden lg:flex items-center gap-1">
           <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
-
-          <!-- Services dropdown -->
           <div class="relative" id="servicesDropdown">
             <button id="servicesDropdownBtn" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] focus:outline-none">
               Services
@@ -55,43 +72,32 @@
               <a href="search.html?category=Photographer" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Photographer</a>
             </div>
           </div>
-
           <a href="accommodation.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
           <a href="pricing.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
           <a href="about.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
         </div>
-
-        <!-- Right buttons – dynamic auth buttons -->
         <div class="flex items-center gap-2">
           <a href="search.html" class="w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]">
               <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
             </svg>
           </a>
-
-          <!-- Theme toggle -->
           <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--orange)] focus-visible:ring-offset-2" aria-label="Switch theme">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white">
               <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
             </svg>
           </button>
-
-          <!-- ===== AUTH BUTTONS ===== -->
           <div id="authButtons" class="flex items-center gap-4 border-l border-[var(--border)] pl-6">
-            <!-- Logged out (visible by default) -->
             <div id="loggedOutNav" class="flex items-center gap-4">
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
               <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
             </div>
-            <!-- Logged in (hidden by default) -->
             <div id="loggedInNav" class="flex items-center gap-4 hidden">
               <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
               <a href="my-bookings.html" class="btn-secondary text-sm">My Bookings</a>
               <button id="logoutNavBtn" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors">Logout</button>
             </div>
           </div>
-
-          <!-- Mobile menu button -->
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z" />
@@ -100,7 +106,6 @@
         </div>
       </nav>
     </div>
-    <!-- Mobile menu dropdown -->
     <div id="mobileMenu" class="hidden md:hidden bg-[var(--background-secondary)] border-t border-[var(--border)] px-4 py-4 space-y-2">
       <a href="index.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
       <a href="search.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Services</a>
@@ -113,116 +118,117 @@
     </div>
   </header>
 
-  <!-- ============ MAIN CONTENT (same as before) ============ -->
+  <!-- ============ MAIN CONTENT ============ -->
   <main class="min-h-screen">
 
- <!-- HERO SECTION -->
-<section class="relative py-16 md:py-24 pt-28 pb-8 bg-gradient-to-br from-[var(--navy)]/5 via-transparent to-[var(--orange)]/5 dark:from-[var(--navy)]/20 dark:to-[var(--orange)]/10">
-  <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
-    <div class="max-w-3xl mx-auto text-center mb-8">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--card-bg)] border border-[var(--border)] text-[10px] font-black uppercase tracking-widest text-[var(--foreground-muted)] mb-6 mx-auto shadow-sm">
-        <div class="w-2 bg-[var(--orange)] h-2 rounded-full animate-pulse"></div>
-        Namibia's Local Services Marketplace
-      </div>
-      <h1 class="font-display text-3xl md:text-5xl lg:text-6xl font-black text-[var(--foreground)] leading-[1.1] tracking-tight">
-        Find trusted local services <br class="hidden md:block" />
-        in <span class="text-[var(--orange)]">Windhoek &amp; beyond</span>
-      </h1>
-      <p class="mt-4 text-base md:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto px-4">
-        Book salons, hire plumbers, rent cars, and discover 12+ service categories
-        — all from verified Namibian providers.
-      </p>
-    </div>
-
-    <!-- SEARCH FORM - FIXED MOBILE LAYOUT -->
-    <form id="heroSearchForm" class="mx-auto max-w-3xl relative px-4" onsubmit="return false;">
-      <div class="flex flex-col sm:flex-row gap-3">
-        <!-- Search Input -->
-        <div class="relative flex-1 w-full">
-          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)]">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
-            </svg>
-          </span>
-          <input
-            type="text"
-            id="heroSearchInput"
-            placeholder="Search for services... e.g. hair salon, plumber, car rent"
-            class="w-full rounded-xl border bg-[var(--card-bg)] py-3.5 pl-11 pr-4 text-sm text-[var(--foreground)] transition-all duration-300 placeholder:text-[var(--foreground-muted)] focus:outline-none border-[var(--border)] hover:border-[var(--border-hover)]"
-          />
+    <!-- HERO SECTION - FIXED MOBILE SEARCH -->
+    <section class="relative py-12 md:py-20 pt-28 pb-8 bg-gradient-to-br from-[var(--navy)]/5 via-transparent to-[var(--orange)]/5 dark:from-[var(--navy)]/20 dark:to-[var(--orange)]/10">
+      <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div class="max-w-3xl mx-auto text-center mb-6 md:mb-8">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--card-bg)] border border-[var(--border)] text-[10px] font-black uppercase tracking-widest text-[var(--foreground-muted)] mb-4 mx-auto shadow-sm">
+            <div class="w-2 bg-[var(--orange)] h-2 rounded-full animate-pulse"></div>
+            Namibia's Local Services Marketplace
+          </div>
+          <h1 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[var(--foreground)] leading-[1.1] tracking-tight">
+            Find trusted local services <br class="hidden sm:block" />
+            in <span class="text-[var(--orange)]">Windhoek &amp; beyond</span>
+          </h1>
+          <p class="mt-3 text-sm sm:text-base md:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto px-2">
+            Book salons, hire plumbers, rent cars, and discover 12+ service categories
+            — all from verified Namibian providers.
+          </p>
         </div>
 
-        <!-- Location Badge -->
-        <div class="flex items-center gap-2 px-4 py-2.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl text-[var(--foreground-muted)] text-sm whitespace-nowrap w-full sm:w-auto">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]">
-            <path d="M17.657,16.657L13.414,20.9a1.998,1.998,0,0,1-2.827,0l-4.244-4.243a8,8,0,1,1,11.314,0Z" />
-            <path d="M15,11a3,3,0,1,1-6,0,3,3,0,0,1,6,0Z" />
-          </svg>
-          <span>Windhoek</span>
+        <!-- SEARCH FORM - FIXED MOBILE LAYOUT -->
+        <form id="heroSearchForm" class="mx-auto max-w-3xl relative px-2 sm:px-0" onsubmit="return false;">
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <!-- Search Input -->
+            <div class="relative flex-1 w-full">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="heroSearchInput"
+                placeholder="Search for services... e.g. hair salon, plumber, car rent"
+                class="w-full rounded-xl border bg-[var(--card-bg)] py-3 pl-11 pr-4 text-sm text-[var(--foreground)] transition-all duration-300 placeholder:text-[var(--foreground-muted)] focus:outline-none border-[var(--border)] hover:border-[var(--border-hover)]"
+              />
+            </div>
+
+            <!-- Location Badge -->
+            <div class="location-badge flex items-center gap-2 px-4 py-2.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl text-[var(--foreground-muted)] text-sm whitespace-nowrap w-full sm:w-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]">
+                <path d="M17.657,16.657L13.414,20.9a1.998,1.998,0,0,1-2.827,0l-4.244-4.243a8,8,0,1,1,11.314,0Z" />
+                <path d="M15,11a3,3,0,1,1-6,0,3,3,0,0,1,6,0Z" />
+              </svg>
+              <span>Windhoek</span>
+            </div>
+
+            <!-- Search Button -->
+            <button
+              type="button"
+              id="heroFindBtn"
+              class="hero-search-btn relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] bg-[var(--orange)] text-white shadow-[0_2px_8px_rgba(255,146,28,0.3)] hover:bg-[var(--orange-dark)] hover:shadow-[0_4px_16px_rgba(255,146,28,0.4)] active:shadow-[0_1px_4px_rgba(255,146,28,0.3)] px-6 py-3.5 text-sm gap-2 w-full sm:w-auto"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+              </svg>
+              Search
+            </button>
+          </div>
+        </form>
+
+        <!-- Popular Tags -->
+        <div class="mt-5 flex flex-wrap justify-center gap-1.5 text-xs text-[var(--foreground-muted)] px-2">
+          <span class="font-semibold">Popular:</span>
+          <a href="search.html?category=Salons" class="hover:text-[var(--orange)] transition-colors">Hair Salon</a>
+          <span>|</span>
+          <a href="search.html?category=Cleaning" class="hover:text-[var(--orange)] transition-colors">Cleaning</a>
+          <span>|</span>
+          <a href="search.html?category=Plumbing" class="hover:text-[var(--orange)] transition-colors">Plumber</a>
+          <span>|</span>
+          <a href="search.html?category=Car Rental" class="hover:text-[var(--orange)] transition-colors">Car Rental</a>
+          <span>|</span>
+          <a href="search.html?category=Electrician" class="hover:text-[var(--orange)] transition-colors">Electrician</a>
         </div>
-
-        <!-- Search Button -->
-        <button
-          type="button"
-          id="heroFindBtn"
-          class="relative inline-flex items-center justify-center font-display font-semibold rounded-xl transition-all duration-200 ease-out active:scale-[0.98] bg-[var(--orange)] text-white shadow-[0_2px_8px_rgba(255,146,28,0.3)] hover:bg-[var(--orange-dark)] hover:shadow-[0_4px_16px_rgba(255,146,28,0.4)] active:shadow-[0_1px_4px_rgba(255,146,28,0.3)] px-6 py-3.5 text-sm gap-2.5 w-full sm:w-auto"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
-          </svg>
-          Search
-        </button>
       </div>
-    </form>
+    </section>
 
-    <!-- Popular Tags -->
-    <div class="mt-6 flex flex-wrap justify-center gap-2 text-xs text-[var(--foreground-muted)] px-4">
-      <span class="font-semibold">Popular:</span>
-      <a href="search.html?category=Salons" class="hover:text-[var(--orange)] transition-colors">Hair Salon</a>
-      <span>|</span>
-      <a href="search.html?category=Cleaning" class="hover:text-[var(--orange)] transition-colors">Cleaning</a>
-      <span>|</span>
-      <a href="search.html?category=Plumbing" class="hover:text-[var(--orange)] transition-colors">Plumber</a>
-      <span>|</span>
-      <a href="search.html?category=Car Rental" class="hover:text-[var(--orange)] transition-colors">Car Rental</a>
-      <span>|</span>
-      <a href="search.html?category=Electrician" class="hover:text-[var(--orange)] transition-colors">Electrician</a>
-    </div>
-  </div>
-</section>
+    <!-- QUICK ACCESS - FIXED MOBILE BUTTONS -->
+    <section class="py-4 border-b border-[var(--border)] bg-[var(--background)]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+          <a href="search.html?category=Salons" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>✂️</span> <span class="hidden xs:inline">Book a</span> Salon
+          </a>
+          <a href="search.html?category=Plumbing" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>🔧</span> <span class="hidden xs:inline">Find a</span> Plumber
+          </a>
+          <a href="search.html?category=Car Rental" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>🚗</span> <span class="hidden xs:inline">Rent a</span> Car
+          </a>
+          <a href="accommodation.html" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>🏨</span> <span class="hidden xs:inline">Book a</span> Stay
+          </a>
+          <a href="search.html?category=Electrician" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>⚡</span> <span class="hidden xs:inline">Get an</span> Electrician
+          </a>
+          <a href="search.html?category=Home Repairs" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>🛠️</span> <span class="hidden xs:inline">Home</span> Repairs
+          </a>
+          <a href="search.html?category=Catering" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>🍽️</span> <span class="hidden xs:inline">Hire a</span> Caterer
+          </a>
+          <a href="search.html?category=Cleaning" class="quick-action-btn inline-flex items-center gap-1 px-2.5 sm:px-4 py-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all whitespace-nowrap">
+            <span>🧹</span> Cleaning
+          </a>
+        </div>
+      </div>
+    </section>
 
-<!-- QUICK ACCESS - Fixed mobile layout -->
-<section class="py-6 border-b border-[var(--border)] bg-[var(--background)]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-wrap justify-center gap-2 sm:gap-3">
-      <a href="search.html?category=Salons" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">✂️</span> <span class="hidden xs:inline">Book a</span> Salon
-      </a>
-      <a href="search.html?category=Plumbing" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">🔧</span> <span class="hidden xs:inline">Find a</span> Plumber
-      </a>
-      <a href="search.html?category=Car Rental" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">🚗</span> <span class="hidden xs:inline">Rent a</span> Car
-      </a>
-      <a href="accommodation.html" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">🏨</span> <span class="hidden xs:inline">Book a</span> Stay
-      </a>
-      <a href="search.html?category=Electrician" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">⚡</span> <span class="hidden xs:inline">Get an</span> Electrician
-      </a>
-      <a href="search.html?category=Home Repairs" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">🛠️</span> <span class="hidden xs:inline">Home</span> Repairs
-      </a>
-      <a href="search.html?category=Catering" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">🍽️</span> <span class="hidden xs:inline">Hire a</span> Caterer
-      </a>
-      <a href="search.html?category=Cleaning" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-full text-xs sm:text-sm text-[var(--foreground-secondary)] hover:border-[var(--orange)] transition-all">
-        <span class="text-base sm:text-lg">🧹</span> Cleaning
-      </a>
-    </div>
-  </div>
-</section>
-
+    <!-- ============ REST OF PAGE (unchanged) ============ -->
     <!-- STATS BAR -->
     <section class="py-12 border-b border-[var(--border)] bg-[var(--background)]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -245,9 +251,7 @@
           </div>
           <a href="search.html" class="text-sm font-medium text-[var(--orange)] hover:underline">View all →</a>
         </div>
-        <div id="topRatedGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- loaded by script.js -->
-        </div>
+        <div id="topRatedGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
       </div>
     </section>
 
@@ -372,7 +376,6 @@
           <p class="text-[var(--foreground-muted)] text-sm">Real reviews from real people</p>
         </div>
         <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <!-- loaded by script.js -->
           <div class="col-span-3 text-center text-[var(--foreground-muted)]">Loading testimonials...</div>
         </div>
       </div>
@@ -394,7 +397,6 @@
 
   <!-- ============ FOOTER (unchanged) ============ -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
-    <!-- ... same footer as before ... -->
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
       <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-[var(--orange)] blur-[120px]"></div>
@@ -405,7 +407,6 @@
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
       <div class="py-16 md:py-20">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
-          <!-- Brand -->
           <div class="lg:col-span-4">
             <a href="index.html" class="flex items-center gap-2.5 mb-5 group">
               <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-white/20 to-[var(--orange)] flex items-center justify-center overflow-hidden relative shadow-[0_2px_8px_rgba(255,146,28,0.2)]">
@@ -436,8 +437,6 @@
               </a>
             </div>
           </div>
-
-          <!-- Services -->
           <div class="lg:col-span-3">
             <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Services</h4>
             <ul class="space-y-3">
@@ -449,8 +448,6 @@
               <li><a href="search.html?category=Electrician" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Electrical</a></li>
             </ul>
           </div>
-
-          <!-- Company -->
           <div class="lg:col-span-2">
             <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Company</h4>
             <ul class="space-y-3">
@@ -460,8 +457,6 @@
               <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Contact</a></li>
             </ul>
           </div>
-
-          <!-- Legal -->
           <div class="lg:col-span-3">
             <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Legal</h4>
             <ul class="space-y-3">
@@ -544,9 +539,7 @@
         });
       }
 
-      // ===== NAVBAR AUTH TOGGLE =====
-      // This uses the global `currentUser` set by script.js
-      // If the user is logged in, show Dashboard & Logout
+      // Auth toggle
       function updateAuthButtons() {
         const loggedOut = document.getElementById('loggedOutNav');
         const loggedIn = document.getElementById('loggedInNav');
@@ -559,15 +552,7 @@
           loggedIn.classList.add('hidden');
         }
       }
-
-      // Initial update
-      updateAuthButtons();
-
-      // Listen for login/logout events (script.js will update currentUser)
-      // We also re-check after a small delay to ensure currentUser is loaded
       setTimeout(updateAuthButtons, 500);
-
-      // Logout button
       document.getElementById('logoutNavBtn')?.addEventListener('click', function() {
         localStorage.removeItem('token');
         window.location.href = 'index.html';
