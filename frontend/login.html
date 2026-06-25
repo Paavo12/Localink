@@ -6,11 +6,11 @@
   <title>Login – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
-  <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="alternate icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <script src="script.js" defer></script>
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
@@ -68,10 +68,7 @@
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
               <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
             </div>
-            <div id="loggedInNav" class="flex items-center gap-4 hidden">
-              <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
-              <button id="logoutNavBtn" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors">Logout</button>
-            </div>
+            <!-- LoggedInNav REMOVED – no logout button on login page -->
           </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -93,7 +90,7 @@
     </div>
   </header>
 
-  <!-- ======== LOGIN FORM WITH SHOW/HIDE PASSWORD ======== -->
+  <!-- ======== LOGIN FORM ======== -->
   <div class="min-h-screen flex items-center justify-center px-4 pt-20">
     <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-6 sm:p-10 w-full max-w-md max-h-[90vh] overflow-y-auto">
       <h1 class="text-2xl sm:text-3xl font-black uppercase italic tracking-tighter text-center mb-8">Sign In</h1>
@@ -107,7 +104,6 @@
           <div class="relative">
             <input type="password" id="password" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)] min-h-[48px] pr-12" placeholder="Enter your password">
             <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors focus:outline-none" aria-label="Toggle password visibility">
-              <!-- Eye icon (closed by default because password input is hidden) -->
               <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
@@ -185,11 +181,11 @@
           const email = document.getElementById('email').value.trim();
           const password = document.getElementById('password').value.trim();
           if (!email || !password) {
-            alert('Please fill in both fields.');
+            showToast('Please fill in both fields.', 'warning');
             return;
           }
           if (typeof login !== 'function') {
-            alert('Login function not loaded. Please refresh and try again.');
+            showToast('Login function not loaded. Please refresh and try again.', 'error');
             return;
           }
           try {
@@ -203,31 +199,25 @@
               }
             }
           } catch (err) {
-            alert('Login error: ' + err.message);
+            showToast('Login error: ' + err.message, 'error');
           }
         });
       }
 
-      // ========== PASSWORD VISIBILITY TOGGLE ==========
+      // Password visibility toggle
       const togglePassword = document.getElementById('togglePassword');
       const passwordInput = document.getElementById('password');
       const eyeIcon = document.getElementById('eyeIcon');
-
       if (togglePassword && passwordInput) {
         togglePassword.addEventListener('click', function() {
-          // Toggle the type attribute
           const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
           passwordInput.setAttribute('type', type);
-          
-          // Toggle the icon
           if (type === 'text') {
-            // Password is visible – show eye with slash
             eyeIcon.innerHTML = `
               <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
               <line x1="1" y1="1" x2="23" y2="23"></line>
             `;
           } else {
-            // Password is hidden – show open eye
             eyeIcon.innerHTML = `
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
