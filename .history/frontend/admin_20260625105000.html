@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upgrade – Localink</title>
+  <title>Admin Panel – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -68,26 +69,10 @@
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
               <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
             </div>
-           <div id="loggedInNav" class="flex items-center gap-4 hidden">
-  <!-- User dropdown -->
-  <div class="relative" id="userDropdown">
-    <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
-      </svg>
-      Account
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
-        <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
-      </svg>
-    </button>
-    <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
-      <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
-      <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
-      <hr class="border-[var(--border)] my-1">
-      <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
-    </div>
-  </div>
-</div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+              <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
+              <!-- Logout button removed from navbar - using the one in the content area instead -->
+            </div>
           </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -109,154 +94,50 @@
     </div>
   </header>
 
-  <div class="container mx-auto px-4 py-32 text-center">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Basic</h2>
-          <p class="text-3xl font-black mt-4">FREE</p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Public business listing</li>
-            <li>✓ Up to 5 services</li>
-            <li>✓ WhatsApp contact</li>
-            <li>✗ Verified badge</li>
-            <li>✗ Search ranking boost</li>
-          </ul>
-          <button class="btn-secondary mt-6 w-full" disabled>Current Plan</button>
-        </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] relative">
-          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
-          <h2 class="text-2xl font-bold">Verified</h2>
-          <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Basic</li>
-            <li>✓ Verified badge</li>
-            <li>✓ 2x search ranking boost</li>
-            <li>✓ Up to 15 services</li>
-            <li>✓ 7‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Upgrade</button>
-        </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Premium</h2>
-          <p class="text-3xl font-black mt-4">N$399<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Verified</li>
-            <li>✓ Featured badge</li>
-            <li>✓ 5x search ranking boost</li>
-            <li>✓ Homepage feature slot</li>
-            <li>✓ 30‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Upgrade</button>
-        </div>
+  <div class="container mx-auto px-4 py-8 pt-28">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-black">Admin Control Panel</h1>
+      <button id="logoutAdminBtn" class="btn-secondary">Logout</button>
+    </div>
+    <div id="adminContent">Loading...</div>
+  </div>
+
+  <!-- Provider Details Modal -->
+  <div id="providerModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold" id="modalTitle">Provider Details</h2>
+        <button id="closeModalBtn" class="text-3xl leading-none">&times;</button>
       </div>
-      <p class="text-xs text-[var(--foreground-muted)] mt-12">*Upgrade will be applied immediately. This is a demo – no real payment is processed.</p>
+      <div id="modalContent">Loading...</div>
     </div>
   </div>
 
-  <footer class="bg-[var(--background)] border-t border-[var(--border)] py-10 text-center text-[var(--foreground-muted)]">
-    <p>© 2026 Localink. All rights reserved.</p>
-  </footer>
-
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const mobileBtn = document.getElementById('mobileMenuBtn');
-      const mobileMenu = document.getElementById('mobileMenu');
-      if (mobileBtn && mobileMenu) {
-        mobileBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          mobileMenu.classList.toggle('hidden');
-        });
-        document.addEventListener('click', function(e) {
-          if (!mobileMenu.contains(e.target) && !mobileBtn.contains(e.target)) {
-            mobileMenu.classList.add('hidden');
-          }
-        });
-      }
+    document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
 
-      const dropdownBtn = document.getElementById('servicesDropdownBtn');
-      const dropdownMenu = document.getElementById('servicesDropdownMenu');
-      const arrow = document.getElementById('servicesDropdownArrow');
-      if (dropdownBtn && dropdownMenu) {
-        dropdownBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          dropdownMenu.classList.toggle('hidden');
-          arrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', function(e) {
-          if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-            dropdownMenu.classList.add('hidden');
-            arrow.classList.remove('rotate-180');
-          }
-        });
-        dropdownMenu.querySelectorAll('a').forEach(function(link) {
-          link.addEventListener('click', function() {
-            dropdownMenu.classList.add('hidden');
-            arrow.classList.remove('rotate-180');
-          });
-        });
+    // ========== PERMANENT DELETE USER ==========
+    window.deleteUser = async function(id) {
+      // Double confirmation to prevent accidents
+      if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, portfolio, etc.). This CANNOT be undone!')) {
+        return;
       }
-            // ========== USER DROPDOWN TOGGLE ==========
-      const userDropdownBtn = document.getElementById('userDropdownBtn');
-      const userDropdownMenu = document.getElementById('userDropdownMenu');
-      const userArrow = document.getElementById('userDropdownArrow');
-      if (userDropdownBtn && userDropdownMenu) {
-        userDropdownBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdownMenu.classList.toggle('hidden');
-          userArrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', function(e) {
-          if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          }
-        });
-        userDropdownMenu.querySelectorAll('a, button').forEach(function(item) {
-          item.addEventListener('click', function() {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          });
-        });
+      if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to permanently delete this user?')) {
+        return;
       }
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        document.querySelectorAll('.upgrade-btn').forEach(btn => {
-          btn.disabled = true;
-          btn.textContent = 'Login to Upgrade';
-          btn.classList.add('opacity-50', 'cursor-not-allowed');
-        });
+      try {
+        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          alert('✅ User permanently deleted.');
+          location.reload();
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Delete failed.');
+        }
+      } catch (err) {
+        alert('Network error. Please try again.');
       }
-
-      document.querySelectorAll('.upgrade-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const tier = btn.getAttribute('data-tier');
-          if (!token) {
-            alert('Please login as a provider to upgrade.');
-            window.location.href = 'login.html';
-            return;
-          }
-          try {
-            const res = await fetch('/api/subscriptions/upgrade', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-              body: JSON.stringify({ tier })
-            });
-            const data = await res.json();
-            if (res.ok) {
-              alert(`Successfully upgraded to ${tier}!`);
-              window.location.href = 'dashboard.html';
-            } else {
-              alert(data.error || 'Upgrade failed. Make sure you are a provider.');
-            }
-          } catch (err) {
-            alert('Network error. Please try again.');
-          }
-        });
-      });
-    });
+    };
   </script>
 </body>
 </html>

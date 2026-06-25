@@ -92,26 +92,11 @@
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
               <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
             </div>
-          <div id="loggedInNav" class="flex items-center gap-4 hidden">
-  <!-- User dropdown -->
-  <div class="relative" id="userDropdown">
-    <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
-      </svg>
-      Account
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
-        <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
-      </svg>
-    </button>
-    <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
-      <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
-      <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
-      <hr class="border-[var(--border)] my-1">
-      <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
-    </div>
-  </div>
-</div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+              <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
+              <a href="my-bookings.html" class="btn-secondary text-sm">My Bookings</a>
+              <button id="logoutNavBtn" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors">Logout</button>
+            </div>
           </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -537,29 +522,7 @@
           });
         });
       }
-      // ========== USER DROPDOWN TOGGLE ==========
-      const userDropdownBtn = document.getElementById('userDropdownBtn');
-      const userDropdownMenu = document.getElementById('userDropdownMenu');
-      const userArrow = document.getElementById('userDropdownArrow');
-      if (userDropdownBtn && userDropdownMenu) {
-        userDropdownBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdownMenu.classList.toggle('hidden');
-          userArrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', function(e) {
-          if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          }
-        });
-        userDropdownMenu.querySelectorAll('a, button').forEach(function(item) {
-          item.addEventListener('click', function() {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          });
-        });
-      }
+
       // Hero search redirect
       const heroSearchInput = document.getElementById('heroSearchInput');
       const heroFindBtn = document.getElementById('heroFindBtn');

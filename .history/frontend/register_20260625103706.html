@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upgrade – Localink</title>
+  <title>Register – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
@@ -109,54 +109,31 @@
     </div>
   </header>
 
-  <div class="container mx-auto px-4 py-32 text-center">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Basic</h2>
-          <p class="text-3xl font-black mt-4">FREE</p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Public business listing</li>
-            <li>✓ Up to 5 services</li>
-            <li>✓ WhatsApp contact</li>
-            <li>✗ Verified badge</li>
-            <li>✗ Search ranking boost</li>
-          </ul>
-          <button class="btn-secondary mt-6 w-full" disabled>Current Plan</button>
-        </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] relative">
-          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
-          <h2 class="text-2xl font-bold">Verified</h2>
-          <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Basic</li>
-            <li>✓ Verified badge</li>
-            <li>✓ 2x search ranking boost</li>
-            <li>✓ Up to 15 services</li>
-            <li>✓ 7‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Upgrade</button>
-        </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Premium</h2>
-          <p class="text-3xl font-black mt-4">N$399<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Verified</li>
-            <li>✓ Featured badge</li>
-            <li>✓ 5x search ranking boost</li>
-            <li>✓ Homepage feature slot</li>
-            <li>✓ 30‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Upgrade</button>
-        </div>
-      </div>
-      <p class="text-xs text-[var(--foreground-muted)] mt-12">*Upgrade will be applied immediately. This is a demo – no real payment is processed.</p>
+  <div class="min-h-screen flex items-center justify-center px-4 pt-20">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-10 w-full max-w-md">
+      <h1 class="text-3xl font-black uppercase italic tracking-tighter text-center mb-8">Create Account</h1>
+      <form id="registerForm" class="space-y-6">
+        <div><input type="text" id="fullName" placeholder="Full Name" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+        <div><input type="email" id="email" placeholder="Email" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+        <div><input type="tel" id="phone" placeholder="Phone (optional)" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+        <div><input type="password" id="password" placeholder="Password" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
+        <button type="submit" class="w-full btn-primary">Register</button>
+      </form>
+      <p class="text-center text-xs mt-6 text-[var(--foreground-muted)]">Already have an account? <a href="login.html" class="text-[var(--orange)] hover:underline">Login</a></p>
     </div>
   </div>
 
-  <footer class="bg-[var(--background)] border-t border-[var(--border)] py-10 text-center text-[var(--foreground-muted)]">
-    <p>© 2026 Localink. All rights reserved.</p>
+  <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
+    <div class="absolute inset-0 opacity-[0.03]">
+      <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-[var(--orange)] blur-[120px]"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-white blur-[120px]"></div>
+    </div>
+    <div class="absolute top-12 right-12 w-40 h-40 border border-white/4 rounded-full"></div>
+    <div class="absolute top-16 right-16 w-32 h-32 border border-white/4 rounded-full"></div>
+    <div class="text-center py-6 text-white/40 text-xs">
+      © 2026 Localink. All rights reserved.
+    </div>
   </footer>
 
   <script>
@@ -197,65 +174,30 @@
           });
         });
       }
-            // ========== USER DROPDOWN TOGGLE ==========
-      const userDropdownBtn = document.getElementById('userDropdownBtn');
-      const userDropdownMenu = document.getElementById('userDropdownMenu');
-      const userArrow = document.getElementById('userDropdownArrow');
-      if (userDropdownBtn && userDropdownMenu) {
-        userDropdownBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdownMenu.classList.toggle('hidden');
-          userArrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', function(e) {
-          if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          }
-        });
-        userDropdownMenu.querySelectorAll('a, button').forEach(function(item) {
-          item.addEventListener('click', function() {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
+
+      // Register handler
+      const form = document.getElementById('registerForm');
+      if (form) {
+        form.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const full_name = document.getElementById('fullName').value;
+          const email = document.getElementById('email').value;
+          const phone = document.getElementById('phone').value;
+          const password = document.getElementById('password').value;
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_name, email, phone, password })
           });
-        });
-      }
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        document.querySelectorAll('.upgrade-btn').forEach(btn => {
-          btn.disabled = true;
-          btn.textContent = 'Login to Upgrade';
-          btn.classList.add('opacity-50', 'cursor-not-allowed');
-        });
-      }
-
-      document.querySelectorAll('.upgrade-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const tier = btn.getAttribute('data-tier');
-          if (!token) {
-            alert('Please login as a provider to upgrade.');
-            window.location.href = 'login.html';
-            return;
-          }
-          try {
-            const res = await fetch('/api/subscriptions/upgrade', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-              body: JSON.stringify({ tier })
-            });
-            const data = await res.json();
-            if (res.ok) {
-              alert(`Successfully upgraded to ${tier}!`);
-              window.location.href = 'dashboard.html';
-            } else {
-              alert(data.error || 'Upgrade failed. Make sure you are a provider.');
-            }
-          } catch (err) {
-            alert('Network error. Please try again.');
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem('token', data.token);
+            window.location.href = 'index.html';
+          } else {
+            alert(data.error || 'Registration failed');
           }
         });
-      });
+      }
     });
   </script>
 </body>

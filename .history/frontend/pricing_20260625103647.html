@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register – Localink</title>
+  <title>Pricing – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
@@ -109,20 +109,45 @@
     </div>
   </header>
 
-  <div class="min-h-screen flex items-center justify-center px-4 pt-20">
-    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-10 w-full max-w-md">
-      <h1 class="text-3xl font-black uppercase italic tracking-tighter text-center mb-8">Create Account</h1>
-      <form id="registerForm" class="space-y-6">
-        <div><input type="text" id="fullName" placeholder="Full Name" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
-        <div><input type="email" id="email" placeholder="Email" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
-        <div><input type="tel" id="phone" placeholder="Phone (optional)" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
-        <div><input type="password" id="password" placeholder="Password" required class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]"></div>
-        <button type="submit" class="w-full btn-primary">Register</button>
-      </form>
-      <p class="text-center text-xs mt-6 text-[var(--foreground-muted)]">Already have an account? <a href="login.html" class="text-[var(--orange)] hover:underline">Login</a></p>
-    </div>
-  </div>
+  <main class="pt-32 pb-20 max-w-7xl mx-auto px-4">
+    <h1 class="text-5xl font-black uppercase italic tracking-tighter text-center mb-4">Simple, transparent pricing</h1>
+    <p class="text-center text-[var(--foreground-muted)] mb-12">Choose the plan that fits your business. Upgrade or downgrade anytime.</p>
 
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border)] p-8">
+        <h2 class="text-2xl font-bold">Basic</h2>
+        <div class="mt-4 mb-6"><span class="text-5xl font-black">N$0</span><span class="text-[var(--foreground-muted)]">/month</span></div>
+        <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
+          <li>✓ Public business listing</li><li>✓ Up to 5 services</li><li>✓ 200‑char description</li>
+          <li>✓ WhatsApp contact</li><li>✗ Verified badge</li><li>✗ Search ranking boost</li><li>✗ Analytics</li>
+        </ul>
+        <div class="mt-8"><a href="register.html" class="btn-secondary w-full text-center block">Get Started</a></div>
+      </div>
+      <div class="bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] p-8 relative">
+        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
+        <h2 class="text-2xl font-bold">Verified</h2>
+        <div class="mt-4 mb-6"><span class="text-5xl font-black">N$149</span><span class="text-[var(--foreground-muted)]">/month</span></div>
+        <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
+          <li>✓ Everything in Basic</li><li>✓ Verified badge</li><li>✓ 2x search ranking boost</li>
+          <li>✓ Up to 15 services</li><li>✓ 1,000‑char description</li><li>✓ 7‑day profile analytics</li>
+          <li>✓ Review responses</li>
+        </ul>
+        <div class="mt-8"><a href="checkout.html?plan=verified" class="btn-primary w-full text-center block">Upgrade Now</a></div>
+      </div>
+      <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border)] p-8">
+        <h2 class="text-2xl font-bold">Premium</h2>
+        <div class="mt-4 mb-6"><span class="text-5xl font-black">N$399</span><span class="text-[var(--foreground-muted)]">/month</span></div>
+        <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
+          <li>✓ Everything in Verified</li><li>✓ Featured badge</li><li>✓ 5x search ranking boost</li>
+          <li>✓ Homepage feature slot</li><li>✓ Unlimited services & images</li><li>✓ 30‑day analytics</li>
+          <li>✓ Priority WhatsApp support</li>
+        </ul>
+        <div class="mt-8"><a href="checkout.html?plan=premium" class="btn-primary w-full text-center block">Upgrade Now</a></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======== FOOTER ======== -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
@@ -131,8 +156,80 @@
     </div>
     <div class="absolute top-12 right-12 w-40 h-40 border border-white/4 rounded-full"></div>
     <div class="absolute top-16 right-16 w-32 h-32 border border-white/4 rounded-full"></div>
-    <div class="text-center py-6 text-white/40 text-xs">
-      © 2026 Localink. All rights reserved.
+    <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+      <div class="py-16 md:py-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+          <div class="lg:col-span-4">
+            <a href="index.html" class="flex items-center gap-2.5 mb-5 group">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-white/20 to-[var(--orange)] flex items-center justify-center overflow-hidden relative shadow-[0_2px_8px_rgba(255,146,28,0.2)]">
+                <span class="text-white font-display font-bold text-sm relative z-10">L</span>
+                <div class="absolute inset-0 bg-gradient-to-br from-[var(--orange)] to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              </div>
+              <span class="font-display font-bold text-xl">Local<span class="text-[var(--orange)]">ink</span></span>
+            </a>
+            <p class="text-white/60 text-sm leading-relaxed max-w-xs mb-6">Connecting Namibia to verified local service providers. Find, book, and request services with confidence.</p>
+            <div class="space-y-3.5">
+              <a href="#" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M12,2a8,8,0,0,0-8,8c0,5.4,7.05,11.5,7.35,11.76a1,1,0,0,0,1.3,0C13,21.5,20,15.4,20,10A8,8,0,0,0,12,2Zm0,17.65c-2.13-2-6-6.31-6-9.65a6,6,0,0,1,12,0C18,13.34,14.13,17.66,12,19.65ZM12,6a4,4,0,1,0,4,4A4,4,0,0,0,12,6Zm0,6a2,2,0,1,1,2-2A2,2,0,0,1,12,12Z"/></svg>
+                </div>
+                <span>Windhoek, Namibia</span>
+              </a>
+              <a href="tel:+264" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M19.44,13c-.22,0-.45-.07-.67-.12a9.44,9.44,0,0,1-1.31-.39,2,2,0,0,0-2.48,1l-.22.45a12.18,12.18,0,0,1-2.66-2,12.18,12.18,0,0,1-2-2.66L10.52,9a2,2,0,0,0,1-2.48,10.33,10.33,0,0,1-.39-1.31c-.05-.22-.09-.45-.12-.68a3,3,0,0,0-3-2.49h-3a3,3,0,0,0-3,3.41A19,19,0,0,0,18.53,21.91l.38,0a3,3,0,0,0,2-.76,3,3,0,0,0,1-2.25v-3A3,3,0,0,0,19.44,13Zm.5,6a1,1,0,0,1-.34.75,1.05,1.05,0,0,1-.82.25A17,17,0,0,1,4.07,5.22a1.09,1.09,0,0,1,.25-.82,1,1,0,0,1,.75-.34h3a1,1,0,0,1,1,.79q.06.41.15.81a11.12,11.12,0,0,0,.46,1.55l-1.4.65a1,1,0,0,0-.49,1.33,14.49,14.49,0,0,0,7,7,1,1,0,0,0,.76,0,1,1,0,0,0,.57-.52l.62-1.4a13.69,13.69,0,0,0,1.58.46q.4.09.81.15a1,1,0,0,1,.79,1Z"/></svg>
+                </div>
+                <span>+264 XX XXX XXXX</span>
+              </a>
+              <a href="mailto:hello@localink.na" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M19,4H5A3,3,0,0,0,2,7V17a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V7A3,3,0,0,0,19,4Zm-.41,2-5.88,5.88a1,1,0,0,1-1.42,0L5.41,6ZM20,17a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V7.41l5.88,5.88a3,3,0,0,0,4.24,0L20,7.41Z"/></svg>
+                </div>
+                <span>hello@localink.na</span>
+              </a>
+            </div>
+          </div>
+          <div class="lg:col-span-3">
+            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Services</h4>
+            <ul class="space-y-3">
+              <li><a href="search.html?category=Salons" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Salons &amp; Beauty</a></li>
+              <li><a href="search.html?category=Cleaning" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Cleaning</a></li>
+              <li><a href="search.html?category=Car Rental" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Car Rentals</a></li>
+              <li><a href="accommodation.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Accommodation</a></li>
+              <li><a href="search.html?category=Plumbing" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Plumbing</a></li>
+              <li><a href="search.html?category=Electrician" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Electrical</a></li>
+            </ul>
+          </div>
+          <div class="lg:col-span-2">
+            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Company</h4>
+            <ul class="space-y-3">
+              <li><a href="about.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">About Us</a></li>
+              <li><a href="how-it-works.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">How It Works</a></li>
+              <li><a href="register-provider.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">For Providers</a></li>
+              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Contact</a></li>
+            </ul>
+          </div>
+          <div class="lg:col-span-3">
+            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Legal</h4>
+            <ul class="space-y-3">
+              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Terms &amp; Conditions</a></li>
+              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Privacy Policy</a></li>
+              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Disclaimer</a></li>
+            </ul>
+            <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
+              <p class="text-xs text-white/60 mb-2.5 font-medium">Need help? Chat with us</p>
+              <a href="https://wa.me/264XXXXXXXX?text=Hi%20Localink!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-display font-semibold text-green-400 hover:text-green-300 transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp Us
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-14 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-white/40">© 2026 Localink. All rights reserved. Made in Namibia.</p>
+          <p class="text-xs text-white/30 font-display tracking-wide">Connecting communities, one service at a time.</p>
+        </div>
+      </div>
     </div>
   </footer>
 
@@ -172,53 +269,6 @@
             dropdownMenu.classList.add('hidden');
             arrow.classList.remove('rotate-180');
           });
-        });
-      }
-            // ========== USER DROPDOWN TOGGLE ==========
-      const userDropdownBtn = document.getElementById('userDropdownBtn');
-      const userDropdownMenu = document.getElementById('userDropdownMenu');
-      const userArrow = document.getElementById('userDropdownArrow');
-      if (userDropdownBtn && userDropdownMenu) {
-        userDropdownBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdownMenu.classList.toggle('hidden');
-          userArrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', function(e) {
-          if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          }
-        });
-        userDropdownMenu.querySelectorAll('a, button').forEach(function(item) {
-          item.addEventListener('click', function() {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          });
-        });
-      }
-
-      // Register handler
-      const form = document.getElementById('registerForm');
-      if (form) {
-        form.addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const full_name = document.getElementById('fullName').value;
-          const email = document.getElementById('email').value;
-          const phone = document.getElementById('phone').value;
-          const password = document.getElementById('password').value;
-          const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ full_name, email, phone, password })
-          });
-          const data = await res.json();
-          if (res.ok) {
-            localStorage.setItem('token', data.token);
-            window.location.href = 'index.html';
-          } else {
-            alert(data.error || 'Registration failed');
-          }
         });
       }
     });

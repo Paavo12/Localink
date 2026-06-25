@@ -3,19 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upgrade – Localink</title>
+  <title>My Bookings – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
-  <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="alternate icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
   <script src="script.js" defer></script>
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR ======== -->
+  <!-- ======== NAVBAR (same as index.html) ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -109,58 +105,134 @@
     </div>
   </header>
 
-  <div class="container mx-auto px-4 py-32 text-center">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Basic</h2>
-          <p class="text-3xl font-black mt-4">FREE</p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Public business listing</li>
-            <li>✓ Up to 5 services</li>
-            <li>✓ WhatsApp contact</li>
-            <li>✗ Verified badge</li>
-            <li>✗ Search ranking boost</li>
-          </ul>
-          <button class="btn-secondary mt-6 w-full" disabled>Current Plan</button>
-        </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] relative">
-          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
-          <h2 class="text-2xl font-bold">Verified</h2>
-          <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Basic</li>
-            <li>✓ Verified badge</li>
-            <li>✓ 2x search ranking boost</li>
-            <li>✓ Up to 15 services</li>
-            <li>✓ 7‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Upgrade</button>
-        </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Premium</h2>
-          <p class="text-3xl font-black mt-4">N$399<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Verified</li>
-            <li>✓ Featured badge</li>
-            <li>✓ 5x search ranking boost</li>
-            <li>✓ Homepage feature slot</li>
-            <li>✓ 30‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Upgrade</button>
-        </div>
-      </div>
-      <p class="text-xs text-[var(--foreground-muted)] mt-12">*Upgrade will be applied immediately. This is a demo – no real payment is processed.</p>
+  <!-- ======== MAIN CONTENT ======== -->
+  <main class="container mx-auto px-4 py-20 pt-28">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-black">My Bookings</h1>
+      <a href="index.html" class="btn-secondary text-sm">Back to Home</a>
     </div>
-  </div>
-
-  <footer class="bg-[var(--background)] border-t border-[var(--border)] py-10 text-center text-[var(--foreground-muted)]">
-    <p>© 2026 Localink. All rights reserved.</p>
-  </footer>
+    <div id="bookingsContainer">
+      <div class="text-center py-20">Loading your bookings...</div>
+    </div>
+  </main>
 
   <script>
+    // ========== MY BOOKINGS PAGE ==========
+    async function loadMyBookings() {
+      const container = document.getElementById('bookingsContainer');
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        container.innerHTML = `
+          <div class="text-center py-20">
+            <p class="text-[var(--foreground-muted)]">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> to view your bookings.</p>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/bookings/my', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Failed to load bookings');
+        const bookings = await res.json();
+
+        if (bookings.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-20">
+              <p class="text-[var(--foreground-muted)] text-lg">No bookings yet</p>
+              <p class="text-sm mt-2 text-[var(--foreground-muted)]">Browse services and book your first appointment!</p>
+              <a href="search.html" class="btn-primary mt-4 inline-block">Find a Service</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            ${bookings.map(b => `
+              <div class="bg-[var(--card-bg)] p-6 rounded-2xl border border-[var(--border)] shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                  <h3 class="text-xl font-bold text-[var(--foreground)]">${escapeHtml(b.business_name)}</h3>
+                  <span class="px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(b.status)}">${b.status}</span>
+                </div>
+                <p class="text-[var(--foreground-secondary)]">${escapeHtml(b.service_name || 'Service')}</p>
+                <p class="text-sm text-[var(--foreground-muted)] mt-2">
+                  📅 ${new Date(b.start_time).toLocaleString()}
+                </p>
+                ${b.notes ? `<p class="text-sm text-[var(--foreground-muted)] mt-1">📝 ${escapeHtml(b.notes)}</p>` : ''}
+                <div class="mt-4 flex gap-2">
+                  ${b.status === 'pending' ? `<button onclick="cancelBooking('${b.id}')" class="btn-secondary text-sm">Cancel</button>` : ''}
+                  <a href="business.html?id=${b.provider_id}" class="btn-primary text-sm">View Provider</a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (err) {
+        console.error('Error loading bookings:', err);
+        container.innerHTML = `
+          <div class="text-center py-20">
+            <p class="text-red-500">Failed to load bookings. Please try again.</p>
+          </div>
+        `;
+      }
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        pending: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400',
+        confirmed: 'bg-green-500/20 text-green-600 dark:text-green-400',
+        completed: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
+        cancelled: 'bg-red-500/20 text-red-600 dark:text-red-400'
+      };
+      return colors[status] || 'bg-gray-500/20 text-gray-600 dark:text-gray-400';
+    }
+
+    window.cancelBooking = async (bookingId) => {
+      if (!confirm('Are you sure you want to cancel this booking?')) return;
+      try {
+        const res = await fetch(`/api/bookings/${bookingId}/cancel`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (res.ok) {
+          showToast('Booking cancelled', 'success');
+          loadMyBookings();
+        } else {
+          showToast('Failed to cancel booking', 'error');
+        }
+      } catch (err) {
+        showToast('Network error', 'error');
+      }
+    };
+
+    // ========== NAVBAR AUTH TOGGLE ==========
+    function updateNavbarAuth() {
+      const loggedOutNav = document.getElementById('loggedOutNav');
+      const loggedInNav = document.getElementById('loggedInNav');
+      if (!loggedOutNav || !loggedInNav) return;
+      const token = localStorage.getItem('token');
+      if (token && currentUser) {
+        loggedOutNav.classList.add('hidden');
+        loggedInNav.classList.remove('hidden');
+      } else {
+        loggedOutNav.classList.remove('hidden');
+        loggedInNav.classList.add('hidden');
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+      initTheme();
+      initNavbarScroll();
+      loadCurrentUser().then(() => {
+        updateNavbarAuth();
+        loadMyBookings();
+      });
+
+      // Mobile menu toggle
       const mobileBtn = document.getElementById('mobileMenuBtn');
       const mobileMenu = document.getElementById('mobileMenu');
       if (mobileBtn && mobileMenu) {
@@ -175,6 +247,7 @@
         });
       }
 
+      // Services dropdown
       const dropdownBtn = document.getElementById('servicesDropdownBtn');
       const dropdownMenu = document.getElementById('servicesDropdownMenu');
       const arrow = document.getElementById('servicesDropdownArrow');
@@ -197,65 +270,6 @@
           });
         });
       }
-            // ========== USER DROPDOWN TOGGLE ==========
-      const userDropdownBtn = document.getElementById('userDropdownBtn');
-      const userDropdownMenu = document.getElementById('userDropdownMenu');
-      const userArrow = document.getElementById('userDropdownArrow');
-      if (userDropdownBtn && userDropdownMenu) {
-        userDropdownBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdownMenu.classList.toggle('hidden');
-          userArrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', function(e) {
-          if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          }
-        });
-        userDropdownMenu.querySelectorAll('a, button').forEach(function(item) {
-          item.addEventListener('click', function() {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          });
-        });
-      }
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        document.querySelectorAll('.upgrade-btn').forEach(btn => {
-          btn.disabled = true;
-          btn.textContent = 'Login to Upgrade';
-          btn.classList.add('opacity-50', 'cursor-not-allowed');
-        });
-      }
-
-      document.querySelectorAll('.upgrade-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const tier = btn.getAttribute('data-tier');
-          if (!token) {
-            alert('Please login as a provider to upgrade.');
-            window.location.href = 'login.html';
-            return;
-          }
-          try {
-            const res = await fetch('/api/subscriptions/upgrade', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-              body: JSON.stringify({ tier })
-            });
-            const data = await res.json();
-            if (res.ok) {
-              alert(`Successfully upgraded to ${tier}!`);
-              window.location.href = 'dashboard.html';
-            } else {
-              alert(data.error || 'Upgrade failed. Make sure you are a provider.');
-            }
-          } catch (err) {
-            alert('Network error. Please try again.');
-          }
-        });
-      });
     });
   </script>
 </body>

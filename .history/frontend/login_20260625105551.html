@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upgrade – Localink</title>
+  <title>Login – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
@@ -109,58 +109,52 @@
     </div>
   </header>
 
-  <div class="container mx-auto px-4 py-32 text-center">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Basic</h2>
-          <p class="text-3xl font-black mt-4">FREE</p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Public business listing</li>
-            <li>✓ Up to 5 services</li>
-            <li>✓ WhatsApp contact</li>
-            <li>✗ Verified badge</li>
-            <li>✗ Search ranking boost</li>
-          </ul>
-          <button class="btn-secondary mt-6 w-full" disabled>Current Plan</button>
+  <!-- ======== LOGIN FORM WITH SHOW/HIDE PASSWORD ======== -->
+  <div class="min-h-screen flex items-center justify-center px-4 pt-20">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-6 sm:p-10 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <h1 class="text-2xl sm:text-3xl font-black uppercase italic tracking-tighter text-center mb-8">Sign In</h1>
+      <form id="loginForm" class="space-y-6">
+        <div>
+          <label class="text-xs font-black">Email</label>
+          <input type="email" id="email" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)] min-h-[48px]" placeholder="Enter your email">
         </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] relative">
-          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
-          <h2 class="text-2xl font-bold">Verified</h2>
-          <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Basic</li>
-            <li>✓ Verified badge</li>
-            <li>✓ 2x search ranking boost</li>
-            <li>✓ Up to 15 services</li>
-            <li>✓ 7‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Upgrade</button>
+        <div>
+          <label class="text-xs font-black">Password</label>
+          <div class="relative">
+            <input type="password" id="password" class="w-full bg-[var(--input-bg)] border rounded-xl p-3 text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)] min-h-[48px] pr-12" placeholder="Enter your password">
+            <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors focus:outline-none" aria-label="Toggle password visibility">
+              <!-- Eye icon (closed by default because password input is hidden) -->
+              <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
         </div>
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Premium</h2>
-          <p class="text-3xl font-black mt-4">N$399<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Verified</li>
-            <li>✓ Featured badge</li>
-            <li>✓ 5x search ranking boost</li>
-            <li>✓ Homepage feature slot</li>
-            <li>✓ 30‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Upgrade</button>
-        </div>
-      </div>
-      <p class="text-xs text-[var(--foreground-muted)] mt-12">*Upgrade will be applied immediately. This is a demo – no real payment is processed.</p>
+        <button type="submit" class="w-full btn-primary min-h-[48px] flex items-center justify-center">Login</button>
+      </form>
+      <p class="text-center text-xs mt-6 text-[var(--foreground-muted)]">
+        Don't have an account? <a href="register.html" class="text-[var(--orange)] hover:underline">Register</a>
+      </p>
     </div>
   </div>
 
-  <footer class="bg-[var(--background)] border-t border-[var(--border)] py-10 text-center text-[var(--foreground-muted)]">
-    <p>© 2026 Localink. All rights reserved.</p>
+  <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
+    <div class="absolute inset-0 opacity-[0.03]">
+      <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-[var(--orange)] blur-[120px]"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-white blur-[120px]"></div>
+    </div>
+    <div class="absolute top-12 right-12 w-40 h-40 border border-white/4 rounded-full"></div>
+    <div class="absolute top-16 right-16 w-32 h-32 border border-white/4 rounded-full"></div>
+    <div class="text-center py-6 text-white/40 text-xs">
+      © 2026 Localink. All rights reserved.
+    </div>
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
       const mobileBtn = document.getElementById('mobileMenuBtn');
       const mobileMenu = document.getElementById('mobileMenu');
       if (mobileBtn && mobileMenu) {
@@ -175,6 +169,7 @@
         });
       }
 
+      // Services dropdown toggle
       const dropdownBtn = document.getElementById('servicesDropdownBtn');
       const dropdownMenu = document.getElementById('servicesDropdownMenu');
       const arrow = document.getElementById('servicesDropdownArrow');
@@ -197,65 +192,66 @@
           });
         });
       }
-            // ========== USER DROPDOWN TOGGLE ==========
-      const userDropdownBtn = document.getElementById('userDropdownBtn');
-      const userDropdownMenu = document.getElementById('userDropdownMenu');
-      const userArrow = document.getElementById('userDropdownArrow');
-      if (userDropdownBtn && userDropdownMenu) {
-        userDropdownBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdownMenu.classList.toggle('hidden');
-          userArrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', function(e) {
-          if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
+      
+
+      // Login handler
+      const form = document.getElementById('loginForm');
+      if (form) {
+        form.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const email = document.getElementById('email').value.trim();
+          const password = document.getElementById('password').value.trim();
+          if (!email || !password) {
+            alert('Please fill in both fields.');
+            return;
           }
-        });
-        userDropdownMenu.querySelectorAll('a, button').forEach(function(item) {
-          item.addEventListener('click', function() {
-            userDropdownMenu.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-          });
-        });
-      }
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        document.querySelectorAll('.upgrade-btn').forEach(btn => {
-          btn.disabled = true;
-          btn.textContent = 'Login to Upgrade';
-          btn.classList.add('opacity-50', 'cursor-not-allowed');
-        });
-      }
-
-      document.querySelectorAll('.upgrade-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const tier = btn.getAttribute('data-tier');
-          if (!token) {
-            alert('Please login as a provider to upgrade.');
-            window.location.href = 'login.html';
+          if (typeof login !== 'function') {
+            alert('Login function not loaded. Please refresh and try again.');
             return;
           }
           try {
-            const res = await fetch('/api/subscriptions/upgrade', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-              body: JSON.stringify({ tier })
-            });
-            const data = await res.json();
-            if (res.ok) {
-              alert(`Successfully upgraded to ${tier}!`);
-              window.location.href = 'dashboard.html';
-            } else {
-              alert(data.error || 'Upgrade failed. Make sure you are a provider.');
+            const success = await login(email, password);
+            if (success) {
+              const role = localStorage.getItem('userRole');
+              if (role === 'admin') {
+                window.location.href = 'admin.html';
+              } else {
+                window.location.href = 'index.html';
+              }
             }
           } catch (err) {
-            alert('Network error. Please try again.');
+            alert('Login error: ' + err.message);
           }
         });
-      });
+      }
+
+      // ========== PASSWORD VISIBILITY TOGGLE ==========
+      const togglePassword = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+          // Toggle the type attribute
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          
+          // Toggle the icon
+          if (type === 'text') {
+            // Password is visible – show eye with slash
+            eyeIcon.innerHTML = `
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            `;
+          } else {
+            // Password is hidden – show open eye
+            eyeIcon.innerHTML = `
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            `;
+          }
+        });
+      }
     });
   </script>
 </body>
