@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-
+const paymentsRouter = require('./routes/payments');
 require('dotenv').config();
 
 console.log('Starting server...');
@@ -15,8 +15,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static('frontend'));
 
+app.use(express.static('frontend'));
 // Health check endpoint – must respond quickly
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
@@ -39,7 +39,6 @@ const routes = [
   { path: './routes/reviews', mount: '/api/reviews' },
   { path: './routes/services', mount: '/api/services' },
   { path: './routes/subscriptions', mount: '/api/subscriptions' },
-  { path: './routes/payments', mount: '/api/payments' }, // <-- ADDED
   { path: './routes/upload', mount: '/api/upload' },
 ];
 
