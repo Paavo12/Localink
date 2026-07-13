@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accommodation – Localink</title>
+  <title>How It Works – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
@@ -15,7 +15,7 @@
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR (same as about.html) ======== -->
+  <!-- ======== NAVBAR (same as index.html) ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -109,22 +109,30 @@
     </div>
   </header>
 
-  <main class="pt-32 pb-20 max-w-7xl mx-auto px-4">
-    <h1 class="text-5xl font-black mb-4">Accommodation in Namibia</h1>
-    <p class="text-[var(--foreground-muted)] mb-8">Find lodges, guesthouses, B&Bs, and hotels – verified and reviewed.</p>
-    <div class="flex flex-wrap gap-4 mb-8">
-      <input type="text" id="accommodationSearch" placeholder="Search by location or name..." class="flex-1 p-3 rounded-xl border bg-[var(--card-bg)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
-      <select id="accommodationType" class="p-3 rounded-xl border bg-[var(--card-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
-        <option value="">All types</option>
-        <option>Lodge</option><option>Guesthouse</option><option>B&B</option><option>Hotel</option><option>Camping</option>
-      </select>
-      <button id="searchAccommodationBtn" class="btn-primary">Search</button>
+  <main class="pt-32 pb-20 max-w-4xl mx-auto px-4">
+    <h1 class="text-5xl font-black uppercase italic tracking-tighter mb-12 text-center">How It Works</h1>
+    <div class="space-y-16">
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">1</div>
+        <div><h2 class="text-2xl font-bold mb-2">Search &amp; Discover</h2><p class="text-[var(--foreground-secondary)]">Browse categories or search for the service you need. Filter by location, ratings, and verified status.</p></div>
+      </div>
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">2</div>
+        <div><h2 class="text-2xl font-bold mb-2">Choose Verified Providers</h2><p class="text-[var(--foreground-secondary)]">Every listed provider is verified. Check reviews, ratings, and portfolios before making your choice.</p></div>
+      </div>
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">3</div>
+        <div><h2 class="text-2xl font-bold mb-2">Book or Request a Quote</h2><p class="text-[var(--foreground-secondary)]">Book instantly for salons, cleaning, and rentals. Request quotes for plumbing, electrical, and events.</p></div>
+      </div>
+      <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-full bg-[var(--orange)]/10 flex items-center justify-center text-4xl font-black text-[var(--orange)] shrink-0">4</div>
+        <div><h2 class="text-2xl font-bold mb-2">Rate &amp; Review</h2><p class="text-[var(--foreground-secondary)]">After your service, leave a review to help the community find the best providers in Namibia.</p></div>
+      </div>
     </div>
-    <div id="accommodationGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="col-span-3 text-center text-[var(--foreground-muted)]">Loading accommodation...</div>
-    </div>
+    <div class="mt-20 text-center"><a href="search.html" class="btn-primary">Find a professional now →</a></div>
   </main>
 
+  <!-- ======== FOOTER (same as index.html) ======== -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
@@ -189,8 +197,8 @@
           <div class="lg:col-span-3">
             <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Legal</h4>
             <ul class="space-y-3">
-              <li><a href="terms.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Terms &amp; Conditions</a></li>
-              <li><a href="privacy.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Privacy Policy</a></li>
+              <li><a href="" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Terms &amp; Conditions</a></li>
+              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Privacy Policy</a></li>
               <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Disclaimer</a></li>
             </ul>
             <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
@@ -272,37 +280,6 @@
           });
         });
       }
-
-    // Accommodation search logic
-    async function loadAccommodation() {
-      const search = document.getElementById('accommodationSearch')?.value || '';
-      const type = document.getElementById('accommodationType')?.value || '';
-      let url = '/api/businesses?category=Accommodation';
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      if (type) url += `&category=${encodeURIComponent(type)}`;
-      const res = await fetch(url);
-      const businesses = await res.json();
-      const grid = document.getElementById('accommodationGrid');
-      if (!grid) return;
-      if (businesses.length === 0) {
-        grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)]">No accommodation found</div>';
-        return;
-      }
-      grid.innerHTML = businesses.map(b => `
-        <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)]">
-          <h3 class="text-xl font-black">${b.name}</h3>
-          <p class="text-[var(--foreground-muted)] text-sm mt-2">${b.address || 'Location not specified'}</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="badge-verified">${b.is_verified ? 'Verified' : 'Standard'}</span>
-            <a href="business.html?id=${b.id}" class="btn-primary text-sm">View Details</a>
-          </div>
-        </div>
-      `).join('');
-    }
-    document.getElementById('searchAccommodationBtn')?.addEventListener('click', loadAccommodation);
-    document.getElementById('accommodationSearch')?.addEventListener('keyup', loadAccommodation);
-    document.getElementById('accommodationType')?.addEventListener('change', loadAccommodation);
-    loadAccommodation();
   </script>
 </body>
 </html>
