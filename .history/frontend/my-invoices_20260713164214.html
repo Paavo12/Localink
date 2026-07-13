@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Invoices – Localink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
+  <script src="script.js" defer></script>
+</head>
+<body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
+
+  <!-- ======== NAVBAR (same as other pages – copy from index.html) ======== -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
+    <!-- ... full navbar ... -->
+    <!-- Make sure to include the user dropdown with "My Invoices" link added -->
+  </header>
+
+  <!-- ======== MAIN CONTENT ======== -->
+  <main class="container mx-auto px-4 py-20 pt-28">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-black">My Invoices</h1>
+      <a href="checkout.html" class="btn-primary text-sm">Upgrade Plan</a>
+    </div>
+    <div id="invoicesContainer">
+      <div class="text-center py-20">Loading your invoices...</div>
+    </div>
+  </main>
+
+  <!-- ======== FOOTER ======== -->
+  <!-- ... same footer as other pages ... -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu, dropdowns (same as other pages)
+      // ... include from index.html
+
+      // ========== LOAD INVOICES ==========
+      async function loadInvoices() {
+        const container = document.getElementById('invoicesContainer');
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+          container.innerHTML = `
+            <div class="text-center py-20">
+              <p class="text-[var(--foreground-muted)]">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> to view your invoices.</p>
+            </div>
+          `;
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/payments/my-invoices', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error('Failed to fetch invoices');
+          const invoices = await res.json();
+
+          if (invoices.length === 0) {
+            container.innerHTML = `
+              <div class="text-center py-20">
+                <p class="text-[var(--foreground-muted)] text-lg">No invoices yet</p>
+                <p class="text-sm mt-2 text-[var(--foreground-muted)]">Subscribe to a plan to generate an invoice.</p>
+                <a href="checkout.html" class="btn-primary mt-4 inline-block">View Plans</a>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = `
+            <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-4">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-[var(--border)]">
+                    <th class="text-left p-3">Invoice #</th>
+                    <th class="text-left p-3">Tier</th>
+                    <th class="text-left p-3">Amount</th>
+                    <th class="text-left p-3">Status</th>
+                    <th class="text-left p-3">Proof</th>
+                    <th class="text-left p-3">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${invoices.map(inv => `
+                    <tr class="border-b border-[var(--border)] hover:bg-[var(--background-tertiary)] transition-colors">
+                      <td class="p-3 font-mono text-xs">${inv.invoice_number}</td>
+                      <td class="p-3 capitalize">${inv.tier}</td>
+                      <td class="p-3">N$${inv.amount}</td>
+                      <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-bold ${getStatusBadge(inv.status)}">
+                          ${inv.status}
+                        </span>
+                      </td>
+                      <td class="p-3">
+                        ${inv.proof_image_url ? `<a href="${inv.proof_image_url}" target="_blank" class="text-[var(--orange)] hover:underline">View</a>` : '—'}
+                      </td>
+                      <td class="p-3">${new Date(inv.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        } catch (err) {
+          console.error('Error loading invoices:', err);
+          container.innerHTML = `
+            <div class="text-center py-20">
+              <p class="text-red-500">Failed to load invoices. Please try again.</p>
+            </div>
+          `;
+        }
+      }
+
+      function getStatusBadge(status) {
+        const map = {
+          pending: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400',
+          submitted: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
+          approved: 'bg-green-500/20 text-green-600 dark:text-green-400',
+          rejected: 'bg-red-500/20 text-red-600 dark:text-red-400'
+        };
+        return map[status] || 'bg-gray-500/20 text-gray-600 dark:text-gray-400';
+      }
+
+      // Load invoices after auth
+      loadInvoices();
+
+      // Auth toggle function (same as before)
+      // ... updateAuthButtons, etc.
+    });
+  </script>
+</body>
+</html>
