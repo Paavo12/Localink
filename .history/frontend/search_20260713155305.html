@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accommodation – Localink</title>
+  <title>Search – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
@@ -15,7 +15,7 @@
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR (same as about.html) ======== -->
+  <!-- ======== NAVBAR (same as index.html) ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -109,22 +109,48 @@
     </div>
   </header>
 
-  <main class="pt-32 pb-20 max-w-7xl mx-auto px-4">
-    <h1 class="text-5xl font-black mb-4">Accommodation in Namibia</h1>
-    <p class="text-[var(--foreground-muted)] mb-8">Find lodges, guesthouses, B&Bs, and hotels – verified and reviewed.</p>
-    <div class="flex flex-wrap gap-4 mb-8">
-      <input type="text" id="accommodationSearch" placeholder="Search by location or name..." class="flex-1 p-3 rounded-xl border bg-[var(--card-bg)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
-      <select id="accommodationType" class="p-3 rounded-xl border bg-[var(--card-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
-        <option value="">All types</option>
-        <option>Lodge</option><option>Guesthouse</option><option>B&B</option><option>Hotel</option><option>Camping</option>
-      </select>
-      <button id="searchAccommodationBtn" class="btn-primary">Search</button>
+  <!-- ======== SEARCH BAR ======== -->
+  <div class="pt-24 pb-12 border-b border-[var(--border)] bg-[var(--card-bg)]">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-4">
+        <input type="text" id="searchInput" placeholder="Search service..." class="flex-1 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
+        <select id="categorySelect" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
+          <option value="">All Categories</option>
+  <option value="Salons">Salons &amp; Beauty</option>
+  <option value="Cleaning">Cleaning Services</option>
+  <option value="Car Rental">Car Rentals</option>
+  <option value="Accommodation">Accommodation</option>
+  <option value="Plumbing">Plumbing</option>
+  <option value="Electrical">Electrical</option>
+  <option value="Catering">Catering</option>
+  <option value="Events">Events</option>
+  <option value="Home Repairs">Home Repairs</option>
+  <option value="Photographer">Photographer</option>
+        </select>
+        <select id="cityFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
+          <option value="">All Cities</option>
+          <option>Windhoek</option>
+          <option>Swakopmund</option>
+          <option>Walvis Bay</option>
+          <option>Oshakati</option>
+          <option>Otjiwarongo</option>
+        </select>
+        <select id="ratingFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
+          <option value="">Any Rating</option>
+          <option value="4">4+ Stars</option>
+          <option value="4.5">4.5+ Stars</option>
+          <option value="5">5 Stars</option>
+        </select>
+        <button id="searchBtn" class="btn-primary px-10">Search</button>
+      </div>
     </div>
-    <div id="accommodationGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="col-span-3 text-center text-[var(--foreground-muted)]">Loading accommodation...</div>
-    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto px-4 py-16">
+    <div id="gridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
   </main>
 
+  <!-- ======== FOOTER (same as index.html) ======== -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
@@ -195,7 +221,7 @@
             </ul>
             <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
               <p class="text-xs text-white/60 mb-2.5 font-medium">Need help? Chat with us</p>
-              <a href="https://wa.me/264816126527?text=Hi%20Localink!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-display font-semibold text-green-400 hover:text-green-300 transition-colors">
+              <a href="https://wa.me/2648?text=Hi%20Localink!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-display font-semibold text-green-400 hover:text-green-300 transition-colors">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 WhatsApp Us
               </a>
@@ -272,37 +298,6 @@
           });
         });
       }
-
-    // Accommodation search logic
-    async function loadAccommodation() {
-      const search = document.getElementById('accommodationSearch')?.value || '';
-      const type = document.getElementById('accommodationType')?.value || '';
-      let url = '/api/businesses?category=Accommodation';
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      if (type) url += `&category=${encodeURIComponent(type)}`;
-      const res = await fetch(url);
-      const businesses = await res.json();
-      const grid = document.getElementById('accommodationGrid');
-      if (!grid) return;
-      if (businesses.length === 0) {
-        grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)]">No accommodation found</div>';
-        return;
-      }
-      grid.innerHTML = businesses.map(b => `
-        <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)]">
-          <h3 class="text-xl font-black">${b.name}</h3>
-          <p class="text-[var(--foreground-muted)] text-sm mt-2">${b.address || 'Location not specified'}</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="badge-verified">${b.is_verified ? 'Verified' : 'Standard'}</span>
-            <a href="business.html?id=${b.id}" class="btn-primary text-sm">View Details</a>
-          </div>
-        </div>
-      `).join('');
-    }
-    document.getElementById('searchAccommodationBtn')?.addEventListener('click', loadAccommodation);
-    document.getElementById('accommodationSearch')?.addEventListener('keyup', loadAccommodation);
-    document.getElementById('accommodationType')?.addEventListener('change', loadAccommodation);
-    loadAccommodation();
   </script>
 </body>
 </html>

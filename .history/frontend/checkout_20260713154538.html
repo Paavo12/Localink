@@ -3,19 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accommodation – Localink</title>
+  <title>Subscribe – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
-  <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="alternate icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
   <script src="script.js" defer></script>
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR (same as about.html) ======== -->
+  <!-- ======== NAVBAR ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -68,26 +64,25 @@
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
               <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
             </div>
-           <div id="loggedInNav" class="flex items-center gap-4 hidden">
-  <!-- User dropdown -->
-  <div class="relative" id="userDropdown">
-    <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
-      </svg>
-      Account
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
-        <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
-      </svg>
-    </button>
-    <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
-      <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
-      <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
-      <hr class="border-[var(--border)] my-1">
-      <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
-    </div>
-  </div>
-</div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+              <div class="relative" id="userDropdown">
+                <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
+                  </svg>
+                  Account
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
+                    <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+                  </svg>
+                </button>
+                <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+                  <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
+                  <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
+                  <hr class="border-[var(--border)] my-1">
+                  <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
+                </div>
+              </div>
+            </div>
           </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -109,22 +104,81 @@
     </div>
   </header>
 
-  <main class="pt-32 pb-20 max-w-7xl mx-auto px-4">
-    <h1 class="text-5xl font-black mb-4">Accommodation in Namibia</h1>
-    <p class="text-[var(--foreground-muted)] mb-8">Find lodges, guesthouses, B&Bs, and hotels – verified and reviewed.</p>
-    <div class="flex flex-wrap gap-4 mb-8">
-      <input type="text" id="accommodationSearch" placeholder="Search by location or name..." class="flex-1 p-3 rounded-xl border bg-[var(--card-bg)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
-      <select id="accommodationType" class="p-3 rounded-xl border bg-[var(--card-bg)] text-[var(--foreground)] border-[var(--border)] focus:outline-none focus:border-[var(--orange)]">
-        <option value="">All types</option>
-        <option>Lodge</option><option>Guesthouse</option><option>B&B</option><option>Hotel</option><option>Camping</option>
-      </select>
-      <button id="searchAccommodationBtn" class="btn-primary">Search</button>
-    </div>
-    <div id="accommodationGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="col-span-3 text-center text-[var(--foreground-muted)]">Loading accommodation...</div>
-    </div>
-  </main>
+  <!-- ======== MAIN CONTENT ======== -->
+  <div class="container mx-auto px-4 py-32 text-center">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
+      
+      <!-- Pricing Grid - Only Verified & Premium (2 columns) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
+        <!-- Verified -->
+        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] relative">
+          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
+          <h2 class="text-2xl font-bold">Verified</h2>
+          <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
+          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
+            <li>✓ Verified badge</li>
+            <li>✓ 2x search ranking boost</li>
+            <li>✓ Up to 15 services</li>
+            <li>✓ 1,000‑char description</li>
+            <li>✓ 7‑day profile analytics</li>
+            <li>✓ Review responses</li>
+          </ul>
+          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Subscribe Now</button>
+        </div>
+        
+        <!-- Premium -->
+        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
+          <h2 class="text-2xl font-bold">Premium</h2>
+          <p class="text-3xl font-black mt-4">N$399<span class="text-sm">/mo</span></p>
+          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
+            <li>✓ Everything in Verified</li>
+            <li>✓ Featured badge</li>
+            <li>✓ 5x search ranking boost</li>
+            <li>✓ Homepage feature slot</li>
+            <li>✓ Unlimited services & images</li>
+            <li>✓ 30‑day analytics</li>
+          </ul>
+          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Subscribe Now</button>
+        </div>
+      </div>
 
+      <!-- ========== INVOICE & PROOF SECTION ========== -->
+      <div id="invoiceSection" class="hidden max-w-2xl mx-auto bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-8 text-left">
+        <h2 class="text-2xl font-bold mb-4">📄 Invoice</h2>
+        <div id="invoiceDetails" class="space-y-3 text-sm">
+          <!-- dynamic content -->
+        </div>
+
+        <div class="mt-6 p-4 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)]">
+          <h3 class="font-bold text-sm">💳 Banking Details</h3>
+          <p class="text-xs text-[var(--foreground-muted)] mt-1">Use the invoice number as payment reference.</p>
+          <div id="bankingDetails" class="mt-2 space-y-1 text-sm font-mono"></div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-bold text-sm mb-2">📎 Upload Proof of Payment</h3>
+          <form id="uploadProofForm">
+            <input type="hidden" id="invoiceIdInput" value="">
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input type="file" id="proofImage" accept="image/*,application/pdf" class="flex-1 p-2 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[var(--orange)] file:text-white file:cursor-pointer">
+              <button type="submit" class="btn-primary">Upload</button>
+            </div>
+            <p class="text-xs text-[var(--foreground-muted)] mt-2">Accepted: PNG, JPG, JPEG, PDF (max 5MB)</p>
+          </form>
+          <div id="uploadStatus" class="mt-2 text-sm"></div>
+        </div>
+
+        <div class="mt-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm">
+          ⏳ After uploading, our team will verify your payment within 24–48 hours. You'll receive an email confirmation once your subscription is active.
+        </div>
+      </div>
+
+      <p class="text-xs text-[var(--foreground-muted)] mt-6">*Manual payment verification. No online payment processed on this site.</p>
+    </div>
+  </div>
+
+  <!-- ======== FOOTER ======== -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
@@ -152,11 +206,11 @@
                 </div>
                 <span>Windhoek, Namibia</span>
               </a>
-              <a href="tel:+264816126527" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+              <a href="tel:+264" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
                 <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M19.44,13c-.22,0-.45-.07-.67-.12a9.44,9.44,0,0,1-1.31-.39,2,2,0,0,0-2.48,1l-.22.45a12.18,12.18,0,0,1-2.66-2,12.18,12.18,0,0,1-2-2.66L10.52,9a2,2,0,0,0,1-2.48,10.33,10.33,0,0,1-.39-1.31c-.05-.22-.09-.45-.12-.68a3,3,0,0,0-3-2.49h-3a3,3,0,0,0-3,3.41A19,19,0,0,0,18.53,21.91l.38,0a3,3,0,0,0,2-.76,3,3,0,0,0,1-2.25v-3A3,3,0,0,0,19.44,13Zm.5,6a1,1,0,0,1-.34.75,1.05,1.05,0,0,1-.82.25A17,17,0,0,1,4.07,5.22a1.09,1.09,0,0,1,.25-.82,1,1,0,0,1,.75-.34h3a1,1,0,0,1,1,.79q.06.41.15.81a11.12,11.12,0,0,0,.46,1.55l-1.4.65a1,1,0,0,0-.49,1.33,14.49,14.49,0,0,0,7,7,1,1,0,0,0,.76,0,1,1,0,0,0,.57-.52l.62-1.4a13.69,13.69,0,0,0,1.58.46q.4.09.81.15a1,1,0,0,1,.79,1Z"/></svg>
                 </div>
-                <span>+264816126527</span>
+                <span>+26481612 6527</span>
               </a>
               <a href="mailto:localink.na@gmail.com" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
                 <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
@@ -195,7 +249,7 @@
             </ul>
             <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
               <p class="text-xs text-white/60 mb-2.5 font-medium">Need help? Chat with us</p>
-              <a href="https://wa.me/264816126527?text=Hi%20Localink!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-display font-semibold text-green-400 hover:text-green-300 transition-colors">
+              <a href="https://wa.me/264XXXXXXXX?text=Hi%20Localink!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-display font-semibold text-green-400 hover:text-green-300 transition-colors">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 WhatsApp Us
               </a>
@@ -212,6 +266,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
       const mobileBtn = document.getElementById('mobileMenuBtn');
       const mobileMenu = document.getElementById('mobileMenu');
       if (mobileBtn && mobileMenu) {
@@ -226,6 +281,7 @@
         });
       }
 
+      // Services dropdown toggle
       const dropdownBtn = document.getElementById('servicesDropdownBtn');
       const dropdownMenu = document.getElementById('servicesDropdownMenu');
       const arrow = document.getElementById('servicesDropdownArrow');
@@ -248,8 +304,8 @@
           });
         });
       }
-    });
-          // ========== USER DROPDOWN TOGGLE ==========
+
+      // User dropdown toggle
       const userDropdownBtn = document.getElementById('userDropdownBtn');
       const userDropdownMenu = document.getElementById('userDropdownMenu');
       const userArrow = document.getElementById('userDropdownArrow');
@@ -273,36 +329,149 @@
         });
       }
 
-    // Accommodation search logic
-    async function loadAccommodation() {
-      const search = document.getElementById('accommodationSearch')?.value || '';
-      const type = document.getElementById('accommodationType')?.value || '';
-      let url = '/api/businesses?category=Accommodation';
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      if (type) url += `&category=${encodeURIComponent(type)}`;
-      const res = await fetch(url);
-      const businesses = await res.json();
-      const grid = document.getElementById('accommodationGrid');
-      if (!grid) return;
-      if (businesses.length === 0) {
-        grid.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)]">No accommodation found</div>';
-        return;
+      // Auth toggle
+      function updateAuthButtons() {
+        const loggedOut = document.getElementById('loggedOutNav');
+        const loggedIn = document.getElementById('loggedInNav');
+        const token = localStorage.getItem('token');
+        if (token && currentUser) {
+          loggedOut.classList.add('hidden');
+          loggedIn.classList.remove('hidden');
+        } else {
+          loggedOut.classList.remove('hidden');
+          loggedIn.classList.add('hidden');
+        }
       }
-      grid.innerHTML = businesses.map(b => `
-        <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)]">
-          <h3 class="text-xl font-black">${b.name}</h3>
-          <p class="text-[var(--foreground-muted)] text-sm mt-2">${b.address || 'Location not specified'}</p>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="badge-verified">${b.is_verified ? 'Verified' : 'Standard'}</span>
-            <a href="business.html?id=${b.id}" class="btn-primary text-sm">View Details</a>
-          </div>
-        </div>
-      `).join('');
-    }
-    document.getElementById('searchAccommodationBtn')?.addEventListener('click', loadAccommodation);
-    document.getElementById('accommodationSearch')?.addEventListener('keyup', loadAccommodation);
-    document.getElementById('accommodationType')?.addEventListener('change', loadAccommodation);
-    loadAccommodation();
+      setTimeout(updateAuthButtons, 500);
+      
+      document.getElementById('logoutNavBtn')?.addEventListener('click', function() {
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+      });
+
+      // ========== SUBSCRIPTION FLOW ==========
+      const upgradeBtns = document.querySelectorAll('.upgrade-btn');
+      const invoiceSection = document.getElementById('invoiceSection');
+      const invoiceDetails = document.getElementById('invoiceDetails');
+      const bankingDetailsDiv = document.getElementById('bankingDetails');
+      const invoiceIdInput = document.getElementById('invoiceIdInput');
+      const uploadForm = document.getElementById('uploadProofForm');
+      const uploadStatus = document.getElementById('uploadStatus');
+
+      let currentInvoiceId = null;
+
+      upgradeBtns.forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const tier = this.dataset.tier;
+          const token = localStorage.getItem('token');
+          if (!token) {
+            showToast('Please login first.', 'warning');
+            window.location.href = 'login.html';
+            return;
+          }
+
+          this.textContent = 'Generating...';
+          this.disabled = true;
+
+          try {
+            const res = await fetch('/api/payments/request-invoice', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ tier }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+              showToast(data.error || 'Failed to generate invoice', 'error');
+              this.textContent = this.dataset.tier === 'verified' ? 'Subscribe Now' : 'Subscribe Now';
+              this.disabled = false;
+              return;
+            }
+
+            const invoice = data.invoice;
+            currentInvoiceId = invoice.id;
+            invoiceIdInput.value = invoice.id;
+
+            invoiceDetails.innerHTML = `
+              <p><span class="font-bold">Invoice Number:</span> ${invoice.invoice_number}</p>
+              <p><span class="font-bold">Package:</span> ${invoice.tier.charAt(0).toUpperCase() + invoice.tier.slice(1)}</p>
+              <p><span class="font-bold">Amount:</span> N$${invoice.amount}</p>
+              <p><span class="font-bold">Status:</span> <span class="px-2 py-1 rounded-full text-xs ${invoice.status === 'pending' ? 'bg-yellow-500/20 text-yellow-600' : 'bg-green-500/20 text-green-600'}">${invoice.status}</span></p>
+              <p><span class="font-bold">Created:</span> ${new Date(invoice.created_at).toLocaleString()}</p>
+            `;
+
+            bankingDetailsDiv.innerHTML = `
+              <p>Bank: ${data.bankingDetails.bank}</p>
+              <p>Account Name: ${data.bankingDetails.accountName}</p>
+              <p>Account Number: ${data.bankingDetails.accountNumber}</p>
+              <p>Branch Code: ${data.bankingDetails.branchCode}</p>
+              <p><strong>Reference:</strong> ${data.bankingDetails.reference}</p>
+            `;
+
+            invoiceSection.classList.remove('hidden');
+            invoiceSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            this.textContent = this.dataset.tier === 'verified' ? 'Subscribe Now' : 'Subscribe Now';
+            this.disabled = false;
+            showToast('Invoice generated! Please upload your proof of payment.', 'success');
+          } catch (err) {
+            console.error(err);
+            showToast('Network error. Please try again.', 'error');
+            this.textContent = this.dataset.tier === 'verified' ? 'Subscribe Now' : 'Subscribe Now';
+            this.disabled = false;
+          }
+        });
+      });
+
+      // Upload proof
+      uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('proofImage');
+        const file = fileInput.files[0];
+        if (!file) {
+          showToast('Please select a file.', 'warning');
+          return;
+        }
+        if (!currentInvoiceId) {
+          showToast('No invoice found. Generate one first.', 'warning');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('invoiceId', currentInvoiceId);
+        formData.append('proofImage', file);
+
+        uploadStatus.innerHTML = 'Uploading...';
+
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch('/api/payments/upload-proof', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            body: formData,
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            uploadStatus.innerHTML = '✅ Proof uploaded successfully. We\'ll review it shortly.';
+            showToast('Proof uploaded!', 'success');
+            fileInput.value = '';
+          } else {
+            uploadStatus.innerHTML = '❌ ' + (data.error || 'Upload failed');
+            showToast(data.error || 'Upload failed', 'error');
+          }
+        } catch (err) {
+          console.error(err);
+          uploadStatus.innerHTML = '❌ Network error. Please try again.';
+          showToast('Network error', 'error');
+        }
+      });
+    });
   </script>
 </body>
 </html>
