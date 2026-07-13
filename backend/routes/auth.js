@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const pool = require('../db/pool');
+const { sendProviderWelcomeEmail, sendAdminNotification } = require('../utils/email');
 
 const router = express.Router();
 
@@ -102,6 +103,26 @@ router.post('/register-provider', [
           [user.id, hr.day_of_week, hr.open_time, hr.close_time, false]
         );
       }
+    }
+
+    // ========== SEND EMAILS ==========
+    // Send welcome email to provider
+    try {
+      await sendProviderWelcomeEmail(email, full_name, business_name);
+    } catch (emailErr) {
+      console.error('Welcome email failed:', emailErr);
+      // Continue – don't block registration
+    }
+
+    // Send admin notification
+    try {
+      const adminResult = await client.query('SELECT email FROM users WHERE role = $1 LIMIT 1', ['admin']);
+      if (adminResult.rows.length > 0) {
+        await sendAdminNotification(adminResult.rows[0].email, full_name, business_name, email);
+      }
+    } catch (adminEmailErr) {
+      console.error('Admin notification failed:', adminEmailErr);
+      // Continue – don't block registration
     }
 
     await client.query('COMMIT');
