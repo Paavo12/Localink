@@ -7,9 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="alternate icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
   <script src="script.js" defer></script>
 </head>
@@ -68,26 +68,26 @@
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
               <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
             </div>
-           <div id="loggedInNav" class="flex items-center gap-4 hidden">
-  <!-- User dropdown -->
-  <div class="relative" id="userDropdown">
-    <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
-      </svg>
-      Account
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
-        <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
-      </svg>
-    </button>
-    <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
-      <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
-      <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
-      <hr class="border-[var(--border)] my-1">
-      <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
-    </div>
-  </div>
-</div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+              <!-- User dropdown -->
+              <div class="relative" id="userDropdown">
+                <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
+                  </svg>
+                  Account
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
+                    <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+                  </svg>
+                </button>
+                <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+                  <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
+                  <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
+                  <hr class="border-[var(--border)] my-1">
+                  <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
+                </div>
+              </div>
+            </div>
           </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -113,33 +113,35 @@
     <h1 class="text-5xl font-black uppercase italic tracking-tighter text-center mb-4">Simple, transparent pricing</h1>
     <p class="text-center text-[var(--foreground-muted)] mb-12">Choose the plan that fits your business. Upgrade or downgrade anytime.</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border)] p-8">
-        <h2 class="text-2xl font-bold">Basic</h2>
-        <div class="mt-4 mb-6"><span class="text-5xl font-black">N$0</span><span class="text-[var(--foreground-muted)]">/month</span></div>
-        <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
-          <li>✓ Public business listing</li><li>✓ Up to 5 services</li><li>✓ 200‑char description</li>
-          <li>✓ WhatsApp contact</li><li>✗ Verified badge</li><li>✗ Search ranking boost</li><li>✗ Analytics</li>
-        </ul>
-        <div class="mt-8"><a href="register.html" class="btn-secondary w-full text-center block">Get Started</a></div>
-      </div>
+    <!-- Pricing Grid - Only Verified & Premium (2 columns) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <!-- Verified -->
       <div class="bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] p-8 relative">
         <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
         <h2 class="text-2xl font-bold">Verified</h2>
         <div class="mt-4 mb-6"><span class="text-5xl font-black">N$149</span><span class="text-[var(--foreground-muted)]">/month</span></div>
         <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
-          <li>✓ Everything in Basic</li><li>✓ Verified badge</li><li>✓ 2x search ranking boost</li>
-          <li>✓ Up to 15 services</li><li>✓ 1,000‑char description</li><li>✓ 7‑day profile analytics</li>
+          <li>✓ Verified badge</li>
+          <li>✓ 2x search ranking boost</li>
+          <li>✓ Up to 15 services</li>
+          <li>✓ 1,000‑char description</li>
+          <li>✓ 7‑day profile analytics</li>
           <li>✓ Review responses</li>
         </ul>
         <div class="mt-8"><a href="checkout.html?plan=verified" class="btn-primary w-full text-center block">Upgrade Now</a></div>
       </div>
+
+      <!-- Premium -->
       <div class="bg-[var(--card-bg)] rounded-3xl border border-[var(--border)] p-8">
         <h2 class="text-2xl font-bold">Premium</h2>
         <div class="mt-4 mb-6"><span class="text-5xl font-black">N$399</span><span class="text-[var(--foreground-muted)]">/month</span></div>
         <ul class="space-y-3 text-sm text-[var(--foreground-secondary)]">
-          <li>✓ Everything in Verified</li><li>✓ Featured badge</li><li>✓ 5x search ranking boost</li>
-          <li>✓ Homepage feature slot</li><li>✓ Unlimited services & images</li><li>✓ 30‑day analytics</li>
+          <li>✓ Everything in Verified</li>
+          <li>✓ Featured badge</li>
+          <li>✓ 5x search ranking boost</li>
+          <li>✓ Homepage feature slot</li>
+          <li>✓ Unlimited services & images</li>
+          <li>✓ 30‑day analytics</li>
           <li>✓ Priority WhatsApp support</li>
         </ul>
         <div class="mt-8"><a href="checkout.html?plan=premium" class="btn-primary w-full text-center block">Upgrade Now</a></div>
@@ -271,8 +273,8 @@
           });
         });
       }
-    });
-          // ========== USER DROPDOWN TOGGLE ==========
+
+      // ========== USER DROPDOWN TOGGLE ==========
       const userDropdownBtn = document.getElementById('userDropdownBtn');
       const userDropdownMenu = document.getElementById('userDropdownMenu');
       const userArrow = document.getElementById('userDropdownArrow');
@@ -295,6 +297,7 @@
           });
         });
       }
+    });
   </script>
 </body>
 </html>

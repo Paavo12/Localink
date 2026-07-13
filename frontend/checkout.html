@@ -109,32 +109,20 @@
     <div class="max-w-5xl mx-auto">
       <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <!-- Basic -->
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Basic</h2>
-          <p class="text-3xl font-black mt-4">FREE</p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Public business listing</li>
-            <li>✓ Up to 5 services</li>
-            <li>✓ WhatsApp contact</li>
-            <li>✗ Verified badge</li>
-            <li>✗ Search ranking boost</li>
-          </ul>
-          <button class="btn-secondary mt-6 w-full" disabled>Current Plan</button>
-        </div>
-        
+      <!-- Pricing Grid - Only Verified & Premium (2 columns) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
         <!-- Verified -->
         <div class="p-8 bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] relative">
           <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
           <h2 class="text-2xl font-bold">Verified</h2>
           <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
           <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Basic</li>
             <li>✓ Verified badge</li>
             <li>✓ 2x search ranking boost</li>
             <li>✓ Up to 15 services</li>
-            <li>✓ 7‑day analytics</li>
+            <li>✓ 1,000‑char description</li>
+            <li>✓ 7‑day profile analytics</li>
+            <li>✓ Review responses</li>
           </ul>
           <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Subscribe Now</button>
         </div>
@@ -148,6 +136,7 @@
             <li>✓ Featured badge</li>
             <li>✓ 5x search ranking boost</li>
             <li>✓ Homepage feature slot</li>
+            <li>✓ Unlimited services & images</li>
             <li>✓ 30‑day analytics</li>
           </ul>
           <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Subscribe Now</button>
