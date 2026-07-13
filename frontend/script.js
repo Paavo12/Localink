@@ -1151,6 +1151,7 @@ async function initAdmin() {
   const feed = await (await apiFetch('/api/admin/activity-feed')).json();
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
+  const invoices = await (await apiFetch('/api/admin/invoices')).json(); // <-- ADDED THIS LINE
 
   // ---------- PERMANENTLY DELETE USER ----------
   window.deleteUser = async (id) => {
@@ -1178,25 +1179,25 @@ async function initAdmin() {
 
   // ---- HTML with fixed chart containers ----
   let html = `
-  // Inside initAdmin(), replace the stats grid with this:
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-  ${Object.entries(stats).map(([k, v]) => {
-    const label = k
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .replace(/([a-z])([A-Z])/g, '$1 $2');
-    return `
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      ${Object.entries(stats).map(([k, v]) => {
+        const label = k
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, str => str.toUpperCase())
+          .replace(/([a-z])([A-Z])/g, '$1 $2');
+        return `
+          <div class="p-4 bg-[var(--card-bg)] rounded-2xl border overflow-hidden">
+            <div class="text-2xl font-black text-accent">${v}</div>
+            <div class="text-xs text-[var(--foreground-muted)] break-words">${label}</div>
+          </div>
+        `;
+      }).join('')}
       <div class="p-4 bg-[var(--card-bg)] rounded-2xl border overflow-hidden">
-        <div class="text-2xl font-black text-accent">${v}</div>
-        <div class="text-xs text-[var(--foreground-muted)] break-words">${label}</div>
+        <div class="text-2xl font-black text-accent">${analytics.activeProviders || 0}</div>
+        <div class="text-xs text-[var(--foreground-muted)] break-words">Active Providers (30d)</div>
       </div>
-    `;
-  }).join('')}
-  <div class="p-4 bg-[var(--card-bg)] rounded-2xl border overflow-hidden">
-    <div class="text-2xl font-black text-accent">${analytics.activeProviders || 0}</div>
-    <div class="text-xs text-[var(--foreground-muted)] break-words">Active Providers (30d)</div>
-  </div>
-</div>
+    </div>
+
     <div class="grid grid-cols-2 gap-8 mb-8">
       <div style="height: 200px; max-width: 100%;"><canvas id="regChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
       <div style="height: 200px; max-width: 100%;"><canvas id="catChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
@@ -1212,6 +1213,7 @@ async function initAdmin() {
     <div class="grid grid-cols-1 gap-8 mb-8">
       <div style="height: 200px; max-width: 100%;"><canvas id="regionChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas></div>
     </div>
+
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">All Bookings</h2>
       <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
@@ -1231,6 +1233,7 @@ async function initAdmin() {
         </table>
       </div>
     </div>
+
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">Pending Verifications</h2>
       ${pending.map(p => `
@@ -1243,6 +1246,7 @@ async function initAdmin() {
         </div>
       `).join('')}
     </div>
+
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">All Users</h2>
       <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
@@ -1266,6 +1270,50 @@ async function initAdmin() {
         </table>
       </div>
     </div>
+
+    <!-- ========== PAYMENT VERIFICATION SECTION ========== -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">📄 Payment Verification</h2>
+      ${invoices.length === 0 ? '<p class="text-[var(--foreground-muted)]">No payment requests.</p>' : `
+      <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b">
+              <th class="text-left p-2">Invoice</th>
+              <th class="text-left p-2">User</th>
+              <th class="text-left p-2">Tier</th>
+              <th class="text-left p-2">Amount</th>
+              <th class="text-left p-2">Status</th>
+              <th class="text-left p-2">Proof</th>
+              <th class="text-left p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoices.map(inv => `
+              <tr class="border-b">
+                <td class="p-2 font-mono text-xs">${escapeHtml(inv.invoice_number)}</td>
+                <td class="p-2">${escapeHtml(inv.full_name || inv.email)}</td>
+                <td class="p-2 capitalize">${inv.tier}</td>
+                <td class="p-2">N$${inv.amount}</td>
+                <td class="p-2">
+                  <span class="px-2 py-1 rounded-full text-xs ${inv.status === 'approved' ? 'bg-green-500/20 text-green-500' : inv.status === 'rejected' ? 'bg-red-500/20 text-red-500' : inv.status === 'submitted' ? 'bg-blue-500/20 text-blue-500' : 'bg-yellow-500/20 text-yellow-500'}">${inv.status}</span>
+                </td>
+                <td class="p-2">
+                  ${inv.proof_image_url ? `<a href="${inv.proof_image_url}" target="_blank" class="text-[var(--orange)] hover:underline">View</a>` : '—'}
+                </td>
+                <td class="p-2">
+                  ${inv.status === 'submitted' ? `
+                    <button onclick="approveInvoice('${inv.id}')" class="btn-primary text-xs py-1 px-2 mr-1">Approve</button>
+                    <button onclick="rejectInvoice('${inv.id}')" class="btn-secondary text-xs py-1 px-2">Reject</button>
+                  ` : (inv.status === 'pending' ? '<span class="text-[var(--foreground-muted)]">Awaiting proof</span>' : '<span class="text-[var(--foreground-muted)]">Done</span>')}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`}
+    </div>
+
     <div>
       <h2 class="text-2xl font-bold mb-4">Activity Feed</h2>
       ${feed.map(f => `
@@ -1344,7 +1392,6 @@ async function initAdmin() {
     }
   }
 }
-
 // ---------- ADMIN: Provider Details Modal ----------
 async function viewProvider(userId) {
   const modal = document.getElementById('providerModal');
@@ -1605,3 +1652,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadTestimonials();
   }
 });
+// ---------- ADMIN INVOICE ACTIONS ----------
+window.approveInvoice = async (id) => {
+  if (!confirm('Approve this invoice and activate subscription?')) return;
+  try {
+    const res = await apiFetch(`/api/admin/invoices/${id}/approve`, { 
+      method: 'PUT',
+      body: JSON.stringify({ adminNotes: null })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast('✅ Invoice approved. Subscription activated.', 'success');
+      location.reload();
+    } else {
+      showToast(data.error || 'Approval failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+};
+
+window.rejectInvoice = async (id) => {
+  const reason = prompt('Reason for rejection (optional):');
+  try {
+    const res = await apiFetch(`/api/admin/invoices/${id}/reject`, {
+      method: 'PUT',
+      body: JSON.stringify({ adminNotes: reason || null }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Invoice rejected', 'info');
+      location.reload();
+    } else {
+      showToast(data.error || 'Rejection failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+};
