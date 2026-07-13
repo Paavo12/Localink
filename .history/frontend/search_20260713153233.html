@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subscribe – Localink</title>
+  <title>Search – Localink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
+  <!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
   <script src="script.js" defer></script>
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR ======== -->
+  <!-- ======== NAVBAR (same as index.html) ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
@@ -64,25 +68,26 @@
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
               <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
             </div>
-            <div id="loggedInNav" class="flex items-center gap-4 hidden">
-              <div class="relative" id="userDropdown">
-                <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
-                  </svg>
-                  Account
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
-                    <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
-                  </svg>
-                </button>
-                <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
-                  <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
-                  <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
-                  <hr class="border-[var(--border)] my-1">
-                  <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
-                </div>
-              </div>
-            </div>
+           <div id="loggedInNav" class="flex items-center gap-4 hidden">
+  <!-- User dropdown -->
+  <div class="relative" id="userDropdown">
+    <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
+      </svg>
+      Account
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
+        <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+      </svg>
+    </button>
+    <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+      <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
+      <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
+      <hr class="border-[var(--border)] my-1">
+      <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
+    </div>
+  </div>
+</div>
           </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -104,81 +109,48 @@
     </div>
   </header>
 
-  <!-- ======== MAIN CONTENT ======== -->
-  <div class="container mx-auto px-4 py-32 text-center">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-5xl font-black mb-8">Choose Your Subscription</h1>
-      
-      <!-- Pricing Grid - Only Verified & Premium (2 columns) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
-        <!-- Verified -->
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border-2 border-[var(--orange)] relative">
-          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[var(--orange)] text-white text-xs font-black px-4 py-1 rounded-full">Most Popular</div>
-          <h2 class="text-2xl font-bold">Verified</h2>
-          <p class="text-3xl font-black mt-4">N$149<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Verified badge</li>
-            <li>✓ 2x search ranking boost</li>
-            <li>✓ Up to 15 services</li>
-            <li>✓ 1,000‑char description</li>
-            <li>✓ 7‑day profile analytics</li>
-            <li>✓ Review responses</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="verified">Subscribe Now</button>
-        </div>
-        
-        <!-- Premium -->
-        <div class="p-8 bg-[var(--card-bg)] rounded-3xl border border-[var(--border)]">
-          <h2 class="text-2xl font-bold">Premium</h2>
-          <p class="text-3xl font-black mt-4">N$399<span class="text-sm">/mo</span></p>
-          <ul class="mt-6 text-sm text-left space-y-2 text-[var(--foreground-secondary)]">
-            <li>✓ Everything in Verified</li>
-            <li>✓ Featured badge</li>
-            <li>✓ 5x search ranking boost</li>
-            <li>✓ Homepage feature slot</li>
-            <li>✓ Unlimited services & images</li>
-            <li>✓ 30‑day analytics</li>
-          </ul>
-          <button class="btn-primary mt-6 w-full upgrade-btn" data-tier="premium">Subscribe Now</button>
-        </div>
+  <!-- ======== SEARCH BAR ======== -->
+  <div class="pt-24 pb-12 border-b border-[var(--border)] bg-[var(--card-bg)]">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-4">
+        <input type="text" id="searchInput" placeholder="Search service..." class="flex-1 p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--orange)]">
+        <select id="categorySelect" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
+          <option value="">All Categories</option>
+  <option value="Salons">Salons &amp; Beauty</option>
+  <option value="Cleaning">Cleaning Services</option>
+  <option value="Car Rental">Car Rentals</option>
+  <option value="Accommodation">Accommodation</option>
+  <option value="Plumbing">Plumbing</option>
+  <option value="Electrical">Electrical</option>
+  <option value="Catering">Catering</option>
+  <option value="Events">Events</option>
+  <option value="Home Repairs">Home Repairs</option>
+  <option value="Photographer">Photographer</option>
+        </select>
+        <select id="cityFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
+          <option value="">All Cities</option>
+          <option>Windhoek</option>
+          <option>Swakopmund</option>
+          <option>Walvis Bay</option>
+          <option>Oshakati</option>
+          <option>Otjiwarongo</option>
+        </select>
+        <select id="ratingFilter" class="p-4 bg-[var(--input-bg)] rounded-2xl border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:border-[var(--orange)]">
+          <option value="">Any Rating</option>
+          <option value="4">4+ Stars</option>
+          <option value="4.5">4.5+ Stars</option>
+          <option value="5">5 Stars</option>
+        </select>
+        <button id="searchBtn" class="btn-primary px-10">Search</button>
       </div>
-
-      <!-- ========== INVOICE & PROOF SECTION ========== -->
-      <div id="invoiceSection" class="hidden max-w-2xl mx-auto bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-8 text-left">
-        <h2 class="text-2xl font-bold mb-4">📄 Invoice</h2>
-        <div id="invoiceDetails" class="space-y-3 text-sm">
-          <!-- dynamic content -->
-        </div>
-
-        <div class="mt-6 p-4 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)]">
-          <h3 class="font-bold text-sm">💳 Banking Details</h3>
-          <p class="text-xs text-[var(--foreground-muted)] mt-1">Use the invoice number as payment reference.</p>
-          <div id="bankingDetails" class="mt-2 space-y-1 text-sm font-mono"></div>
-        </div>
-
-        <div class="mt-6">
-          <h3 class="font-bold text-sm mb-2">📎 Upload Proof of Payment</h3>
-          <form id="uploadProofForm">
-            <input type="hidden" id="invoiceIdInput" value="">
-            <div class="flex flex-col sm:flex-row gap-3">
-              <input type="file" id="proofImage" accept="image/*,application/pdf" class="flex-1 p-2 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[var(--orange)] file:text-white file:cursor-pointer">
-              <button type="submit" class="btn-primary">Upload</button>
-            </div>
-            <p class="text-xs text-[var(--foreground-muted)] mt-2">Accepted: PNG, JPG, JPEG, PDF (max 5MB)</p>
-          </form>
-          <div id="uploadStatus" class="mt-2 text-sm"></div>
-        </div>
-
-        <div class="mt-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm">
-          ⏳ After uploading, our team will verify your payment within 24–48 hours. You'll receive an email confirmation once your subscription is active.
-        </div>
-      </div>
-
-      <p class="text-xs text-[var(--foreground-muted)] mt-6">*Manual payment verification. No online payment processed on this site.</p>
     </div>
   </div>
 
-  <!-- ======== FOOTER ======== -->
+  <main class="max-w-7xl mx-auto px-4 py-16">
+    <div id="gridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+  </main>
+
+  <!-- ======== FOOTER (same as index.html) ======== -->
   <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
     <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
     <div class="absolute inset-0 opacity-[0.03]">
@@ -212,7 +184,7 @@
                 </div>
                 <span>+264 81 612 6527</span>
               </a>
-              <a href="mailto:localink.na@gmail.com" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+              <a href="mailto:hello@localink.na" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
                 <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M19,4H5A3,3,0,0,0,2,7V17a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V7A3,3,0,0,0,19,4Zm-.41,2-5.88,5.88a1,1,0,0,1-1.42,0L5.41,6ZM20,17a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V7.41l5.88,5.88a3,3,0,0,0,4.24,0L20,7.41Z"/></svg>
                 </div>
@@ -266,7 +238,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Mobile menu toggle
       const mobileBtn = document.getElementById('mobileMenuBtn');
       const mobileMenu = document.getElementById('mobileMenu');
       if (mobileBtn && mobileMenu) {
@@ -281,7 +252,6 @@
         });
       }
 
-      // Services dropdown toggle
       const dropdownBtn = document.getElementById('servicesDropdownBtn');
       const dropdownMenu = document.getElementById('servicesDropdownMenu');
       const arrow = document.getElementById('servicesDropdownArrow');
@@ -304,8 +274,8 @@
           });
         });
       }
-
-      // User dropdown toggle
+    });
+          // ========== USER DROPDOWN TOGGLE ==========
       const userDropdownBtn = document.getElementById('userDropdownBtn');
       const userDropdownMenu = document.getElementById('userDropdownMenu');
       const userArrow = document.getElementById('userDropdownArrow');
@@ -328,150 +298,6 @@
           });
         });
       }
-
-      // Auth toggle
-      function updateAuthButtons() {
-        const loggedOut = document.getElementById('loggedOutNav');
-        const loggedIn = document.getElementById('loggedInNav');
-        const token = localStorage.getItem('token');
-        if (token && currentUser) {
-          loggedOut.classList.add('hidden');
-          loggedIn.classList.remove('hidden');
-        } else {
-          loggedOut.classList.remove('hidden');
-          loggedIn.classList.add('hidden');
-        }
-      }
-      setTimeout(updateAuthButtons, 500);
-      
-      document.getElementById('logoutNavBtn')?.addEventListener('click', function() {
-        localStorage.removeItem('token');
-        window.location.href = 'index.html';
-      });
-
-      // ========== SUBSCRIPTION FLOW ==========
-      const upgradeBtns = document.querySelectorAll('.upgrade-btn');
-      const invoiceSection = document.getElementById('invoiceSection');
-      const invoiceDetails = document.getElementById('invoiceDetails');
-      const bankingDetailsDiv = document.getElementById('bankingDetails');
-      const invoiceIdInput = document.getElementById('invoiceIdInput');
-      const uploadForm = document.getElementById('uploadProofForm');
-      const uploadStatus = document.getElementById('uploadStatus');
-
-      let currentInvoiceId = null;
-
-      upgradeBtns.forEach(btn => {
-        btn.addEventListener('click', async function() {
-          const tier = this.dataset.tier;
-          const token = localStorage.getItem('token');
-          if (!token) {
-            showToast('Please login first.', 'warning');
-            window.location.href = 'login.html';
-            return;
-          }
-
-          this.textContent = 'Generating...';
-          this.disabled = true;
-
-          try {
-            const res = await fetch('/api/payments/request-invoice', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-              body: JSON.stringify({ tier }),
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-              showToast(data.error || 'Failed to generate invoice', 'error');
-              this.textContent = this.dataset.tier === 'verified' ? 'Subscribe Now' : 'Subscribe Now';
-              this.disabled = false;
-              return;
-            }
-
-            const invoice = data.invoice;
-            currentInvoiceId = invoice.id;
-            invoiceIdInput.value = invoice.id;
-
-            invoiceDetails.innerHTML = `
-              <p><span class="font-bold">Invoice Number:</span> ${invoice.invoice_number}</p>
-              <p><span class="font-bold">Package:</span> ${invoice.tier.charAt(0).toUpperCase() + invoice.tier.slice(1)}</p>
-              <p><span class="font-bold">Amount:</span> N$${invoice.amount}</p>
-              <p><span class="font-bold">Status:</span> <span class="px-2 py-1 rounded-full text-xs ${invoice.status === 'pending' ? 'bg-yellow-500/20 text-yellow-600' : 'bg-green-500/20 text-green-600'}">${invoice.status}</span></p>
-              <p><span class="font-bold">Created:</span> ${new Date(invoice.created_at).toLocaleString()}</p>
-            `;
-
-            bankingDetailsDiv.innerHTML = `
-              <p>Bank: ${data.bankingDetails.bank}</p>
-              <p>Account Name: ${data.bankingDetails.accountName}</p>
-              <p>Account Number: ${data.bankingDetails.accountNumber}</p>
-              <p>Branch Code: ${data.bankingDetails.branchCode}</p>
-              <p><strong>Reference:</strong> ${data.bankingDetails.reference}</p>
-            `;
-
-            invoiceSection.classList.remove('hidden');
-            invoiceSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            this.textContent = this.dataset.tier === 'verified' ? 'Subscribe Now' : 'Subscribe Now';
-            this.disabled = false;
-            showToast('Invoice generated! Please upload your proof of payment.', 'success');
-          } catch (err) {
-            console.error(err);
-            showToast('Network error. Please try again.', 'error');
-            this.textContent = this.dataset.tier === 'verified' ? 'Subscribe Now' : 'Subscribe Now';
-            this.disabled = false;
-          }
-        });
-      });
-
-      // Upload proof
-      uploadForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const fileInput = document.getElementById('proofImage');
-        const file = fileInput.files[0];
-        if (!file) {
-          showToast('Please select a file.', 'warning');
-          return;
-        }
-        if (!currentInvoiceId) {
-          showToast('No invoice found. Generate one first.', 'warning');
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append('invoiceId', currentInvoiceId);
-        formData.append('proofImage', file);
-
-        uploadStatus.innerHTML = 'Uploading...';
-
-        try {
-          const token = localStorage.getItem('token');
-          const res = await fetch('/api/payments/upload-proof', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            body: formData,
-          });
-          const data = await res.json();
-
-          if (res.ok) {
-            uploadStatus.innerHTML = '✅ Proof uploaded successfully. We\'ll review it shortly.';
-            showToast('Proof uploaded!', 'success');
-            fileInput.value = '';
-          } else {
-            uploadStatus.innerHTML = '❌ ' + (data.error || 'Upload failed');
-            showToast(data.error || 'Upload failed', 'error');
-          }
-        } catch (err) {
-          console.error(err);
-          uploadStatus.innerHTML = '❌ Network error. Please try again.';
-          showToast('Network error', 'error');
-        }
-      });
-    });
   </script>
 </body>
 </html>
