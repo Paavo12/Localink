@@ -1690,3 +1690,26 @@ window.rejectInvoice = async (id) => {
     showToast('Network error', 'error');
   }
 };
+// ---------- TOGGLE USER MENU DROPDOWN ----------
+window.toggleUserMenu = (userId) => {
+  const dropdown = document.getElementById(`userMenuDropdown_${userId}`);
+  if (!dropdown) return;
+  
+  // Close all other dropdowns
+  document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+    if (el.id !== `userMenuDropdown_${userId}`) {
+      el.classList.add('hidden');
+    }
+  });
+  
+  dropdown.classList.toggle('hidden');
+};
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('[id^="userMenu_"]')) {
+    document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+      el.classList.add('hidden');
+    });
+  }
+});
