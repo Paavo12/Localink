@@ -551,5 +551,16 @@ router.put('/invoices/:id/reject', authenticateToken, requireRole('admin'), asyn
     res.status(500).json({ error: 'Server error' });
   }
 });
+// ---------- REACTIVATE USER ----------
+router.put('/users/:id/reactivate', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('UPDATE users SET is_active = true WHERE id = $1', [id]);
+    res.json({ message: 'User reactivated' });
+  } catch (err) {
+    console.error('Error reactivating user:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router;

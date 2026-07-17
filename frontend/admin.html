@@ -8,9 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="styles.css">
   <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="alternate icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
   <script src="script.js" defer></script>
 </head>
@@ -116,9 +116,55 @@
   <script>
     document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
 
+    // ========== TOGGLE USER MENU DROPDOWN ==========
+    window.toggleUserMenu = function(userId) {
+      const dropdown = document.getElementById(`userMenuDropdown_${userId}`);
+      if (!dropdown) return;
+      
+      // Close all other dropdowns
+      document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+        if (el.id !== `userMenuDropdown_${userId}`) {
+          el.classList.add('hidden');
+        }
+      });
+      
+      dropdown.classList.toggle('hidden');
+    };
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('[id^="userMenu_"]')) {
+        document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+          el.classList.add('hidden');
+        });
+      }
+    });
+
+    // ========== DEACTIVATE / REACTIVATE USER ==========
+    window.deactivateUser = async function(id) {
+      const user = usersData.find(u => u.id === id);
+      if (!user) return;
+      
+      const action = user.is_active ? 'deactivate' : 'reactivate';
+      if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+      
+      try {
+        const endpoint = user.is_active ? 'deactivate' : 'reactivate';
+        const res = await apiFetch(`/api/admin/users/${id}/${endpoint}`, { method: 'PUT' });
+        if (res.ok) {
+          showToast(`User ${action}d successfully.`, 'success');
+          location.reload();
+        } else {
+          const data = await res.json();
+          showToast(data.error || `Failed to ${action} user.`, 'error');
+        }
+      } catch (err) {
+        showToast('Network error. Please try again.', 'error');
+      }
+    };
+
     // ========== PERMANENT DELETE USER ==========
     window.deleteUser = async function(id) {
-      // Double confirmation to prevent accidents
       if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, portfolio, etc.). This CANNOT be undone!')) {
         return;
       }
@@ -128,14 +174,14 @@
       try {
         const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
         if (res.ok) {
-          alert('✅ User permanently deleted.');
+          showToast('✅ User permanently deleted.', 'success');
           location.reload();
         } else {
           const data = await res.json();
-          alert(data.error || 'Delete failed.');
+          showToast(data.error || 'Delete failed.', 'error');
         }
       } catch (err) {
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
       }
     };
   </script>
