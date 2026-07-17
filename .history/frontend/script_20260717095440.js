@@ -622,7 +622,6 @@ window.submitBooking = async (serviceId, providerId) => {
     showToast('Please select a date and time.', 'warning');
     return;
   }
-  // Prevent past dates (extra client-side check)
   const selectedDate = new Date(startTime);
   const now = new Date();
   if (selectedDate < now) {
@@ -644,499 +643,12 @@ window.submitBooking = async (serviceId, providerId) => {
 };
 
 // ========== PROVIDER DASHBOARD ==========
-async function initDashboard() {
-  const content = document.getElementById('dashboardContent');
-
-  if (!authToken) {
-    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
-    return;
-  }
-
-  if (!currentUser) await loadCurrentUser();
-
-  if (!currentUser || currentUser.role !== 'provider') {
-    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
-    return;
-  }
-
-  content.innerHTML = '<div class="text-center py-20">Loading dashboard...</div>';
-
-  try {
-    let stats = { totalBookings: 0, totalReviews: 0, totalQuotes: 0, profileViews: 0 };
-    let bookings = [];
-    let services = [];
-    let profile = {};
-    let hours = [];
-    let subInfo = { subscription_tier: 'basic', subscription_end: null };
-    let viewData = [];
-    let notifications = [];
-    let portfolioItems = [];
-
-    try {
-      const statsRes = await apiFetch('/api/dashboard/stats');
-      if (statsRes.ok) stats = await statsRes.json();
-    } catch (e) { console.error('Stats error:', e); }
-
-    try {
-      const bookingsRes = await apiFetch('/api/dashboard/recent-bookings');
-      if (bookingsRes.ok) bookings = await bookingsRes.json();
-    } catch (e) { console.error('Bookings error:', e); }
-
-    try {
-      const servicesRes = await apiFetch('/api/dashboard/services');
-      if (servicesRes.ok) services = await servicesRes.json();
-    } catch (e) { console.error('Services error:', e); }
-
-    try {
-      const profileRes = await apiFetch('/api/dashboard/profile');
-      if (profileRes.ok) profile = await profileRes.json();
-    } catch (e) { console.error('Profile error:', e); }
-
-    try {
-      const hoursRes = await apiFetch('/api/dashboard/hours');
-      if (hoursRes.ok) hours = await hoursRes.json();
-    } catch (e) { console.error('Hours error:', e); }
-
-    try {
-      const subRes = await apiFetch('/api/subscriptions/me');
-      if (subRes.ok) subInfo = await subRes.json();
-    } catch (e) { console.error('Subscription error:', e); }
-
-    if (subInfo.subscription_tier !== 'basic') {
-      try {
-        const viewsRes = await apiFetch('/api/dashboard/profile-views-chart');
-        if (viewsRes.ok) viewData = await viewsRes.json();
-      } catch (e) { console.error('Chart data error:', e); }
-    }
-
-    try {
-      const notifRes = await apiFetch('/api/dashboard/notifications');
-      if (notifRes.ok) notifications = await notifRes.json();
-    } catch (e) { console.error('Notifications error:', e); }
-
-    try {
-      const portfolioRes = await apiFetch('/api/dashboard/portfolio');
-      if (portfolioRes.ok) portfolioItems = await portfolioRes.json();
-    } catch (e) { console.error('Portfolio error:', e); }
-
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    const servicesHtml = services.map(s => `
-      <div class="flex justify-between items-center p-3 bg-[var(--card-bg)] rounded-xl border mb-2">
-        <div><strong>${escapeHtml(s.name)}</strong> – N$${s.price} / ${s.duration_minutes}min</div>
-        <div class="flex gap-2">
-          <label class="btn-secondary text-xs py-1 px-2 cursor-pointer">Upload
-            <input type="file" accept="image/*" class="hidden" onchange="uploadServiceImage('${s.id}', this.files[0])">
-          </label>
-          <button onclick="deleteService('${s.id}')" class="text-red-500">Delete</button>
-        </div>
-      </div>
-    `).join('');
-
-    const hoursHtml = days.map((dayName, day) => {
-      const hour = hours.find(h => h.day_of_week === day) || {};
-      return `
-        <div class="p-3 border rounded-lg">
-          <div class="font-bold mb-2">${escapeHtml(dayName)}</div>
-          <div class="flex gap-2 items-center">
-            <input type="time" name="open_${day}" value="${hour.open_time || ''}" class="p-2 border rounded-lg flex-1" ${hour.is_closed ? 'disabled' : ''}>
-            <span>–</span>
-            <input type="time" name="close_${day}" value="${hour.close_time || ''}" class="p-2 border rounded-lg flex-1" ${hour.is_closed ? 'disabled' : ''}>
-          </div>
-          <label class="flex items-center gap-2 mt-2 text-sm">
-            <input type="checkbox" name="closed_${day}" ${hour.is_closed ? 'checked' : ''} onchange="toggleHoursDisabled(this, ${day})">
-            Closed all day
-          </label>
-        </div>
-      `;
-    }).join('');
-
-    let html = `
-      <!-- Subscription Card -->
-      <div class="bg-[var(--card-bg)] p-6 rounded-2xl border mb-12">
-        <div class="flex justify-between items-center flex-wrap gap-4">
-          <div>
-            <h2 class="text-2xl font-bold">Current Plan: <span class="text-accent">${escapeHtml(subInfo.subscription_tier || 'basic')}</span></h2>
-            ${subInfo.subscription_end ? `<p class="text-sm text-gray-500">Renews on ${new Date(subInfo.subscription_end).toLocaleDateString()}</p>` : '<p class="text-sm text-gray-500">Free plan – upgrade for more visibility</p>'}
-          </div>
-          <a href="checkout.html" class="btn-primary">Upgrade Plan</a>
-        </div>
-      </div>
-    `;
-
-    if (notifications.length > 0) {
-      html += `
-        <div class="mb-6 p-4 bg-accent-light border-l-4 border-accent rounded-xl">
-          <div class="flex justify-between items-center">
-            <div>
-              <h3 class="font-bold text-accent">🔔 New Notifications</h3>
-              <ul class="mt-2 text-sm space-y-1">
-                ${notifications.map(n => `
-                  <li>• ${escapeHtml(n.message)} <span class="text-xs text-gray-500">(${new Date(n.created_at).toLocaleString()})</span></li>
-                `).join('')}
-              </ul>
-            </div>
-            <button id="markNotificationsReadBtn" class="btn-secondary text-xs py-1 px-3">Mark as read</button>
-          </div>
-        </div>
-      `;
-    }
-
-    html += `
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <div class="bg-[var(--card-bg)] p-6 rounded-2xl border"><div class="text-3xl font-black text-accent">${stats.totalBookings || 0}</div><div>Bookings</div></div>
-        <div class="bg-[var(--card-bg)] p-6 rounded-2xl border"><div class="text-3xl font-black text-accent">${stats.totalReviews || 0}</div><div>Reviews</div></div>
-        <div class="bg-[var(--card-bg)] p-6 rounded-2xl border"><div class="text-3xl font-black text-accent">${stats.totalQuotes || 0}</div><div>Quotes</div></div>
-        <div class="bg-[var(--card-bg)] p-6 rounded-2xl border"><div class="text-3xl font-black text-accent">${stats.profileViews || 0}</div><div>Profile Views</div></div>
-      </div>
-
-      ${subInfo.subscription_tier !== 'basic' && viewData.length ? `
-        <div class="mb-12">
-          <h2 class="text-2xl font-bold mb-4">Profile Views (Last 30 days)</h2>
-          <canvas id="viewsChart" class="bg-[var(--card-bg)] p-4 rounded-2xl"></canvas>
-        </div>
-      ` : ''}
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <!-- LEFT COLUMN: BOOKINGS HISTORY + SERVICES -->
-        <div>
-          <!-- BOOKINGS HISTORY WITH FILTERS -->
-          <h2 class="text-2xl font-bold mb-4">Bookings History</h2>
-          <div class="mb-4 flex flex-wrap gap-2">
-            <button onclick="filterBookings('all')" class="btn-secondary text-xs py-1 px-3 booking-filter active" data-filter="all">All</button>
-            <button onclick="filterBookings('pending')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="pending">Pending</button>
-            <button onclick="filterBookings('confirmed')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="confirmed">Confirmed</button>
-            <button onclick="filterBookings('completed')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="completed">Completed</button>
-            <button onclick="filterBookings('cancelled')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="cancelled">Cancelled</button>
-          </div>
-          <div id="bookingsList" class="space-y-3 max-h-96 overflow-y-auto">
-            ${bookings.length ? bookings.map(b => `
-              <div class="bg-[var(--card-bg)] p-4 rounded-xl border flex justify-between flex-wrap gap-2">
-                <div>
-                  <strong>${escapeHtml(b.client_name)}</strong><br>
-                  ${escapeHtml(b.service_name || 'Service')} – ${new Date(b.start_time).toLocaleString()}
-                  <br><span class="text-xs px-2 py-0.5 rounded-full ${getStatusBadgeColor(b.status)}">${b.status}</span>
-                </div>
-                <select onchange="updateBookingStatus('${b.id}', this.value)" class="p-2 border rounded-lg">
-                  <option ${b.status==='pending'?'selected':''}>pending</option>
-                  <option ${b.status==='confirmed'?'selected':''}>confirmed</option>
-                  <option ${b.status==='completed'?'selected':''}>completed</option>
-                  <option ${b.status==='cancelled'?'selected':''}>cancelled</option>
-                </select>
-              </div>
-            `).join('') : '<div class="text-gray-500 text-center py-4">No bookings yet.</div>'}
-          </div>
-
-          <!-- SERVICES SECTION -->
-          <h2 class="text-2xl font-bold mt-8 mb-4">Services</h2>
-          <div id="servicesList" class="space-y-2 mb-4">${servicesHtml || '<div class="text-gray-500">No services added yet.</div>'}</div>
-          <form id="addServiceForm" class="bg-[var(--card-bg)] p-4 rounded-xl border space-y-3">
-            <input name="name" placeholder="Service name" required class="w-full p-2 border rounded-lg">
-            <input name="price" placeholder="Price (N$)" required class="w-full p-2 border rounded-lg">
-            <input name="duration_minutes" placeholder="Duration (minutes)" required class="w-full p-2 border rounded-lg">
-            <button type="submit" class="btn-primary w-full">Add Service</button>
-          </form>
-        </div>
-
-        <!-- RIGHT COLUMN: PROFILE + HOURS -->
-        <div>
-          <h2 class="text-2xl font-bold mb-4">Business Profile</h2>
-          <form id="profileForm" class="bg-[var(--card-bg)] p-4 rounded-xl border space-y-3">
-            <input name="business_name" value="${escapeHtml(profile.business_name || '')}" placeholder="Business Name" class="w-full p-2 border rounded-lg">
-            <textarea name="description" placeholder="Description" rows="3" class="w-full p-2 border rounded-lg">${escapeHtml(profile.description || '')}</textarea>
-            <select name="category" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-              <option value="">Select Category</option>
-              ${['Hair Salon','Barbershop','Car Rental','Plumbing','Cleaning Services','Electrician','Catering','Accommodation','Home Repairs','Photographer','Events','Other'].map(cat => `<option value="${cat}" ${profile.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-            </select>
-            <input name="address" id="businessAddress" value="${escapeHtml(profile.address || '')}" placeholder="Address" class="w-full p-2 border rounded-lg">
-            <input type="hidden" id="businessLat" name="lat" value="${profile.lat || ''}">
-            <input type="hidden" id="businessLng" name="lng" value="${profile.lng || ''}">
-            <input name="whatsapp_number" value="${escapeHtml(profile.whatsapp_number || '')}" placeholder="WhatsApp Number" class="w-full p-2 border rounded-lg">
-
-            <div class="border-t pt-3">
-              <label class="font-bold block mb-2">📍 Click on map to set exact location</label>
-              <div id="locationPickerMap" style="height: 300px; width: 100%; border-radius: 0.75rem; overflow: hidden; z-index: 1;"></div>
-              <p class="text-xs text-gray-500 mt-2">Click anywhere on the map – a marker will appear.</p>
-            </div>
-
-            <div class="border-t pt-3">
-              <label class="font-bold">Logo</label>
-              ${profile.logo_url ? `<img src="${escapeHtml(profile.logo_url)}" class="h-20 w-20 object-cover rounded mb-2">` : ''}
-              <input type="file" id="logoUpload" accept="image/*" class="w-full">
-              <button type="button" id="uploadLogoBtn" class="btn-secondary mt-2">Upload Logo</button>
-            </div>
-            <div class="border-t pt-3">
-              <label class="font-bold">Cover Image</label>
-              ${profile.cover_image_url ? `<img src="${escapeHtml(profile.cover_image_url)}" class="h-32 w-full object-cover rounded mb-2">` : ''}
-              <input type="file" id="coverUpload" accept="image/*" class="w-full">
-              <button type="button" id="uploadCoverBtn" class="btn-secondary mt-2">Upload Cover</button>
-            </div>
-            <button type="submit" class="btn-primary w-full">Update Profile</button>
-          </form>
-
-          <h2 class="text-2xl font-bold mt-8 mb-4">Business Hours</h2>
-          <form id="hoursForm" class="bg-[var(--card-bg)] p-4 rounded-xl border">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              ${hoursHtml}
-            </div>
-            <button type="submit" class="btn-primary w-full mt-4">Save Hours</button>
-          </form>
-        </div>
-      </div>
-    `;
-
-    // Portfolio section
-    html += `
-      <div class="mt-12 border-t pt-8">
-        <h2 class="text-2xl font-bold mb-4">📸 Portfolio</h2>
-        <p class="text-sm text-[var(--foreground-muted)] mb-4">Showcase your work to potential clients.</p>
-        <div id="portfolioGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          ${portfolioItems.length ? portfolioItems.map(item => `
-            <div class="relative group border rounded-lg overflow-hidden bg-[var(--card-bg)]">
-              <img src="${escapeHtml(item.image_url)}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-              ${item.title ? `<p class="text-xs font-semibold p-2">${escapeHtml(item.title)}</p>` : ''}
-              <button onclick="deletePortfolioItem('${item.id}')" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-          `).join('') : '<div class="col-span-full text-center text-[var(--foreground-muted)] py-4">No portfolio images yet.</div>'}
-        </div>
-        <form id="addPortfolioForm" class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
-          <div class="flex-1">
-            <label class="block text-sm font-medium">Upload Image</label>
-            <input type="file" id="portfolioImageInput" accept="image/*" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Title (optional)</label>
-            <input type="text" id="portfolioTitle" placeholder="e.g., Wedding Decor" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-          </div>
-          <button type="submit" class="btn-primary whitespace-nowrap">Add to Portfolio</button>
-        </form>
-      </div>
-    `;
-
-    content.innerHTML = html;
-
-    // ---------- BOOKING FILTER LOGIC ----------
-    const allBookings = [...bookings]; // capture all bookings
-
-    window.filterBookings = (filter) => {
-      document.querySelectorAll('.booking-filter').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      const activeBtn = document.querySelector(`.booking-filter[data-filter="${filter}"]`);
-      if (activeBtn) activeBtn.classList.add('active');
-
-      let filtered = allBookings;
-      if (filter !== 'all') {
-        filtered = allBookings.filter(b => b.status === filter);
-      }
-
-      const list = document.getElementById('bookingsList');
-      if (!list) return;
-
-      if (filtered.length === 0) {
-        list.innerHTML = '<div class="text-gray-500 text-center py-4">No bookings match this filter.</div>';
-        return;
-      }
-
-      list.innerHTML = filtered.map(b => `
-        <div class="bg-[var(--card-bg)] p-4 rounded-xl border flex justify-between flex-wrap gap-2">
-          <div>
-            <strong>${escapeHtml(b.client_name)}</strong><br>
-            ${escapeHtml(b.service_name || 'Service')} – ${new Date(b.start_time).toLocaleString()}
-            <br><span class="text-xs px-2 py-0.5 rounded-full ${getStatusBadgeColor(b.status)}">${b.status}</span>
-          </div>
-          <select onchange="updateBookingStatus('${b.id}', this.value)" class="p-2 border rounded-lg">
-            <option ${b.status==='pending'?'selected':''}>pending</option>
-            <option ${b.status==='confirmed'?'selected':''}>confirmed</option>
-            <option ${b.status==='completed'?'selected':''}>completed</option>
-            <option ${b.status==='cancelled'?'selected':''}>cancelled</option>
-          </select>
-        </div>
-      `).join('');
-    };
-
-    // Mark notifications as read
-    document.getElementById('markNotificationsReadBtn')?.addEventListener('click', async () => {
-      await apiFetch('/api/dashboard/notifications/read', { method: 'PUT' });
-      showToast('Notifications marked as read', 'success');
-      location.reload();
-    });
-
-    // Leaflet map picker
-    if (typeof L !== 'undefined' && document.getElementById('locationPickerMap')) {
-      initLocationPicker(profile.lat, profile.lng);
-    }
-
-    // Chart
-    if (subInfo.subscription_tier !== 'basic' && viewData.length && document.getElementById('viewsChart') && typeof Chart !== 'undefined') {
-      new Chart(document.getElementById('viewsChart'), {
-        type: 'line',
-        data: {
-          labels: viewData.map(v => v.date),
-          datasets: [{ label: 'Views', data: viewData.map(v => parseInt(v.count)) }]
-        }
-      });
-    }
-
-    // Portfolio upload
-    document.getElementById('addPortfolioForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById('portfolioImageInput');
-      const title = document.getElementById('portfolioTitle').value.trim();
-      if (!fileInput.files.length) {
-        showToast('Please select an image.', 'warning');
-        return;
-      }
-      const formData = new FormData();
-      formData.append('image', fileInput.files[0]);
-      try {
-        const uploadRes = await fetch('/api/upload/portfolio', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${authToken}` },
-          body: formData
-        });
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload failed');
-        const portfolioRes = await apiFetch('/api/dashboard/portfolio', {
-          method: 'POST',
-          body: JSON.stringify({ image_url: uploadData.url, title })
-        });
-        if (portfolioRes.ok) {
-          showToast('Portfolio image added!', 'success');
-          location.reload();
-        } else {
-          const err = await portfolioRes.json();
-          showToast(err.error || 'Failed to add portfolio item.', 'error');
-        }
-      } catch (err) {
-        showToast('Error: ' + err.message, 'error');
-      }
-    });
-
-    // Event listeners
-    document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData);
-      await apiFetch('/api/dashboard/profile', { method: 'PUT', body: JSON.stringify(data) });
-      showToast('Profile updated', 'success');
-      location.reload();
-    });
-
-    document.getElementById('addServiceForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData);
-      const res = await apiFetch('/api/dashboard/services', { method: 'POST', body: JSON.stringify(data) });
-      if (res.ok) { showToast('Service added', 'success'); location.reload(); }
-      else showToast('Failed to add service', 'error');
-    });
-
-    document.getElementById('hoursForm')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      for (let day = 0; day <= 6; day++) {
-        const openInput = document.querySelector(`[name="open_${day}"]`);
-        const closeInput = document.querySelector(`[name="close_${day}"]`);
-        const closedCheck = document.querySelector(`[name="closed_${day}"]`);
-        let open_time = openInput?.value || '';
-        let close_time = closeInput?.value || '';
-        const is_closed = closedCheck?.checked || false;
-        if (is_closed) { open_time = ''; close_time = ''; }
-        await apiFetch('/api/dashboard/hours', { method: 'POST', body: JSON.stringify({ day_of_week: day, open_time: open_time || null, close_time: close_time || null, is_closed }) });
-      }
-      showToast('Hours saved', 'success');
-      location.reload();
-    });
-
-    document.getElementById('uploadLogoBtn')?.addEventListener('click', async () => {
-      const input = document.getElementById('logoUpload');
-      if (input.files.length) await uploadLogo(input.files[0]);
-      location.reload();
-    });
-
-    document.getElementById('uploadCoverBtn')?.addEventListener('click', async () => {
-      const input = document.getElementById('coverUpload');
-      if (input.files.length) await uploadCover(input.files[0]);
-      location.reload();
-    });
-
-  } catch (err) {
-    console.error('Dashboard error:', err);
-    content.innerHTML = `<div class="text-center py-20 text-red-500">Failed to load dashboard. Please <a href="login.html">login again</a>.</div>`;
-  }
-}
-
-// Map picker for dashboard
-let locationMap, locationMarker;
-function initLocationPicker(initialLat, initialLng) {
-  const mapContainer = document.getElementById('locationPickerMap');
-  if (!mapContainer) return;
-  const defaultLat = -22.5609;
-  const defaultLng = 17.0658;
-  const lat = initialLat ? parseFloat(initialLat) : defaultLat;
-  const lng = initialLng ? parseFloat(initialLng) : defaultLng;
-
-  locationMap = L.map(mapContainer).setView([lat, lng], 15);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB'
-  }).addTo(locationMap);
-
-  if (initialLat && initialLng) {
-    locationMarker = L.marker([lat, lng]).addTo(locationMap);
-  }
-
-  locationMap.on('click', function(e) {
-    const newLat = e.latlng.lat;
-    const newLng = e.latlng.lng;
-    if (locationMarker) {
-      locationMarker.setLatLng([newLat, newLng]);
-    } else {
-      locationMarker = L.marker([newLat, newLng]).addTo(locationMap);
-    }
-    document.getElementById('businessLat').value = newLat;
-    document.getElementById('businessLng').value = newLng;
-  });
-}
-
-// ========== GLOBAL ADMIN HELPER FUNCTIONS ==========
-window.updateBookingStatus = async (id, status) => {
-  await apiFetch(`/api/dashboard/bookings/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
-  location.reload();
-};
-
-window.deleteService = async (id) => {
-  if (!confirm('Delete this service?')) return;
-  const res = await apiFetch(`/api/dashboard/services/${id}`, { method: 'DELETE' });
-  if (res.ok) { showToast('Deleted', 'success'); location.reload(); }
-  else showToast('Delete failed', 'error');
-};
-
-window.uploadServiceImage = async (serviceId, file) => {
-  const formData = new FormData();
-  formData.append('image', file);
-  const res = await fetch(`/api/upload/service/${serviceId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
-  if (res.ok) { showToast('Image uploaded', 'success'); location.reload(); }
-  else showToast('Upload failed', 'error');
-};
-
-window.toggleHoursDisabled = (checkbox, day) => {
-  const openInput = document.querySelector(`[name="open_${day}"]`);
-  const closeInput = document.querySelector(`[name="close_${day}"]`);
-  if (checkbox.checked) {
-    openInput.disabled = true;
-    closeInput.disabled = true;
-    openInput.value = '';
-    closeInput.value = '';
-  } else {
-    openInput.disabled = false;
-    closeInput.disabled = false;
-  }
-};
+// ... (keep your existing initDashboard function unchanged) ...
+// I'm omitting it here for brevity, but you should keep it as is.
 
 // ========== ADMIN DASHBOARD ==========
-// *** THIS IS THE UPDATED VERSION WITH THE MANAGE DROPDOWN ***
+// This is the part we've updated.
+
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {
     window.location.href = 'login.html';
@@ -1154,19 +666,14 @@ async function initAdmin() {
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
   const invoices = await (await apiFetch('/api/admin/invoices')).json();
 
-  // Store users globally for deactivate/reactivate toggling
-  window._users = users;
-
   // ---------- PERMANENTLY DELETE USER ----------
   window.deleteUser = async (id) => {
     if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, etc.). This cannot be undone! Are you sure?')) {
       return;
     }
-    
     if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to delete this user?')) {
       return;
     }
-    
     try {
       const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -1180,6 +687,9 @@ async function initAdmin() {
       showToast('Network error. Please try again.', 'error');
     }
   };
+
+  // ---- Store users globally for deactivate/reactivate toggling ----
+  window._users = users;
 
   // ---- HTML with fixed chart containers ----
   let html = `
@@ -1251,7 +761,7 @@ async function initAdmin() {
       `).join('')}
     </div>
 
-    <!-- ========== ALL USERS WITH MANAGE DROPDOWN ========== -->
+    <!-- ========== ALL USERS TABLE WITH MANAGE DROPDOWN ========== -->
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">All Users</h2>
       <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
@@ -1423,55 +933,6 @@ async function initAdmin() {
   }
 }
 
-// ---------- DEACTIVATE / REACTIVATE USER ----------
-window.deactivateUser = async (id) => {
-  const user = window._users ? window._users.find(u => u.id === id) : null;
-  if (!user) {
-    showToast('User not found. Please refresh.', 'error');
-    return;
-  }
-
-  const action = user.is_active ? 'deactivate' : 'reactivate';
-  if (!confirm(`Are you sure you want to ${action} this user?`)) return;
-
-  try {
-    const res = await apiFetch(`/api/admin/users/${id}/${action}`, { method: 'PUT' });
-    if (res.ok) {
-      showToast(`User ${action}d successfully.`, 'success');
-      location.reload();
-    } else {
-      const data = await res.json();
-      showToast(data.error || `Failed to ${action} user.`, 'error');
-    }
-  } catch (err) {
-    showToast('Network error. Please try again.', 'error');
-  }
-};
-
-// ---------- TOGGLE USER MENU DROPDOWN ----------
-window.toggleUserMenu = (userId) => {
-  const dropdown = document.getElementById(`userMenuDropdown_${userId}`);
-  if (!dropdown) return;
-
-  // Close all other dropdowns
-  document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
-    if (el.id !== `userMenuDropdown_${userId}`) {
-      el.classList.add('hidden');
-    }
-  });
-
-  dropdown.classList.toggle('hidden');
-};
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('[id^="userMenu_"]')) {
-    document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
-      el.classList.add('hidden');
-    });
-  }
-});
-
 // ---------- ADMIN: Provider Details Modal ----------
 async function viewProvider(userId) {
   const modal = document.getElementById('providerModal');
@@ -1609,121 +1070,52 @@ document.getElementById('closeModalBtn')?.addEventListener('click', function() {
   document.getElementById('providerModal').classList.add('hidden');
 });
 
-window.approveProvider = async (id) => {
-  await apiFetch(`/api/admin/verify-provider/${id}`, { method: 'PUT' });
-  showToast('Provider approved', 'success');
-  location.reload();
-};
-
-window.rejectProvider = async (id) => {
-  await apiFetch(`/api/admin/reject-provider/${id}`, { method: 'DELETE' });
-  showToast('Provider rejected', 'info');
-  location.reload();
-};
-
-// ---------- ADMIN: Client Details Modal ----------
-async function viewClient(userId) {
-  const modal = document.getElementById('providerModal');
-  const content = document.getElementById('modalContent');
-  if (!modal || !content) return;
-
-  modal.classList.remove('hidden');
-  content.innerHTML = 'Loading...';
-
-  try {
-    const res = await apiFetch(`/api/admin/client/${userId}`);
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error('Client fetch error:', res.status, errText);
-      throw new Error(`HTTP ${res.status}: ${errText}`);
-    }
-    const data = await res.json();
-
-    content.innerHTML = `
-      <div class="space-y-4">
-        <div><strong>Name:</strong> ${escapeHtml(data.full_name || 'N/A')}</div>
-        <div><strong>Email:</strong> ${escapeHtml(data.email)}</div>
-        <div><strong>Phone:</strong> ${escapeHtml(data.phone || 'N/A')}</div>
-        <div><strong>Role:</strong> ${escapeHtml(data.role)}</div>
-        <div><strong>Status:</strong> ${data.is_active ? 'Active' : 'Inactive'}</div>
-        <div><strong>Joined:</strong> ${new Date(data.created_at).toLocaleString()}</div>
-      </div>
-      <div class="mt-4 flex justify-end">
-        <button id="modalCancelBtn2" class="btn-secondary">Close</button>
-      </div>
-    `;
-
-    document.getElementById('modalCancelBtn2').addEventListener('click', () => {
-      modal.classList.add('hidden');
-    });
-
-  } catch (err) {
-    console.error('View client error:', err);
-    content.innerHTML = `<div class="text-red-500">Failed to load client details: ${err.message}</div>`;
-  }
-}
-
-// ========== PORTFOLIO DELETE HELPER ==========
-window.deletePortfolioItem = async (id) => {
-  if (!confirm('Delete this portfolio image?')) return;
-  const res = await apiFetch(`/api/dashboard/portfolio/${id}`, { method: 'DELETE' });
-  if (res.ok) {
-    showToast('Deleted', 'success');
-    location.reload();
-  } else {
-    showToast('Delete failed', 'error');
-  }
-};
-
-// ========== TESTIMONIALS ==========
-async function loadTestimonials() {
-  const container = document.getElementById('testimonialsGrid');
-  if (!container) return;
-  try {
-    const res = await fetch('/api/reviews/top');
-    if (!res.ok) throw new Error();
-    const reviews = await res.json();
-    if (reviews.length === 0) {
-      container.innerHTML = '<div class="col-span-3 text-center text-[var(--foreground-muted)]">No reviews yet.</div>';
-      return;
-    }
-    container.innerHTML = reviews.map(r => `
-      <div class="bg-[var(--card-bg)] p-6 rounded-2xl border border-[var(--border)] shadow-sm">
-        <div class="flex items-center gap-1 text-[var(--orange)] mb-2">
-          ${'★'.repeat(Math.round(r.rating))}${'☆'.repeat(5 - Math.round(r.rating))}
-        </div>
-        <p class="text-sm text-[var(--foreground-secondary)] italic">“${escapeHtml(r.comment || '')}”</p>
-        <p class="mt-3 text-sm font-bold text-[var(--foreground)]">— ${escapeHtml(r.full_name)}</p>
-        <p class="text-xs text-[var(--foreground-muted)]">${escapeHtml(r.business_name)}</p>
-      </div>
-    `).join('');
-  } catch (err) {
-    container.innerHTML = '<div class="col-span-3 text-center text-red-500">Could not load testimonials.</div>';
-  }
-}
-
-// ========== PAGE ROUTER ==========
-document.addEventListener('DOMContentLoaded', async () => {
-  initTheme();
-  initNavbarScroll();
-  await loadCurrentUser();
-  updateNavbarAuth();
-  const path = location.pathname;
-
-  if (path.includes('admin.html')) {
-    if (!currentUser || currentUser.role !== 'admin') {
-      window.location.href = 'login.html';
-      return;
-    }
-    initAdmin();
+// ========== DEACTIVATE / REACTIVATE USER ==========
+window.deactivateUser = async (id) => {
+  const user = window._users ? window._users.find(u => u.id === id) : null;
+  if (!user) {
+    showToast('User not found. Please refresh.', 'error');
     return;
   }
 
-  if (path.includes('search.html')) initSearchPage();
-  else if (path.includes('business.html')) initBusinessPage();
-  else if (path.includes('dashboard.html')) initDashboard();
-  else if (path === '/' || path.includes('index.html')) {
-    loadTestimonials();
+  const action = user.is_active ? 'deactivate' : 'reactivate';
+  if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+  try {
+    const res = await apiFetch(`/api/admin/users/${id}/${action}`, { method: 'PUT' });
+    if (res.ok) {
+      showToast(`User ${action}d successfully.`, 'success');
+      location.reload();
+    } else {
+      const data = await res.json();
+      showToast(data.error || `Failed to ${action} user.`, 'error');
+    }
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+  }
+};
+
+// ---------- TOGGLE USER MENU DROPDOWN ----------
+window.toggleUserMenu = (userId) => {
+  const dropdown = document.getElementById(`userMenuDropdown_${userId}`);
+  if (!dropdown) return;
+
+  // Close all other dropdowns
+  document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+    if (el.id !== `userMenuDropdown_${userId}`) {
+      el.classList.add('hidden');
+    }
+  });
+
+  dropdown.classList.toggle('hidden');
+};
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('[id^="userMenu_"]')) {
+    document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+      el.classList.add('hidden');
+    });
   }
 });
 
@@ -1731,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.approveInvoice = async (id) => {
   if (!confirm('Approve this invoice and activate subscription?')) return;
   try {
-    const res = await apiFetch(`/api/admin/invoices/${id}/approve`, { 
+    const res = await apiFetch(`/api/admin/invoices/${id}/approve`, {
       method: 'PUT',
       body: JSON.stringify({ adminNotes: null })
     });
@@ -1765,3 +1157,5 @@ window.rejectInvoice = async (id) => {
     showToast('Network error', 'error');
   }
 };
+
+// Keep the rest of your functions (approveProvider, rejectProvider, viewClient, deletePortfolioItem, loadTestimonials, page router) as they are.

@@ -1136,7 +1136,6 @@ window.toggleHoursDisabled = (checkbox, day) => {
 };
 
 // ========== ADMIN DASHBOARD ==========
-// *** THIS IS THE UPDATED VERSION WITH THE MANAGE DROPDOWN ***
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {
     window.location.href = 'login.html';
@@ -1152,10 +1151,7 @@ async function initAdmin() {
   const feed = await (await apiFetch('/api/admin/activity-feed')).json();
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
-  const invoices = await (await apiFetch('/api/admin/invoices')).json();
-
-  // Store users globally for deactivate/reactivate toggling
-  window._users = users;
+  const invoices = await (await apiFetch('/api/admin/invoices')).json(); // <-- ADDED THIS LINE
 
   // ---------- PERMANENTLY DELETE USER ----------
   window.deleteUser = async (id) => {
@@ -1251,48 +1247,22 @@ async function initAdmin() {
       `).join('')}
     </div>
 
-    <!-- ========== ALL USERS WITH MANAGE DROPDOWN ========== -->
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4">All Users</h2>
       <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
         <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b">
-              <th class="text-left p-2">Email</th>
-              <th class="text-left p-2">Role</th>
-              <th class="text-left p-2">Status</th>
-              <th class="text-left p-2">Actions</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
             ${users.map(u => `
               <tr class="border-b">
                 <td class="p-2">${escapeHtml(u.email)}</td>
                 <td class="p-2">${escapeHtml(u.role)}</td>
-                <td class="p-2">
-                  <span class="px-2 py-1 rounded-full text-xs ${u.is_active ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}">
-                    ${u.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
+                <td class="p-2">${u.is_active ? 'Active' : 'Inactive'}</td>
                 <td class="p-2">
                   ${u.role === 'provider' ? `<button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>` : ''}
                   ${u.role === 'client' ? `<button onclick="viewClient('${u.id}')" class="btn-secondary text-xs py-1 px-2 mr-1">View</button>` : ''}
-                  ${u.email !== 'admin@localink.com' ? `
-                    <div class="relative inline-block" id="userMenu_${u.id}">
-                      <button onclick="toggleUserMenu('${u.id}')" class="btn-secondary text-xs py-1 px-2">
-                        Manage ▼
-                      </button>
-                      <div id="userMenuDropdown_${u.id}" class="absolute right-0 mt-1 w-40 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-1">
-                        <button onclick="deactivateUser('${u.id}')" class="block w-full text-left px-3 py-1.5 text-xs ${u.is_active ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'} hover:bg-[var(--background-tertiary)] transition-colors">
-                          ${u.is_active ? '🔒 Deactivate' : '🔓 Reactivate'}
-                        </button>
-                        <hr class="border-[var(--border)] my-1">
-                        <button onclick="deleteUser('${u.id}')" class="block w-full text-left px-3 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-[var(--background-tertiary)] transition-colors">
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </div>
-                  ` : ''}
+                  <button onclick="deactivateUser('${u.id}')" class="text-yellow-600 dark:text-yellow-400 text-xs mr-1 hover:underline">Deactivate</button>
+                  ${u.email !== 'admin@localink.com' ? `<button onclick="deleteUser('${u.id}')" class="text-red-600 dark:text-red-400 text-xs font-bold hover:underline">Delete</button>` : ''}
                 </td>
               </tr>
             `).join('')}
@@ -1422,56 +1392,6 @@ async function initAdmin() {
     }
   }
 }
-
-// ---------- DEACTIVATE / REACTIVATE USER ----------
-window.deactivateUser = async (id) => {
-  const user = window._users ? window._users.find(u => u.id === id) : null;
-  if (!user) {
-    showToast('User not found. Please refresh.', 'error');
-    return;
-  }
-
-  const action = user.is_active ? 'deactivate' : 'reactivate';
-  if (!confirm(`Are you sure you want to ${action} this user?`)) return;
-
-  try {
-    const res = await apiFetch(`/api/admin/users/${id}/${action}`, { method: 'PUT' });
-    if (res.ok) {
-      showToast(`User ${action}d successfully.`, 'success');
-      location.reload();
-    } else {
-      const data = await res.json();
-      showToast(data.error || `Failed to ${action} user.`, 'error');
-    }
-  } catch (err) {
-    showToast('Network error. Please try again.', 'error');
-  }
-};
-
-// ---------- TOGGLE USER MENU DROPDOWN ----------
-window.toggleUserMenu = (userId) => {
-  const dropdown = document.getElementById(`userMenuDropdown_${userId}`);
-  if (!dropdown) return;
-
-  // Close all other dropdowns
-  document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
-    if (el.id !== `userMenuDropdown_${userId}`) {
-      el.classList.add('hidden');
-    }
-  });
-
-  dropdown.classList.toggle('hidden');
-};
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('[id^="userMenu_"]')) {
-    document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
-      el.classList.add('hidden');
-    });
-  }
-});
-
 // ---------- ADMIN: Provider Details Modal ----------
 async function viewProvider(userId) {
   const modal = document.getElementById('providerModal');
@@ -1621,6 +1541,12 @@ window.rejectProvider = async (id) => {
   location.reload();
 };
 
+window.deactivateUser = async (id) => {
+  await apiFetch(`/api/admin/users/${id}/deactivate`, { method: 'PUT' });
+  showToast('User deactivated', 'info');
+  location.reload();
+};
+
 // ---------- ADMIN: Client Details Modal ----------
 async function viewClient(userId) {
   const modal = document.getElementById('providerModal');
@@ -1726,7 +1652,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadTestimonials();
   }
 });
-
 // ---------- ADMIN INVOICE ACTIONS ----------
 window.approveInvoice = async (id) => {
   if (!confirm('Approve this invoice and activate subscription?')) return;
@@ -1765,3 +1690,26 @@ window.rejectInvoice = async (id) => {
     showToast('Network error', 'error');
   }
 };
+// ---------- TOGGLE USER MENU DROPDOWN ----------
+window.toggleUserMenu = (userId) => {
+  const dropdown = document.getElementById(`userMenuDropdown_${userId}`);
+  if (!dropdown) return;
+  
+  // Close all other dropdowns
+  document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+    if (el.id !== `userMenuDropdown_${userId}`) {
+      el.classList.add('hidden');
+    }
+  });
+  
+  dropdown.classList.toggle('hidden');
+};
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('[id^="userMenu_"]')) {
+    document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+      el.classList.add('hidden');
+    });
+  }
+});

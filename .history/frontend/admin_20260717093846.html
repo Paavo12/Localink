@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -26,7 +27,6 @@
           </div>
           <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">ink</span></span>
         </a>
-        <!-- Navbar links (same as your current) -->
         <div class="hidden lg:flex items-center gap-1">
           <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
           <div class="relative" id="servicesDropdown">
@@ -71,6 +71,7 @@
             </div>
             <div id="loggedInNav" class="flex items-center gap-4 hidden">
               <a href="dashboard.html" class="btn-secondary text-sm">Dashboard</a>
+              <!-- Logout button removed from navbar - using the one in the content area instead -->
             </div>
           </div>
           <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
@@ -114,6 +115,75 @@
 
   <script>
     document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
+
+    // ========== TOGGLE USER MENU DROPDOWN ==========
+    window.toggleUserMenu = function(userId) {
+      const dropdown = document.getElementById(`userMenuDropdown_${userId}`);
+      if (!dropdown) return;
+      
+      // Close all other dropdowns
+      document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+        if (el.id !== `userMenuDropdown_${userId}`) {
+          el.classList.add('hidden');
+        }
+      });
+      
+      dropdown.classList.toggle('hidden');
+    };
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('[id^="userMenu_"]')) {
+        document.querySelectorAll('[id^="userMenuDropdown_"]').forEach(el => {
+          el.classList.add('hidden');
+        });
+      }
+    });
+
+    // ========== DEACTIVATE / REACTIVATE USER ==========
+    window.deactivateUser = async function(id) {
+      const user = usersData.find(u => u.id === id);
+      if (!user) return;
+      
+      const action = user.is_active ? 'deactivate' : 'reactivate';
+      if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+      
+      try {
+        const endpoint = user.is_active ? 'deactivate' : 'reactivate';
+        const res = await apiFetch(`/api/admin/users/${id}/${endpoint}`, { method: 'PUT' });
+        if (res.ok) {
+          showToast(`User ${action}d successfully.`, 'success');
+          location.reload();
+        } else {
+          const data = await res.json();
+          showToast(data.error || `Failed to ${action} user.`, 'error');
+        }
+      } catch (err) {
+        showToast('Network error. Please try again.', 'error');
+      }
+    };
+
+    // ========== PERMANENT DELETE USER ==========
+    window.deleteUser = async function(id) {
+      if (!confirm('⚠️ WARNING: This will permanently delete this user and ALL their data (services, bookings, reviews, portfolio, etc.). This CANNOT be undone!')) {
+        return;
+      }
+      if (!confirm('Final confirmation: Are you ABSOLUTELY sure you want to permanently delete this user?')) {
+        return;
+      }
+      try {
+        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('✅ User permanently deleted.', 'success');
+          location.reload();
+        } else {
+          const data = await res.json();
+          showToast(data.error || 'Delete failed.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error. Please try again.', 'error');
+      }
+    };
   </script>
 </body>
 </html>

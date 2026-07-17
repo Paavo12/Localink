@@ -49,11 +49,13 @@ router.put('/users/:id/reactivate', async (req, res) => {
   }
 });
 
+// ---------- PERMANENTLY DELETE USER ----------
 // ---------- PERMANENTLY DELETE USER (CASCADE) ----------
 router.delete('/users/:id', async (req, res) => {
   const { id } = req.params;
   
   try {
+    // Prevent deleting the only admin
     const adminCheck = await pool.query('SELECT COUNT(*) FROM users WHERE role = $1 AND is_active = true', ['admin']);
     if (parseInt(adminCheck.rows[0].count) === 1) {
       const user = await pool.query('SELECT role FROM users WHERE id = $1', [id]);
@@ -62,32 +64,56 @@ router.delete('/users/:id', async (req, res) => {
       }
     }
 
+    // Check if the user is a provider, get the provider_id
     const provider = await pool.query('SELECT user_id FROM provider_profiles WHERE user_id = $1', [id]);
     if (provider.rows.length === 0) {
+      // Not a provider – just delete the user (cascade will remove nothing else)
       await pool.query('DELETE FROM users WHERE id = $1', [id]);
       return res.json({ message: 'User deleted successfully' });
     }
 
+    // Begin transaction to ensure consistency
     await pool.query('BEGIN');
+
+    // 1. Delete all appointments for this provider
     await pool.query('DELETE FROM appointments WHERE provider_id = $1', [id]);
+
+    // 2. Delete all quote requests for this provider
     await pool.query('DELETE FROM quote_requests WHERE provider_id = $1', [id]);
+
+    // 3. Delete all reviews for this provider
     await pool.query('DELETE FROM reviews WHERE provider_id = $1', [id]);
+
+    // 4. Delete all anonymous comments
     await pool.query('DELETE FROM anonymous_comments WHERE provider_id = $1', [id]);
+
+    // 5. Delete all profile views
     await pool.query('DELETE FROM profile_views WHERE provider_id = $1', [id]);
+
+    // 6. Delete all portfolio items
     await pool.query('DELETE FROM portfolio_items WHERE provider_id = $1', [id]);
+
+    // 7. Delete all services (and their images) – services are referenced by appointments, but we already deleted appointments
     await pool.query('DELETE FROM services WHERE provider_id = $1', [id]);
+
+    // 8. Delete all business hours
     await pool.query('DELETE FROM business_hours WHERE provider_id = $1', [id]);
+
+    // 9. Delete the provider profile itself
     await pool.query('DELETE FROM provider_profiles WHERE user_id = $1', [id]);
+
+    // 10. Finally, delete the user
     await pool.query('DELETE FROM users WHERE id = $1', [id]);
+
     await pool.query('COMMIT');
     res.json({ message: 'User and all associated data permanently deleted' });
+
   } catch (err) {
     await pool.query('ROLLBACK');
     console.error('Error deleting user:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 // ---------- GET PROVIDER SUBSCRIPTIONS ----------
 router.get('/providers/subscriptions', async (req, res) => {
   try {
@@ -308,10 +334,11 @@ router.get('/advanced-analytics', async (req, res) => {
   }
 });
 
-// ========== PROVIDER DETAILS (VIEW & EDIT) ==========
+// ========== PROVIDER DETAILS (VIEW & EDIT) – FIXED ==========
 router.get('/provider/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
+    // Check if user exists and is a provider
     const userCheck = await pool.query('SELECT id, email, full_name, phone, is_active FROM users WHERE id = $1 AND role = $2', [userId, 'provider']);
     if (userCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Provider not found' });
@@ -382,7 +409,6 @@ router.put('/provider/:userId', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 // ========== CLIENT DETAILS (VIEW ONLY) ==========
 router.get('/client/:userId', async (req, res) => {
   const { userId } = req.params;
@@ -400,9 +426,30 @@ router.get('/client/:userId', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
+// ---------- PERMANENTLY DELETE USER (cascade) ----------
+router.delete('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Check if it's the last admin
+    const adminCheck = await pool.query('SELECT COUNT(*) FROM users WHERE role = $1 AND is_active = true', ['admin']);
+    if (parseInt(adminCheck.rows[0].count) === 1) {
+      const user = await pool.query('SELECT role FROM users WHERE id = $1', [id]);
+      if (user.rows[0]?.role === 'admin') {
+        return res.status(400).json({ error: 'Cannot delete the only admin account' });
+      }
+    }
+    
+    // ON DELETE CASCADE will remove all related data
+    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    res.json({ message: 'User permanently deleted' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 // ========== ADMIN INVOICE MANAGEMENT ==========
 
+// ---------- List all invoices (with user details) ----------
 router.get('/invoices', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
     const result = await pool.query(`
@@ -418,6 +465,7 @@ router.get('/invoices', authenticateToken, requireRole('admin'), async (req, res
   }
 });
 
+// ---------- Approve invoice (activate subscription) ----------
 router.put('/invoices/:id/approve', authenticateToken, requireRole('admin'), async (req, res) => {
   const { id } = req.params;
   const { adminNotes } = req.body;
@@ -426,6 +474,7 @@ router.put('/invoices/:id/approve', authenticateToken, requireRole('admin'), asy
   try {
     await client.query('BEGIN');
 
+    // Get invoice details
     const invoiceResult = await client.query(
       `SELECT user_id, tier, status FROM payment_requests WHERE id = $1`,
       [id]
@@ -440,11 +489,13 @@ router.put('/invoices/:id/approve', authenticateToken, requireRole('admin'), asy
       return res.status(400).json({ error: 'Invoice already approved' });
     }
 
+    // Update invoice status
     await client.query(
       `UPDATE payment_requests SET status = 'approved', admin_notes = $1, updated_at = NOW() WHERE id = $2`,
       [adminNotes || null, id]
     );
 
+    // Update provider subscription
     const endDate = new Date();
     endDate.setMonth(endDate.getMonth() + 1);
     await client.query(
@@ -454,6 +505,7 @@ router.put('/invoices/:id/approve', authenticateToken, requireRole('admin'), asy
       [invoice.tier, endDate, invoice.user_id]
     );
 
+    // Get user email
     const userResult = await client.query(
       `SELECT email, full_name FROM users WHERE id = $1`,
       [invoice.user_id]
@@ -462,10 +514,12 @@ router.put('/invoices/:id/approve', authenticateToken, requireRole('admin'), asy
 
     await client.query('COMMIT');
 
+    // Send email notification
     try {
       await sendPaymentConfirmationEmail(user.email, user.full_name, invoice.tier);
     } catch (emailErr) {
       console.error('Email sending failed:', emailErr);
+      // Continue – don't block on email error
     }
 
     res.json({ message: 'Invoice approved and subscription activated' });
@@ -478,6 +532,7 @@ router.put('/invoices/:id/approve', authenticateToken, requireRole('admin'), asy
   }
 });
 
+// ---------- Reject invoice ----------
 router.put('/invoices/:id/reject', authenticateToken, requireRole('admin'), async (req, res) => {
   const { id } = req.params;
   const { adminNotes } = req.body;
