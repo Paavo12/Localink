@@ -1,7 +1,7 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users table (unchanged)
+-- Users table
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email VARCHAR(255) UNIQUE NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Provider profiles (add subscription_tier and subscription_end)
+-- Provider profiles
 CREATE TABLE provider_profiles (
   user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   business_name VARCHAR(255) NOT NULL,
@@ -26,12 +26,12 @@ CREATE TABLE provider_profiles (
   lng DOUBLE PRECISION,
   whatsapp_number VARCHAR(50),
   is_verified BOOLEAN DEFAULT false,
-  subscription_tier VARCHAR(20) DEFAULT 'basic',  -- basic, verified, premium
+  subscription_tier VARCHAR(20) DEFAULT 'basic',
   subscription_end DATE,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Services table (new)
+-- Services
 CREATE TABLE services (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   provider_id UUID REFERENCES provider_profiles(user_id) ON DELETE CASCADE,
@@ -39,21 +39,23 @@ CREATE TABLE services (
   description TEXT,
   price DECIMAL(10,2),
   duration_minutes INT,
+  image_urls TEXT[],
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Business hours (already defined, keep it)
+-- Business hours – note: no created_at originally, we add it later
 CREATE TABLE business_hours (
   id SERIAL PRIMARY KEY,
   provider_id UUID REFERENCES provider_profiles(user_id) ON DELETE CASCADE,
   day_of_week INT CHECK (day_of_week BETWEEN 0 AND 6),
   open_time TIME,
   close_time TIME,
-  is_closed BOOLEAN DEFAULT false
+  is_closed BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW()  -- added this line
 );
 
--- Appointments table (already defined, keep it)
+-- Appointments
 CREATE TABLE appointments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   provider_id UUID REFERENCES provider_profiles(user_id),
@@ -66,7 +68,7 @@ CREATE TABLE appointments (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Quote requests (new)
+-- Quote requests
 CREATE TABLE quote_requests (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   provider_id UUID REFERENCES provider_profiles(user_id),
@@ -78,7 +80,7 @@ CREATE TABLE quote_requests (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Reviews (new)
+-- Reviews
 CREATE TABLE reviews (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   provider_id UUID REFERENCES provider_profiles(user_id),
@@ -86,10 +88,12 @@ CREATE TABLE reviews (
   rating INT CHECK (rating BETWEEN 1 AND 5),
   comment TEXT,
   is_anonymous BOOLEAN DEFAULT false,
+  response TEXT,
+  responded_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Anonymous comments (new, separate from reviews for "public feedback")
+-- Anonymous comments
 CREATE TABLE anonymous_comments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   provider_id UUID REFERENCES provider_profiles(user_id),
@@ -99,7 +103,7 @@ CREATE TABLE anonymous_comments (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Reports (new)
+-- Reports
 CREATE TABLE reports (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   reporter_user_id UUID REFERENCES users(id),
@@ -108,32 +112,46 @@ CREATE TABLE reports (
   status VARCHAR(20) DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT NOW()
 );
--- For profile view tracking (simple analytics)
+
+-- Profile views
 CREATE TABLE profile_views (
   id SERIAL PRIMARY KEY,
   provider_id UUID REFERENCES provider_profiles(user_id) ON DELETE CASCADE,
   viewed_at TIMESTAMP DEFAULT NOW()
 );
 
--- For review responses
-ALTER TABLE reviews ADD COLUMN response TEXT, ADD COLUMN responded_at TIMESTAMP;
-
--- For report system (already exists? if not, create)
-CREATE TABLE IF NOT EXISTS reports (
+-- Payment requests (new – add this table)
+CREATE TABLE payment_requests (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  reporter_user_id UUID REFERENCES users(id),
-  provider_id UUID REFERENCES provider_profiles(user_id),
-  reason TEXT NOT NULL,
-  status VARCHAR(20) DEFAULT 'pending',
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  invoice_number VARCHAR(50) UNIQUE NOT NULL,
+  tier VARCHAR(20) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','submitted','approved','rejected')),
+  proof_image_url TEXT,
+  admin_notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Notifications
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  type VARCHAR(50),
+  is_read BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- For anonymous comments (already in schema, but ensure)
-CREATE TABLE IF NOT EXISTS anonymous_comments (
+-- Portfolio
+CREATE TABLE portfolio_items (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  provider_id UUID REFERENCES provider_profiles(user_id),
-  alias VARCHAR(100),
-  comment TEXT NOT NULL,
-  sentiment VARCHAR(20),
+  provider_id UUID REFERENCES provider_profiles(user_id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  title VARCHAR(255),
+  description TEXT,
+  sort_order INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW()
 );
