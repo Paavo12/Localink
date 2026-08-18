@@ -20,8 +20,7 @@ const limiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  // Fix for X-Forwarded-For warning:
-  skip: (req) => req.headers['x-forwarded-for'] === undefined,
+  
 });
 app.use('/api/', limiter);
 
