@@ -642,7 +642,108 @@ window.submitBooking = async (serviceId, providerId) => {
     showToast(data.error || 'Booking failed', 'error');
   }
 };
+async function loadBanners() {
+  const container = document.getElementById('bannersContainer');
+  if (!container) return;
+  try {
+    const res = await fetch('/api/banners');
+    const banners = await res.json();
+    if (banners.length === 0) return;
+    container.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${banners.map(b => `
+          <a href="${b.link_url || '#'}" class="block rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+            <img src="${b.image_url}" alt="${b.title}" class="w-full h-40 object-cover">
+            ${b.title ? `<div class="p-3 bg-[var(--card-bg)] font-bold">${b.title}</div>` : ''}
+          </a>
+        `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    console.error('Failed to load banners:', err);
+  }
+}
+// Request push notification permission
+async function requestPushPermission() {
+  if (!('Notification' in window)) {
+    console.log('This browser does not support notifications');
+    return;
+  }
+  
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    console.log('🔔 Push notifications enabled');
+    // Register service worker here
+  }
+}
 
+// Call after login
+if (currentUser) {
+  requestPushPermission();
+}
+// Google Calendar Integration
+async function checkCalendarStatus() {
+  try {
+    const res = await fetch('/api/calendar/status', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    const data = await res.json();
+    const statusText = document.getElementById('calendarStatusText');
+    const connectBtn = document.getElementById('connectCalendarBtn');
+    const disconnectBtn = document.getElementById('disconnectCalendarBtn');
+    
+    if (data.connected) {
+      statusText.textContent = '✅ Connected';
+      connectBtn.classList.add('hidden');
+      disconnectBtn.classList.remove('hidden');
+    } else {
+      statusText.textContent = '❌ Not connected';
+      connectBtn.classList.remove('hidden');
+      disconnectBtn.classList.add('hidden');
+    }
+  } catch (err) {
+    console.error('Calendar status error:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Connect calendar button
+  document.getElementById('connectCalendarBtn')?.addEventListener('click', async function() {
+    try {
+      const res = await fetch('/api/calendar/connect', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      const data = await res.json();
+      if (data.authUrl) {
+        window.location.href = data.authUrl;
+      }
+    } catch (err) {
+      showToast('Failed to connect calendar', 'error');
+    }
+  });
+  
+  // Disconnect calendar button
+  document.getElementById('disconnectCalendarBtn')?.addEventListener('click', async function() {
+    if (!confirm('Disconnect your Google Calendar?')) return;
+    try {
+      const res = await fetch('/api/calendar/disconnect', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (res.ok) {
+        showToast('Calendar disconnected', 'success');
+        checkCalendarStatus();
+      }
+    } catch (err) {
+      showToast('Failed to disconnect', 'error');
+    }
+  });
+  
+  // Check status if on dashboard
+  if (window.location.pathname.includes('dashboard.html')) {
+    checkCalendarStatus();
+  }
+});
 // ========== PROVIDER DASHBOARD ==========
 async function initDashboard() {
   const content = document.getElementById('dashboardContent');
@@ -1765,3 +1866,24 @@ window.rejectInvoice = async (id) => {
     showToast('Network error', 'error');
   }
 };
+async function loadBanners() {
+  const container = document.getElementById('bannersContainer');
+  if (!container) return;
+  try {
+    const res = await fetch('/api/banners');
+    const banners = await res.json();
+    if (banners.length === 0) return;
+    container.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${banners.map(b => `
+          <a href="${b.link_url || '#'}" class="block rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
+            <img src="${b.image_url}" alt="${b.title}" class="w-full h-40 object-cover">
+            ${b.title ? `<div class="p-3 bg-[var(--card-bg)] font-bold">${b.title}</div>` : ''}
+          </a>
+        `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    console.error('Failed to load banners:', err);
+  }
+}

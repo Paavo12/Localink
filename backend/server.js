@@ -59,6 +59,7 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // Static folders
 const frontendPath = path.join(__dirname, '../frontend');
 console.log(`Serving static files from: ${frontendPath}`);
@@ -81,6 +82,12 @@ const routes = [
   { path: './routes/subscriptions', mount: '/api/subscriptions' },
   { path: './routes/payments', mount: '/api/payments' },
   { path: './routes/upload', mount: '/api/upload' },
+  // New routes:
+  { path: './routes/banners', mount: '/api/banners' },
+  { path: './routes/newsletter', mount: '/api/newsletter' },
+  { path: './routes/disputes', mount: '/api/disputes' },
+  { path: './routes/messages', mount: '/api/messages' },
+  { path: './routes/calendar-auth', mount: '/api/calendar' },
 ];
 
 routes.forEach(({ path: routePath, mount }) => {

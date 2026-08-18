@@ -154,6 +154,8 @@
             — all from verified Namibian providers.
           </p>
         </div>
+        <!-- Banners -->
+<div id="bannersContainer" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"></div>
 
         <!-- SEARCH FORM - FIXED MOBILE LAYOUT -->
         <form id="heroSearchForm" class="mx-auto max-w-3xl relative px-2 sm:px-0" onsubmit="return false;">
@@ -495,6 +497,16 @@
         </div>
       </div>
     </div>
+    <div class="mt-8 p-6 bg-[var(--card-bg)] rounded-2xl border border-[var(--border)]">
+  <h4 class="font-bold text-lg mb-2">📧 Weekly Newsletter</h4>
+  <p class="text-sm text-[var(--foreground-muted)] mb-4">Get the best local services delivered to your inbox every week.</p>
+  <form id="newsletterForm" class="flex flex-col sm:flex-row gap-3">
+    <input type="email" id="newsletterEmail" placeholder="Your email" required 
+           class="flex-1 p-3 rounded-xl border border-[var(--border)] bg-[var(--input-bg)]">
+    <button type="submit" class="btn-primary whitespace-nowrap">Subscribe</button>
+  </form>
+  <div id="newsletterMessage" class="mt-2 text-sm"></div>
+</div>
   </footer>
 
   <!-- ============ SCRIPTS ============ -->

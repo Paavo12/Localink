@@ -24,6 +24,55 @@ router.get('/users', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+// Get pending verification documents
+router.get('/verifications/pending', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT v.*, u.email, u.full_name, p.business_name
+      FROM verification_documents v
+      JOIN users u ON v.user_id = u.id
+      LEFT JOIN provider_profiles p ON v.user_id = p.user_id
+      WHERE v.status = 'pending'
+      ORDER BY v.uploaded_at ASC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Approve verification
+router.put('/verifications/:id/approve', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query(
+      `UPDATE verification_documents 
+       SET status = 'approved', reviewed_at = NOW() 
+       WHERE id = $1`,
+      [id]
+    );
+    res.json({ message: 'Document approved' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Reject verification
+router.put('/verifications/:id/reject', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { id } = req.params;
+  const { admin_notes } = req.body;
+  try {
+    await pool.query(
+      `UPDATE verification_documents 
+       SET status = 'rejected', admin_notes = $1, reviewed_at = NOW() 
+       WHERE id = $2`,
+      [admin_notes || null, id]
+    );
+    res.json({ message: 'Document rejected' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // ---------- DEACTIVATE USER ----------
 router.put('/users/:id/deactivate', async (req, res) => {
@@ -493,6 +542,52 @@ router.put('/invoices/:id/reject', authenticateToken, requireRole('admin'), asyn
     res.json({ message: 'Invoice rejected' });
   } catch (err) {
     console.error('Error rejecting invoice:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+// Trigger background check for provider
+router.post('/background-check/:userId', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { userId } = req.params;
+  const { runBackgroundCheck } = require('../utils/background-check');
+  try {
+    const result = await runBackgroundCheck(userId);
+    res.json({ message: 'Background check completed', result });
+  } catch (err) {
+    res.status(500).json({ error: 'Background check failed' });
+  }
+});
+// Bulk approve providers
+router.post('/providers/bulk-approve', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { userIds } = req.body;
+  if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    return res.status(400).json({ error: 'No user IDs provided' });
+  }
+  try {
+    await pool.query(
+      `UPDATE provider_profiles 
+       SET is_verified = true 
+       WHERE user_id = ANY($1)`,
+      [userIds]
+    );
+    res.json({ message: `${userIds.length} providers approved` });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Bulk delete providers
+router.delete('/providers/bulk', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { userIds } = req.body;
+  if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    return res.status(400).json({ error: 'No user IDs provided' });
+  }
+  try {
+    await pool.query(
+      `DELETE FROM provider_profiles WHERE user_id = ANY($1)`,
+      [userIds]
+    );
+    res.json({ message: `${userIds.length} providers deleted` });
+  } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 });

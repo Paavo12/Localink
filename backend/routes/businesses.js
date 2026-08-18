@@ -17,11 +17,13 @@ router.get('/', async (req, res) => {
            p.is_verified, p.subscription_tier,
            COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) as avg_rating,
            COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 0) as min_price,
-           CASE p.subscription_tier
-             WHEN 'premium' THEN 3
-             WHEN 'verified' THEN 2
-             ELSE 1
-           END as rank
+          CASE 
+  WHEN p.boosted_until > NOW() AND p.subscription_tier = 'premium' THEN 4
+  WHEN p.boosted_until > NOW() AND p.subscription_tier = 'verified' THEN 3
+  WHEN p.subscription_tier = 'premium' THEN 2
+  WHEN p.subscription_tier = 'verified' THEN 1
+  ELSE 0
+END as rank
     FROM provider_profiles p
     JOIN users u ON p.user_id = u.id
     WHERE u.is_active = true AND p.is_verified = true

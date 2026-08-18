@@ -3,6 +3,7 @@ const { authenticateToken } = require('../middleware/auth');
 const pool = require('../db/pool');
 const { sendBookingNotification } = require('../utils/email');
 const { body, validationResult } = require('express-validator');
+const { notifyNewBooking } = require('../utils/notifications');
 const router = express.Router();
 
 // Validation rules
@@ -23,6 +24,60 @@ router.post('/', authenticateToken, bookingValidation, async (req, res) => {
   const { providerId, serviceId, startTime, notes } = req.body;
   const clientId = req.user.id;
   try {
+    const { createCalendarEvent, deleteCalendarEvent } = require('../utils/google-calendar');
+const pool = require('../db/pool');
+
+// Helper: Get user's calendar tokens
+async function getUserCalendarTokens(userId) {
+  const result = await pool.query(
+    'SELECT access_token, refresh_token, token_expiry FROM calendar_tokens WHERE user_id = $1',
+    [userId]
+  );
+  return result.rows[0] || null;
+}
+
+// Add this after booking creation (around line 50-60)
+async function createCalendarEventForBooking(booking, clientName, serviceName, businessName, address) {
+  try {
+    // Get provider's calendar tokens
+    const tokens = await getUserCalendarTokens(booking.provider_id);
+    if (!tokens) return null;
+    
+    const eventDetails = {
+      title: `${serviceName} - ${clientName}`,
+      description: `Booking from ${clientName}\nService: ${serviceName}\nBusiness: ${businessName}\nNotes: ${booking.notes || ''}`,
+      startTime: booking.start_time,
+      endTime: booking.end_time,
+      location: address || '',
+      attendees: [
+        { email: clientName.email || '' },
+      ],
+    };
+    
+    const event = await createCalendarEvent(tokens, eventDetails);
+    return event.id;
+  } catch (error) {
+    console.error('Failed to create calendar event:', error);
+    return null;
+  }
+}
+
+// In your booking creation route, after successful booking:
+// const calendarEventId = await createCalendarEventForBooking(
+//   result.rows[0], clientName, serviceName, businessName, profile.address
+// );
+
+// If booking is cancelled, delete the calendar event
+async function cancelCalendarEvent(booking) {
+  try {
+    const tokens = await getUserCalendarTokens(booking.provider_id);
+    if (!tokens || !booking.calendar_event_id) return;
+    
+    await deleteCalendarEvent(tokens, booking.calendar_event_id);
+  } catch (error) {
+    console.error('Failed to delete calendar event:', error);
+  }
+}
     // Get service details
     const serviceRes = await pool.query('SELECT duration_minutes, name as service_name FROM services WHERE id = $1', [serviceId]);
     if (serviceRes.rows.length === 0) return res.status(400).json({ error: 'Invalid service' });
@@ -47,7 +102,8 @@ router.post('/', authenticateToken, bookingValidation, async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [providerId, clientId, serviceId, startTime, endTime, notes || null]
     );
-
+// Send push notification
+await notifyNewBooking(providerId, clientName, serviceName, result.rows[0].id);
     // Insert notification
     const clientNameRes = await pool.query('SELECT full_name FROM users WHERE id = $1', [clientId]);
     const clientName = clientNameRes.rows[0]?.full_name || 'A client';

@@ -39,5 +39,37 @@ router.get('/me', authenticateToken, async (req, res) => {
   );
   res.json(result.rows[0] || { subscription_tier: 'basic', subscription_end: null });
 });
+// Boost listing
+router.post('/boost', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const boostPrice = 99;
+  const boostDays = 30;
+
+  try {
+    const boostEnd = new Date();
+    boostEnd.setDate(boostEnd.getDate() + boostDays);
+    
+    const result = await pool.query(
+      `UPDATE provider_profiles 
+       SET boosted_until = $1 
+       WHERE user_id = $2 
+       RETURNING boosted_until`,
+      [boostEnd, userId]
+    );
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Provider profile not found' });
+    }
+    
+    // In a real implementation, you'd process payment here
+    res.json({ 
+      message: `Listing boosted until ${boostEnd.toLocaleDateString()}`,
+      boosted_until: boostEnd
+    });
+  } catch (err) {
+    console.error('Boost error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router;

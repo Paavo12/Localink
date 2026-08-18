@@ -67,6 +67,21 @@ router.post('/register-provider', [
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // After profile creation, handle document upload
+if (req.files && req.files.length > 0) {
+  // Upload documents
+  const upload = require('../utils/cloudinary');
+  for (const file of req.files) {
+    const result = await uploadBuffer(file.buffer, { 
+      folder: `localink/verification/${user.id}` 
+    });
+    await client.query(
+      `INSERT INTO verification_documents (user_id, document_type, document_url, status)
+       VALUES ($1, $2, $3, 'pending')`,
+      [user.id, file.fieldname || 'id_document', result.secure_url]
+    );
+  }
+}
 
     // 1. Insert user
     const userResult = await client.query(
