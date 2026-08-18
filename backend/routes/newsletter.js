@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken, requireRole } = require('../middleware/auth');
 const pool = require('../db/pool');
 const nodemailer = require('nodemailer');
 
-// Subscribe
+// Subscribe (public – no auth required)
 router.post('/subscribe', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
+  
   try {
     await pool.query(
       `INSERT INTO newsletter_subscribers (email) VALUES ($1) ON CONFLICT (email) DO NOTHING`,
@@ -14,11 +16,12 @@ router.post('/subscribe', async (req, res) => {
     );
     res.json({ message: 'Subscribed successfully!' });
   } catch (err) {
+    console.error('Newsletter subscribe error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Admin: Send newsletter
+// Admin: Send newsletter (requires auth + admin role)
 router.post('/send', authenticateToken, requireRole('admin'), async (req, res) => {
   const { subject, content } = req.body;
   try {
@@ -52,6 +55,16 @@ router.post('/send', authenticateToken, requireRole('admin'), async (req, res) =
   } catch (err) {
     console.error('Newsletter error:', err);
     res.status(500).json({ error: 'Failed to send newsletter' });
+  }
+});
+
+// Admin: Get subscriber count
+router.get('/subscribers', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM newsletter_subscribers WHERE is_active = true');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

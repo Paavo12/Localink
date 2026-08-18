@@ -18,12 +18,12 @@ function getAuthUrl(userId) {
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes,
-    state: userId, // Pass user ID to link on callback
+    state: userId,
     prompt: 'consent',
   });
 }
 
-// Exchange code for tokens and store them
+// Exchange code for tokens
 async function getTokensFromCode(code) {
   const { tokens } = await oauth2Client.getToken(code);
   return tokens;
@@ -32,9 +32,7 @@ async function getTokensFromCode(code) {
 // Create calendar event
 async function createCalendarEvent(tokens, eventDetails) {
   try {
-    // Set credentials for this user
     oauth2Client.setCredentials(tokens);
-    
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
     
     const event = {
@@ -106,7 +104,7 @@ async function updateCalendarEvent(tokens, eventId, eventDetails) {
   }
 }
 
-// Delete an event (when booking is cancelled)
+// Delete an event
 async function deleteCalendarEvent(tokens, eventId) {
   try {
     oauth2Client.setCredentials(tokens);

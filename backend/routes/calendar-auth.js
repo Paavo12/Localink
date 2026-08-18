@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, requireRole } = require('../middleware/auth');
 const pool = require('../db/pool');
-const { getAuthUrl, getTokensFromCode, oauth2Client } = require('../utils/google-calendar');
+const { getAuthUrl, getTokensFromCode } = require('../utils/google-calendar');
 
 // Step 1: User clicks "Connect Calendar" – redirect to Google
-router.get('/connect', authenticateToken, (req, res) => {
+router.get('/connect', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   const authUrl = getAuthUrl(userId);
   res.json({ authUrl });
@@ -50,6 +50,7 @@ router.get('/status', authenticateToken, async (req, res) => {
     );
     res.json({ connected: result.rows.length > 0 });
   } catch (error) {
+    console.error('Calendar status error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -61,6 +62,7 @@ router.delete('/disconnect', authenticateToken, async (req, res) => {
     await pool.query('DELETE FROM calendar_tokens WHERE user_id = $1', [userId]);
     res.json({ message: 'Calendar disconnected' });
   } catch (error) {
+    console.error('Calendar disconnect error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
