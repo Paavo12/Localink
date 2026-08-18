@@ -11,27 +11,28 @@ console.log('PORT from env:', process.env.PORT);
 
 const app = express();
 
-// ----- Rate Limiting (protect all /api routes) -----
+// ===== FIX: Trust proxy (for Railway) =====
+app.set('trust proxy', 1);
+
+// ----- Rate Limiting -----
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per window
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  // Fix for X-Forwarded-For warning:
+  skip: (req) => req.headers['x-forwarded-for'] === undefined,
 });
 app.use('/api/', limiter);
 
-// ----- CORS – Allow all origins (for now) -----
-// To restrict later, set ALLOWED_ORIGINS env variable with comma-separated domains
+// ----- CORS -----
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : null;
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
-    
-    // If ALLOWED_ORIGINS is set, check against it
     if (allowedOrigins) {
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
@@ -39,7 +40,6 @@ app.use(cors({
         callback(new Error('Not allowed by CORS'));
       }
     } else {
-      // Allow all origins if ALLOWED_ORIGINS is not set
       callback(null, true);
     }
   },
@@ -58,7 +58,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
 
 // Static folders
 const frontendPath = path.join(__dirname, '../frontend');
@@ -82,7 +81,7 @@ const routes = [
   { path: './routes/subscriptions', mount: '/api/subscriptions' },
   { path: './routes/payments', mount: '/api/payments' },
   { path: './routes/upload', mount: '/api/upload' },
-  // New routes:
+  // NEW ROUTES:
   { path: './routes/banners', mount: '/api/banners' },
   { path: './routes/newsletter', mount: '/api/newsletter' },
   { path: './routes/disputes', mount: '/api/disputes' },
@@ -118,7 +117,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on http://0.0.0.0:${PORT}`);
 });
 
-// Graceful shutdown – close DB pool
+// Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, closing server...');
   server.close(() => {
