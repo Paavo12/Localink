@@ -9,6 +9,7 @@ const quoteValidation = [
   body('name').notEmpty().trim().escape().withMessage('Name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   body('phone').optional().trim().escape(),
+  body('serviceType').notEmpty().trim().escape().withMessage('Service type is required'),
   body('message').notEmpty().trim().escape().withMessage('Message is required'),
 ];
 
@@ -19,16 +20,26 @@ router.post('/', quoteValidation, async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { providerId, name, email, phone, message } = req.body;
+  const { providerId, name, email, phone, serviceType, message } = req.body;
   try {
     const result = await pool.query(
-      `INSERT INTO quote_requests (provider_id, client_name, client_email, client_phone, message)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [providerId, name, email, phone || null, message]
+      `INSERT INTO quote_requests (provider_id, client_name, client_email, client_phone, service_type, message)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [providerId, name, email, phone || null, serviceType, message]
     );
+    
+    // Send notification to provider
+    const { sendPushNotification } = require('../utils/notifications');
+    await sendPushNotification(
+      providerId,
+      '📋 New Quote Request',
+      `${name} requested a quote for: ${serviceType}`,
+      { type: 'quote', quoteId: result.rows[0].id }
+    );
+    
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('Quote error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

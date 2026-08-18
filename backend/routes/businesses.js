@@ -5,6 +5,77 @@ const router = express.Router();
 
 // GET /api/businesses – search with tier ranking + filtering (city, rating)
 router.get('/', async (req, res) => {
+  let { search, category, city, rating, limit, offset } = req.query;
+  search = search ? search.trim() : '';
+  category = category ? category.trim() : '';
+  city = city ? city.trim() : '';
+  rating = rating ? parseFloat(rating) : null;
+  limit = parseInt(limit) || 20;
+  offset = parseInt(offset) || 0;
+
+  let query = `
+    SELECT p.user_id as id, p.business_name as name, p.description, p.category, 
+           p.address, p.lat, p.lng, p.logo_url, p.cover_image_url, p.whatsapp_number,
+           p.is_verified, p.subscription_tier, p.boosted_until,
+           COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) as avg_rating,
+           COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 0) as min_price,
+           CASE 
+             WHEN p.boosted_until > NOW() AND p.subscription_tier = 'premium' THEN 4
+             WHEN p.boosted_until > NOW() AND p.subscription_tier = 'verified' THEN 3
+             WHEN p.subscription_tier = 'premium' THEN 2
+             WHEN p.subscription_tier = 'verified' THEN 1
+             ELSE 0
+           END as rank
+    FROM provider_profiles p
+    JOIN users u ON p.user_id = u.id
+    WHERE u.is_active = true AND p.is_verified = true
+  `;
+  
+  const params = [];
+  const conditions = [];
+
+  // Search by business name, description, or category
+  if (search) {
+    conditions.push(`(p.business_name ILIKE $${params.length+1} OR p.description ILIKE $${params.length+1} OR p.category ILIKE $${params.length+1})`);
+    params.push(`%${search}%`);
+  }
+
+  // Category filter – EXACT MATCH (case-insensitive)
+  if (category) {
+    conditions.push(`LOWER(p.category) = LOWER($${params.length+1})`);
+    params.push(category);
+  }
+
+  // City filter
+  if (city) {
+    conditions.push(`p.address ILIKE $${params.length+1}`);
+    params.push(`%${city}%`);
+  }
+
+  // Rating filter
+  if (rating !== null && !isNaN(rating)) {
+    conditions.push(`COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) >= $${params.length+1}`);
+    params.push(rating);
+  }
+
+  if (conditions.length > 0) {
+    query += ' AND ' + conditions.join(' AND ');
+  }
+
+  query += ` ORDER BY rank DESC, p.business_name ASC LIMIT $${params.length+1} OFFSET $${params.length+2}`;
+  params.push(limit, offset);
+
+  try {
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Search error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET /api/businesses/count – get total count for pagination
+router.get('/count', async (req, res) => {
   let { search, category, city, rating } = req.query;
   search = search ? search.trim() : '';
   category = category ? category.trim() : '';
@@ -12,22 +83,12 @@ router.get('/', async (req, res) => {
   rating = rating ? parseFloat(rating) : null;
 
   let query = `
-    SELECT p.user_id as id, p.business_name as name, p.description, p.category, 
-           p.address, p.lat, p.lng, p.logo_url, p.cover_image_url, p.whatsapp_number,
-           p.is_verified, p.subscription_tier,
-           COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) as avg_rating,
-           COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 0) as min_price,
-          CASE 
-  WHEN p.boosted_until > NOW() AND p.subscription_tier = 'premium' THEN 4
-  WHEN p.boosted_until > NOW() AND p.subscription_tier = 'verified' THEN 3
-  WHEN p.subscription_tier = 'premium' THEN 2
-  WHEN p.subscription_tier = 'verified' THEN 1
-  ELSE 0
-END as rank
+    SELECT COUNT(*) as total
     FROM provider_profiles p
     JOIN users u ON p.user_id = u.id
     WHERE u.is_active = true AND p.is_verified = true
   `;
+  
   const params = [];
   const conditions = [];
 
@@ -37,9 +98,9 @@ END as rank
   }
 
   if (category) {
-  conditions.push(`LOWER(p.category) = LOWER($${params.length+1}) AND p.category IS NOT NULL`);
-  params.push(category);
-}
+    conditions.push(`LOWER(p.category) = LOWER($${params.length+1})`);
+    params.push(category);
+  }
 
   if (city) {
     conditions.push(`p.address ILIKE $${params.length+1}`);
@@ -55,13 +116,11 @@ END as rank
     query += ' AND ' + conditions.join(' AND ');
   }
 
-  query += ` ORDER BY rank DESC, p.business_name ASC`;
-
   try {
     const result = await pool.query(query, params);
-    res.json(result.rows);
+    res.json({ total: parseInt(result.rows[0].total) });
   } catch (err) {
-    console.error(err);
+    console.error('Count error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

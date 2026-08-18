@@ -201,6 +201,63 @@ function showLoading(container, message = 'Loading...') {
     </div>
   `;
 }
+function renderBusinessHours(hours) {
+  const container = document.getElementById('hoursDisplay');
+  if (!container) return;
+  
+  if (!hours || hours.length === 0) {
+    container.innerHTML = '<p class="text-[var(--foreground-muted)] col-span-2">No trading hours set.</p>';
+    return;
+  }
+  
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const now = new Date();
+  const currentDay = now.getDay();
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  
+  let html = '';
+  days.forEach((dayName, index) => {
+    const hour = hours.find(h => h.day_of_week === index);
+    const isToday = index === currentDay;
+    let status = '';
+    let timeDisplay = 'Closed';
+    
+    if (hour) {
+      if (hour.is_closed) {
+        status = 'text-red-500';
+        timeDisplay = 'Closed';
+      } else if (hour.open_time && hour.close_time) {
+        const open = hour.open_time.substring(0, 5);
+        const close = hour.close_time.substring(0, 5);
+        timeDisplay = `${open} - ${close}`;
+        
+        if (isToday) {
+          const [openH, openM] = hour.open_time.split(':').map(Number);
+          const [closeH, closeM] = hour.close_time.split(':').map(Number);
+          const openMinutes = openH * 60 + openM;
+          const closeMinutes = closeH * 60 + closeM;
+          if (currentTime >= openMinutes && currentTime <= closeMinutes) {
+            status = 'text-green-500 font-bold';
+            timeDisplay += ' ✅ Open Now';
+          } else {
+            status = 'text-red-500';
+            timeDisplay += ' 🔒 Closed Now';
+          }
+        }
+      }
+    }
+    
+    const isTodayClass = isToday ? 'font-bold bg-[var(--orange)]/10' : '';
+    html += `
+      <div class="flex justify-between items-center p-2 rounded-lg ${isTodayClass}">
+        <span class="font-medium ${isToday ? 'text-[var(--orange)]' : ''}">${dayName} ${isToday ? '(Today)' : ''}</span>
+        <span class="${status || 'text-[var(--foreground-muted)]'}">${timeDisplay}</span>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
 
 function showSkeletonCards(container, count = 6) {
   if (!container) return;
@@ -598,6 +655,16 @@ async function initBusinessPage() {
     } else {
       showToast('Failed to submit review.', 'error');
     }
+  });
+}
+// Populate service type dropdown
+const quoteServiceType = document.getElementById('quoteServiceType');
+if (quoteServiceType && b.services) {
+  b.services.forEach(service => {
+    const option = document.createElement('option');
+    option.value = service.name;
+    option.textContent = service.name;
+    quoteServiceType.appendChild(option);
   });
 }
 

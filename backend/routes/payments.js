@@ -118,7 +118,74 @@ router.post(
     }
   }
 );
+// After approving invoice, record the payment
+router.put('/invoices/:id/approve', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { id } = req.params;
+  const { adminNotes } = req.body;
 
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const invoiceResult = await client.query(
+      `SELECT user_id, tier, amount FROM payment_requests WHERE id = $1`,
+      [id]
+    );
+    if (invoiceResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+    const invoice = invoiceResult.rows[0];
+
+    // Update invoice status
+    await client.query(
+      `UPDATE payment_requests SET status = 'approved', admin_notes = $1, updated_at = NOW() WHERE id = $2`,
+      [adminNotes || null, id]
+    );
+
+    // Update provider subscription
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
+    await client.query(
+      `UPDATE provider_profiles 
+       SET subscription_tier = $1, subscription_end = $2 
+       WHERE user_id = $3`,
+      [invoice.tier, endDate, invoice.user_id]
+    );
+
+    // ===== RECORD THE PAYMENT =====
+    await client.query(
+      `INSERT INTO subscription_payments (user_id, invoice_id, amount, tier, expiry_date, status)
+       VALUES ($1, $2, $3, $4, $5, 'active')`,
+      [invoice.user_id, id, invoice.amount, invoice.tier, endDate]
+    );
+
+    // Get user email for confirmation
+    const userResult = await client.query(
+      `SELECT email, full_name FROM users WHERE id = $1`,
+      [invoice.user_id]
+    );
+    const user = userResult.rows[0];
+
+    await client.query('COMMIT');
+
+    // Send confirmation email
+    try {
+      const { sendPaymentConfirmationEmail } = require('../utils/email');
+      await sendPaymentConfirmationEmail(user.email, user.full_name, invoice.tier);
+    } catch (emailErr) {
+      console.error('Email sending failed:', emailErr);
+    }
+
+    res.json({ message: 'Invoice approved and subscription activated' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error approving invoice:', err);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    client.release();
+  }
+});
 // ---------- 3. Get user's invoice status ----------
 router.get('/my-invoices', authenticateToken, async (req, res) => {
   try {

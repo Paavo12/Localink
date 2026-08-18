@@ -245,8 +245,7 @@
     <section class="py-12 border-b border-[var(--border)] bg-[var(--background)]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div><div class="text-3xl font-black text-[var(--foreground)]">100+</div><div class="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">Verified Providers</div></div>
-          <div><div class="text-3xl font-black text-[var(--foreground)]">12</div><div class="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">Service Categories</div></div>
+<div><div id="providerCount" class="text-3xl font-black text-[var(--foreground)]">Loading...</div><div class="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">Verified Providers</div></div>          <div><div class="text-3xl font-black text-[var(--foreground)]">12</div><div class="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">Service Categories</div></div>
           <div><div class="text-3xl font-black text-[var(--foreground)]">5,000+</div><div class="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">Monthly Searches</div></div>
           <div><div class="text-3xl font-black text-[var(--foreground)]">3+</div><div class="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">Cities Covered</div></div>
         </div>
@@ -526,6 +525,28 @@
           }
         });
       }
+      // ===== FETCH PROVIDER COUNT =====
+async function loadProviderCount() {
+  try {
+    const res = await fetch('/api/businesses?limit=1');
+    // We need a dedicated endpoint for count – but we can use the stats endpoint
+    const countRes = await fetch('/api/admin/stats');
+    if (countRes.ok) {
+      const stats = await countRes.json();
+      const countEl = document.getElementById('providerCount');
+      if (countEl) {
+        countEl.textContent = stats.totalProviders || 0;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load provider count:', err);
+    const countEl = document.getElementById('providerCount');
+    if (countEl) countEl.textContent = '100+';
+  }
+}
+
+// Call it after page load
+loadProviderCount();
 
       // Services dropdown toggle
       const dropdownBtn = document.getElementById('servicesDropdownBtn');
