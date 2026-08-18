@@ -603,23 +603,47 @@ async function initBusinessPage() {
     if (reason) await fetch(`/api/businesses/${id}/report`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }, body: JSON.stringify({ reason }) });
     showToast('Report sent', 'success');
   });
-
+// ===== POPULATE SERVICE TYPE DROPDOWN =====
+const quoteServiceType = document.getElementById('quoteServiceType');
+if (quoteServiceType && b.services && b.services.length > 0) {
+  quoteServiceType.innerHTML = '<option value="">Select a service...</option>';
+  b.services.forEach(service => {
+    const option = document.createElement('option');
+    option.value = service.name;
+    option.textContent = service.name;
+    quoteServiceType.appendChild(option);
+  });
+} else if (quoteServiceType) {
+  // Fallback options if no services are listed
+  quoteServiceType.innerHTML = `
+    <option value="">Select a service...</option>
+    <option value="General">General Service</option>
+    <option value="Consultation">Consultation</option>
+    <option value="Repair">Repair</option>
+    <option value="Installation">Installation</option>
+    <option value="Maintenance">Maintenance</option>
+  `;
+}
   document.getElementById('quoteForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('quoteName').value.trim();
-    const email = document.getElementById('quoteEmail').value.trim();
-    const phone = document.getElementById('quotePhone').value.trim();
-    const message = document.getElementById('quoteMessage').value.trim();
-    if (!name || !email || !message) {
-      showToast('Please fill in all required fields.', 'warning');
-      return;
-    }
-    try {
-      const res = await fetch('/api/quotes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providerId: id, name, email, phone, message })
-      });
+  e.preventDefault();
+  const name = document.getElementById('quoteName').value.trim();
+  const email = document.getElementById('quoteEmail').value.trim();
+  const phone = document.getElementById('quotePhone').value.trim();
+  const serviceType = document.getElementById('quoteServiceType')?.value.trim() || '';
+  const message = document.getElementById('quoteMessage').value.trim();
+  
+  if (!name || !email || !serviceType || !message) {
+    showToast('Please fill in all required fields (including service type).', 'warning');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/quotes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ providerId: id, name, email, phone, serviceType, message })
+    });
+    // ... rest of code stays the same
       if (res.ok) {
         document.getElementById('quoteForm').reset();
         document.getElementById('quoteSuccessMessage').classList.remove('hidden');

@@ -528,20 +528,29 @@
       // ===== FETCH PROVIDER COUNT =====
 async function loadProviderCount() {
   try {
-    const res = await fetch('/api/businesses?limit=1');
-    // We need a dedicated endpoint for count – but we can use the stats endpoint
-    const countRes = await fetch('/api/admin/stats');
-    if (countRes.ok) {
-      const stats = await countRes.json();
+    // Use the public /api/businesses/count endpoint
+    const res = await fetch('/api/businesses/count');
+    if (res.ok) {
+      const data = await res.json();
       const countEl = document.getElementById('providerCount');
       if (countEl) {
-        countEl.textContent = stats.totalProviders || 0;
+        countEl.textContent = data.total || 0;
+      }
+    } else {
+      // Fallback: count from businesses list
+      const fallbackRes = await fetch('/api/businesses?limit=100');
+      if (fallbackRes.ok) {
+        const businesses = await fallbackRes.json();
+        const countEl = document.getElementById('providerCount');
+        if (countEl) {
+          countEl.textContent = businesses.length || '0';
+        }
       }
     }
   } catch (err) {
     console.error('Failed to load provider count:', err);
     const countEl = document.getElementById('providerCount');
-    if (countEl) countEl.textContent = '100+';
+    if (countEl) countEl.textContent = '0';
   }
 }
 
