@@ -20,17 +20,27 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// ----- CORS – allow only your frontend domains -----
+// ----- CORS – Allow all origins (for now) -----
+// To restrict later, set ALLOWED_ORIGINS env variable with comma-separated domains
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5000', 'http://localhost:3000', 'https://your-domain.com'];
+  : null;
+
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
+    
+    // If ALLOWED_ORIGINS is set, check against it
+    if (allowedOrigins) {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // Allow all origins if ALLOWED_ORIGINS is not set
+      callback(null, true);
     }
   },
   credentials: true,
@@ -48,6 +58,7 @@ app.use((req, res, next) => {
   }
   next();
 });
+
 // Static folders
 const frontendPath = path.join(__dirname, '../frontend');
 console.log(`Serving static files from: ${frontendPath}`);
