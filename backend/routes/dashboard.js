@@ -162,6 +162,29 @@ router.delete('/services/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Toggle availability of a service (e.g. mark a room as fully booked, or a
+// rental car as unavailable). Providers can flip this any time.
+router.put('/services/:id/availability', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { is_available } = req.body;
+  if (typeof is_available !== 'boolean') {
+    return res.status(400).json({ error: 'is_available must be true or false' });
+  }
+  try {
+    const result = await pool.query(
+      'UPDATE services SET is_available = $1 WHERE id = $2 AND provider_id = $3 RETURNING id, is_available',
+      [is_available, id, req.user.id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Service not found or not yours' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ---------- Business hours ----------
 router.get('/hours', authenticateToken, async (req, res) => {
   const result = await pool.query('SELECT * FROM business_hours WHERE provider_id = $1', [req.user.id]);

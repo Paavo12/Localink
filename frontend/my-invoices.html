@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Invoices – Localink</title>
+  <title>My Invoices – LocalLink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -14,10 +14,91 @@
 </head>
 <body class="font-body antialiased bg-[var(--background)] text-[var(--foreground)]">
 
-  <!-- ======== NAVBAR (same as other pages – copy from index.html) ======== -->
+  <!-- ======== NAVBAR ======== -->
   <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
-    <!-- ... full navbar ... -->
-    <!-- Make sure to include the user dropdown with "My Invoices" link added -->
+    <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <nav class="flex items-center justify-between h-16 md:h-18">
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <img src="logo-icon.png" alt="LocalLink" class="w-9 h-9 rounded-xl object-cover shadow-[0_2px_8px_rgba(6,53,119,0.25)] group-hover:shadow-[0_4px_16px_rgba(63,156,23,0.3)] transition-shadow duration-500">
+          <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">Link</span></span>
+        </a>
+        <div class="hidden lg:flex items-center gap-1">
+          <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
+          <div class="relative" id="servicesDropdown">
+            <button id="servicesDropdownBtn" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] focus:outline-none">
+              Services
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="servicesDropdownArrow">
+                <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z" />
+              </svg>
+            </button>
+            <div id="servicesDropdownMenu" class="absolute left-0 mt-1 w-56 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+              <a href="search.html?category=Salons" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Salons &amp; Beauty</a>
+              <a href="search.html?category=Cleaning" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Cleaning</a>
+              <a href="search.html?category=Car Rental" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Car Rentals</a>
+              <a href="accommodation.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Accommodation</a>
+              <a href="search.html?category=Plumbing" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Plumbing</a>
+              <a href="search.html?category=Electrical" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Electrical</a>
+              <a href="search.html?category=Catering" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Catering</a>
+              <a href="search.html?category=Events" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Events</a>
+              <a href="search.html?category=Home Repairs" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Home Repairs</a>
+              <a href="search.html?category=Photographer" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Photographer</a>
+            </div>
+          </div>
+          <a href="accommodation.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
+          <a href="pricing.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
+          <a href="about.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="search.html" class="w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]">
+              <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
+            </svg>
+          </a>
+          <div id="authButtons" class="flex items-center gap-4 border-l border-[var(--border)] pl-6">
+            <div id="loggedOutNav" class="flex items-center gap-4">
+              <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
+              <a href="register-provider.html" class="btn-primary text-sm">List Your Business</a>
+            </div>
+            <div id="loggedInNav" class="flex items-center gap-4 hidden">
+             <!-- User dropdown -->
+<div class="relative" id="userDropdown">
+  <button id="userDropdownBtn" class="flex items-center gap-1 btn-secondary text-sm px-4 py-2 rounded-xl">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12,12a4,4,0,1,0-4-4A4,4,0,0,0,12,12Zm0,2c-4.42,0-8,2.69-8,6a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1C20,16.69,16.42,14,12,14Z"/>
+    </svg>
+    Account
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="transition-transform duration-200" id="userDropdownArrow">
+      <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+    </svg>
+  </button>
+  <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
+    <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
+    <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
+    <a href="my-invoices.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Invoices</a>
+    <hr class="border-[var(--border)] my-1">
+    <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
+  </div>
+</div>
+            </div>
+          </div>
+          <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-[var(--background-secondary)] border-t border-[var(--border)] px-4 py-4 space-y-2">
+      <a href="index.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
+      <a href="search.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Services</a>
+      <a href="accommodation.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
+      <a href="pricing.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
+      <a href="about.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+      <hr class="border-[var(--border)]" />
+      <a href="login.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Provider Login</a>
+      <a href="register-provider.html" class="block btn-primary text-center text-sm">List Your Business</a>
+    </div>
   </header>
 
   <!-- ======== MAIN CONTENT ======== -->
@@ -32,12 +113,157 @@
   </main>
 
   <!-- ======== FOOTER ======== -->
-  <!-- ... same footer as other pages ... -->
+  <footer class="relative bg-[var(--navy)] text-white overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--orange)] via-[var(--orange-light)] to-[var(--orange)]"></div>
+    <div class="absolute inset-0 opacity-[0.03]">
+      <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-[var(--orange)] blur-[120px]"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-white blur-[120px]"></div>
+    </div>
+    <div class="absolute top-12 right-12 w-40 h-40 border border-white/4 rounded-full"></div>
+    <div class="absolute top-16 right-16 w-32 h-32 border border-white/4 rounded-full"></div>
+    <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+      <div class="py-16 md:py-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+          <div class="lg:col-span-4">
+            <a href="index.html" class="flex items-center gap-2.5 mb-5 group">
+              <img src="logo-icon.png" alt="LocalLink" class="w-9 h-9 rounded-xl object-cover shadow-[0_2px_8px_rgba(63,156,23,0.2)]">
+              <span class="font-display font-bold text-xl">Local<span class="text-[var(--orange)]">Link</span></span>
+            </a>
+            <p class="text-white/60 text-sm leading-relaxed max-w-xs mb-6">Connecting Namibia to verified local service providers. Find, book, and request services with confidence.</p>
+            <div class="space-y-3.5">
+              <a href="#" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M12,2a8,8,0,0,0-8,8c0,5.4,7.05,11.5,7.35,11.76a1,1,0,0,0,1.3,0C13,21.5,20,15.4,20,10A8,8,0,0,0,12,2Zm0,17.65c-2.13-2-6-6.31-6-9.65a6,6,0,0,1,12,0C18,13.34,14.13,17.66,12,19.65ZM12,6a4,4,0,1,0,4,4A4,4,0,0,0,12,6Zm0,6a2,2,0,1,1,2-2A2,2,0,0,1,12,12Z"/></svg>
+                </div>
+                <span>Windhoek, Namibia</span>
+              </a>
+              <a href="tel:+264816126527" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M19.44,13c-.22,0-.45-.07-.67-.12a9.44,9.44,0,0,1-1.31-.39,2,2,0,0,0-2.48,1l-.22.45a12.18,12.18,0,0,1-2.66-2,12.18,12.18,0,0,1-2-2.66L10.52,9a2,2,0,0,0,1-2.48,10.33,10.33,0,0,1-.39-1.31c-.05-.22-.09-.45-.12-.68a3,3,0,0,0-3-2.49h-3a3,3,0,0,0-3,3.41A19,19,0,0,0,18.53,21.91l.38,0a3,3,0,0,0,2-.76,3,3,0,0,0,1-2.25v-3A3,3,0,0,0,19.44,13Zm.5,6a1,1,0,0,1-.34.75,1.05,1.05,0,0,1-.82.25A17,17,0,0,1,4.07,5.22a1.09,1.09,0,0,1,.25-.82,1,1,0,0,1,.75-.34h3a1,1,0,0,1,1,.79q.06.41.15.81a11.12,11.12,0,0,0,.46,1.55l-1.4.65a1,1,0,0,0-.49,1.33,14.49,14.49,0,0,0,7,7,1,1,0,0,0,.76,0,1,1,0,0,0,.57-.52l.62-1.4a13.69,13.69,0,0,0,1.58.46q.4.09.81.15a1,1,0,0,1,.79,1Z"/></svg>
+                </div>
+                <span>+264 81 612 6527</span>
+              </a>
+              <a href="mailto:localink.na@gmail.com" class="flex items-center gap-3 text-sm text-white/50 hover:text-white/80 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[var(--orange)]/20 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--orange)]"><path d="M19,4H5A3,3,0,0,0,2,7V17a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V7A3,3,0,0,0,19,4Zm-.41,2-5.88,5.88a1,1,0,0,1-1.42,0L5.41,6ZM20,17a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V7.41l5.88,5.88a3,3,0,0,0,4.24,0L20,7.41Z"/></svg>
+                </div>
+                <span>localink.na@gmail.com</span>
+              </a>
+            </div>
+          </div>
+          <div class="lg:col-span-3">
+            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Services</h4>
+            <ul class="space-y-3">
+              <li><a href="search.html?category=Salons" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Salons &amp; Beauty</a></li>
+              <li><a href="search.html?category=Cleaning" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Cleaning</a></li>
+              <li><a href="search.html?category=Car Rental" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Car Rentals</a></li>
+              <li><a href="accommodation.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Accommodation</a></li>
+              <li><a href="search.html?category=Plumbing" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Plumbing</a></li>
+              <li><a href="search.html?category=Electrical" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Electrical</a></li>
+            </ul>
+          </div>
+          <div class="lg:col-span-2">
+            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Company</h4>
+            <ul class="space-y-3">
+              <li><a href="about.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">About Us</a></li>
+              <li><a href="how-it-works.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">How It Works</a></li>
+              <li><a href="register-provider.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">For Providers</a></li>
+              <li><a href="contact.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Contact</a></li>
+            </ul>
+          </div>
+          <div class="lg:col-span-3">
+            <h4 class="font-display font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Legal</h4>
+            <ul class="space-y-3">
+              <li><a href="terms.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Terms &amp; Conditions</a></li>
+              <li><a href="privacy.html" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Privacy Policy</a></li>
+              <li><a href="#" class="text-sm text-white/50 hover:text-[var(--orange)] hover:translate-x-0.5 transition-all duration-200 inline-block">Disclaimer</a></li>
+            </ul>
+            <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
+              <p class="text-xs text-white/60 mb-2.5 font-medium">Need help? Chat with us</p>
+              <a href="https://wa.me/264816126527?text=Hi%20LocalLink!" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-display font-semibold text-green-400 hover:text-green-300 transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp Us
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-14 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-white/40">© 2026 LocalLink. All rights reserved. Made in Namibia.</p>
+          <p class="text-xs text-white/30 font-display tracking-wide">Connecting communities, one service at a time.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Mobile menu, dropdowns (same as other pages)
-      // ... include from index.html
+      // Mobile menu toggle
+      const mobileBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      if (mobileBtn && mobileMenu) {
+        mobileBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          mobileMenu.classList.toggle('hidden');
+        });
+        document.addEventListener('click', function(e) {
+          if (!mobileMenu.contains(e.target) && !mobileBtn.contains(e.target)) {
+            mobileMenu.classList.add('hidden');
+          }
+        });
+      }
+
+      // Services dropdown toggle
+      const dropdownBtn = document.getElementById('servicesDropdownBtn');
+      const dropdownMenu = document.getElementById('servicesDropdownMenu');
+      const arrow = document.getElementById('servicesDropdownArrow');
+      if (dropdownBtn && dropdownMenu) {
+        dropdownBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          dropdownMenu.classList.toggle('hidden');
+          arrow.classList.toggle('rotate-180');
+        });
+        document.addEventListener('click', function(e) {
+          if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+            arrow.classList.remove('rotate-180');
+          }
+        });
+        dropdownMenu.querySelectorAll('a').forEach(function(link) {
+          link.addEventListener('click', function() {
+            dropdownMenu.classList.add('hidden');
+            arrow.classList.remove('rotate-180');
+          });
+        });
+      }
+
+      // User dropdown toggle
+      const userDropdownBtn = document.getElementById('userDropdownBtn');
+      const userDropdownMenu = document.getElementById('userDropdownMenu');
+      const userArrow = document.getElementById('userDropdownArrow');
+      if (userDropdownBtn && userDropdownMenu) {
+        userDropdownBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          userDropdownMenu.classList.toggle('hidden');
+          userArrow.classList.toggle('rotate-180');
+        });
+        document.addEventListener('click', function(e) {
+          if (!userDropdownBtn.contains(e.target) && !userDropdownMenu.contains(e.target)) {
+            userDropdownMenu.classList.add('hidden');
+            userArrow.classList.remove('rotate-180');
+          }
+        });
+        userDropdownMenu.querySelectorAll('a, button').forEach(function(item) {
+          item.addEventListener('click', function() {
+            userDropdownMenu.classList.add('hidden');
+            userArrow.classList.remove('rotate-180');
+          });
+        });
+      }
+
+      document.getElementById('logoutNavBtn')?.addEventListener('click', function() {
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+      });
 
       // ========== LOAD INVOICES ==========
       async function loadInvoices() {
@@ -128,8 +354,20 @@
       // Load invoices after auth
       loadInvoices();
 
-      // Auth toggle function (same as before)
-      // ... updateAuthButtons, etc.
+      // Auth toggle
+      function updateAuthButtons() {
+        const loggedOut = document.getElementById('loggedOutNav');
+        const loggedIn = document.getElementById('loggedInNav');
+        const token = localStorage.getItem('token');
+        if (token && currentUser) {
+          loggedOut.classList.add('hidden');
+          loggedIn.classList.remove('hidden');
+        } else {
+          loggedOut.classList.remove('hidden');
+          loggedIn.classList.add('hidden');
+        }
+      }
+      setTimeout(updateAuthButtons, 500);
     });
   </script>
 </body>

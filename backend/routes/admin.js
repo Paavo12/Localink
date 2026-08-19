@@ -450,6 +450,40 @@ router.get('/client/:userId', async (req, res) => {
   }
 });
 
+// ========== ADMIN PAYMENT TRACKING (who has paid) ==========
+
+router.get('/payments', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT sp.id, sp.user_id, sp.invoice_id, sp.amount, sp.tier, sp.expiry_date, 
+             sp.status, sp.created_at as paid_at,
+             u.full_name, u.email,
+             p.business_name,
+             pr.invoice_number,
+             CASE WHEN sp.expiry_date > NOW() THEN true ELSE false END as is_active
+      FROM subscription_payments sp
+      JOIN users u ON sp.user_id = u.id
+      LEFT JOIN provider_profiles p ON sp.user_id = p.user_id
+      LEFT JOIN payment_requests pr ON sp.invoice_id = pr.id
+      ORDER BY sp.created_at DESC
+    `);
+    const totalRevenue = result.rows.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
+    const activeCount = result.rows.filter(r => r.is_active).length;
+    res.json({
+      payments: result.rows,
+      summary: {
+        totalRevenue,
+        totalPayments: result.rows.length,
+        activeSubscriptions: activeCount,
+        expiredSubscriptions: result.rows.length - activeCount,
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching payments:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ========== ADMIN INVOICE MANAGEMENT ==========
 
 router.get('/invoices', authenticateToken, requireRole('admin'), async (req, res) => {

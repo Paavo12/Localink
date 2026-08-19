@@ -19,6 +19,12 @@ router.get('/', async (req, res) => {
            p.is_verified, p.subscription_tier, p.boosted_until,
            COALESCE((SELECT AVG(rating) FROM reviews WHERE provider_id = p.user_id), 0) as avg_rating,
            COALESCE((SELECT MIN(price) FROM services WHERE provider_id = p.user_id), 0) as min_price,
+           (SELECT json_agg(json_build_object(
+              'day_of_week', day_of_week, 'is_closed', is_closed,
+              'open_time', open_time, 'close_time', close_time
+            )) FROM business_hours WHERE provider_id = p.user_id) as hours,
+           (SELECT COUNT(*) FROM services WHERE provider_id = p.user_id AND is_active = true) as total_services,
+           (SELECT COUNT(*) FROM services WHERE provider_id = p.user_id AND is_active = true AND is_available != false) as available_services,
            CASE 
              WHEN p.boosted_until > NOW() AND p.subscription_tier = 'premium' THEN 4
              WHEN p.boosted_until > NOW() AND p.subscription_tier = 'verified' THEN 3

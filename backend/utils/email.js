@@ -23,15 +23,15 @@ async function sendBookingNotification(providerEmail, clientName, serviceName, d
   try {
     const transporter = getTransporter();
     await transporter.sendMail({
-      from: `"Localink" <${process.env.SMTP_USER}>`,
+      from: `"LocalLink" <${process.env.SMTP_USER}>`,
       to: providerEmail,
-      subject: 'New Booking Request – Localink',
+      subject: 'New Booking Request – LocalLink',
       html: `
         <h2>New Booking Request</h2>
         <p><strong>${clientName}</strong> booked <strong>${serviceName}</strong> on <strong>${new Date(date).toLocaleString()}</strong>.</p>
         <p><a href="${process.env.FRONTEND_URL || 'https://your-domain.com'}/dashboard.html">View in Dashboard</a></p>
         <br>
-        <p>– The Localink Team</p>
+        <p>– The LocalLink Team</p>
       `,
     });
     console.log(`📧 Booking notification sent to ${providerEmail}`);
@@ -48,7 +48,7 @@ async function sendPaymentConfirmationEmail(toEmail, fullName, tier) {
     return;
   }
 
-  const subject = `Localink – Subscription Activation (${tier})`;
+  const subject = `LocalLink – Subscription Activation (${tier})`;
   const html = `
     <h2>Hello ${fullName || 'Valued Provider'},</h2>
     <p>Your payment has been approved and your <strong>${tier}</strong> subscription is now active!</p>
@@ -67,17 +67,17 @@ async function sendPaymentConfirmationEmail(toEmail, fullName, tier) {
         <li>🏠 Homepage feature slot</li>
       `}
     </ul>
-    <p>Thank you for choosing Localink!</p>
+    <p>Thank you for choosing LocalLink!</p>
     <p>Visit your <a href="${process.env.FRONTEND_URL || 'https://your-domain.com'}/dashboard">dashboard</a> to manage your business.</p>
     <br>
-    <p>– The Localink Team</p>
-    <p><small>Localink – Connecting communities, one service at a time.</small></p>
+    <p>– The LocalLink Team</p>
+    <p><small>LocalLink – Connecting communities, one service at a time.</small></p>
   `;
 
   try {
     const transporter = getTransporter();
     await transporter.sendMail({
-      from: `"Localink" <${process.env.SMTP_USER}>`,
+      from: `"LocalLink" <${process.env.SMTP_USER}>`,
       to: toEmail,
       subject,
       html,
@@ -96,10 +96,10 @@ async function sendProviderWelcomeEmail(toEmail, fullName, businessName) {
     return;
   }
 
-  const subject = 'Welcome to Localink – Your Business is Now Listed!';
+  const subject = 'Welcome to LocalLink – Your Business is Now Listed!';
   const html = `
     <h2>Hello ${fullName},</h2>
-    <p>Welcome to <strong>Localink</strong> – Namibia's trusted local services marketplace!</p>
+    <p>Welcome to <strong>LocalLink</strong> – Namibia's trusted local services marketplace!</p>
     <p>Your business <strong>"${businessName}"</strong> has been successfully registered on our platform.</p>
     <h3>What's Next?</h3>
     <ul>
@@ -111,14 +111,14 @@ async function sendProviderWelcomeEmail(toEmail, fullName, businessName) {
     <p>Log in to your dashboard to get started:</p>
     <p><a href="${process.env.FRONTEND_URL || 'https://your-domain.com'}/dashboard" style="background:#ff921c;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Go to Dashboard</a></p>
     <br>
-    <p>Thank you for choosing Localink!</p>
-    <p>– The Localink Team</p>
+    <p>Thank you for choosing LocalLink!</p>
+    <p>– The LocalLink Team</p>
   `;
 
   try {
     const transporter = getTransporter();
     await transporter.sendMail({
-      from: `"Localink" <${process.env.SMTP_USER}>`,
+      from: `"LocalLink" <${process.env.SMTP_USER}>`,
       to: toEmail,
       subject,
       html,
@@ -137,10 +137,10 @@ async function sendAdminNotification(adminEmail, providerName, businessName, pro
     return;
   }
 
-  const subject = '🔔 New Provider Registration – Localink';
+  const subject = '🔔 New Provider Registration – LocalLink';
   const html = `
     <h2>New Provider Registered</h2>
-    <p>A new provider has just registered on Localink:</p>
+    <p>A new provider has just registered on LocalLink:</p>
     <ul>
       <li><strong>Business Name:</strong> ${businessName}</li>
       <li><strong>Provider Name:</strong> ${providerName}</li>
@@ -149,13 +149,13 @@ async function sendAdminNotification(adminEmail, providerName, businessName, pro
     <p>Log in to the admin panel to review and verify this provider:</p>
     <p><a href="${process.env.FRONTEND_URL || 'https://your-domain.com'}/admin" style="background:#ff921c;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Go to Admin Panel</a></p>
     <br>
-    <p>– The Localink System</p>
+    <p>– The LocalLink System</p>
   `;
 
   try {
     const transporter = getTransporter();
     await transporter.sendMail({
-      from: `"Localink" <${process.env.SMTP_USER}>`,
+      from: `"LocalLink" <${process.env.SMTP_USER}>`,
       to: adminEmail,
       subject,
       html,

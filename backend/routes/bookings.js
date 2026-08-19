@@ -74,8 +74,11 @@ router.post('/', authenticateToken, bookingValidation, async (req, res) => {
   const clientId = req.user.id;
   try {
     // Get service details
-    const serviceRes = await pool.query('SELECT duration_minutes, name as service_name FROM services WHERE id = $1', [serviceId]);
+    const serviceRes = await pool.query('SELECT duration_minutes, name as service_name, is_available FROM services WHERE id = $1', [serviceId]);
     if (serviceRes.rows.length === 0) return res.status(400).json({ error: 'Invalid service' });
+    if (serviceRes.rows[0].is_available === false) {
+      return res.status(409).json({ error: 'This is currently unavailable (fully booked). Please choose another option.' });
+    }
     const duration = serviceRes.rows[0].duration_minutes;
     const serviceName = serviceRes.rows[0].service_name;
     const endTime = new Date(new Date(startTime).getTime() + duration * 60000);

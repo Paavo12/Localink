@@ -5,13 +5,15 @@
 @import url('https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap');
 
 :root {
-  /* ----- Custom colours (from Vercel) ----- */
-  --navy: #002349;
-  --navy-light: #003366;
-  --navy-dark: #001a33;
-  --orange: #ff921c;
-  --orange-light: #ffb366;
-  --orange-dark: #e07a00;
+  /* ----- Brand colours (from the LocalLink logo: navy blue + green, gold accent) ----- */
+  --navy: #063577;
+  --navy-light: #0a4a9e;
+  --navy-dark: #042352;
+  --orange: #3f9c17;
+  --orange-light: #6dc94a;
+  --orange-dark: #2f7a12;
+  --gold: #fdb902;
+  --gold-dark: #e0a200;
 
   /* ----- Base colours (light mode default) ----- */
   --background: #f8f8f9;
@@ -23,8 +25,8 @@
   --border: #e5e7eb;
   --border-hover: #d1d5db;
   --card-bg: #ffffff;
-  --card-shadow: 0 1px 3px rgba(0, 35, 73, 0.08), 0 4px 12px rgba(0, 35, 73, 0.04);
-  --card-shadow-hover: 0 4px 12px rgba(0, 35, 73, 0.12), 0 8px 24px rgba(0, 35, 73, 0.08);
+  --card-shadow: 0 1px 3px rgba(6, 53, 119, 0.08), 0 4px 12px rgba(6, 53, 119, 0.04);
+  --card-shadow-hover: 0 4px 12px rgba(6, 53, 119, 0.12), 0 8px 24px rgba(6, 53, 119, 0.08);
   --glass-bg: rgba(255, 255, 255, 0.72);
   --glass-border: rgba(255, 255, 255, 0.18);
   --input-bg: #ffffff;
@@ -156,6 +158,15 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(2px);
   box-shadow: 0 0px 0 var(--orange-dark);
 }
+.btn-primary:focus-visible, .btn-secondary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.btn-primary:disabled, .btn-secondary:disabled {
+  cursor: not-allowed;
+  transform: none !important;
+  filter: grayscale(0.3);
+}
 
 .btn-secondary {
   background-color: var(--card-bg);
@@ -169,10 +180,12 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 0 var(--foreground-muted);
   display: inline-block;
   text-align: center;
+  cursor: pointer;
 }
 .btn-secondary:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 0 var(--foreground-muted);
+  border-color: var(--orange);
 }
 .btn-secondary:active {
   transform: translateY(2px);
@@ -193,16 +206,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 /* ----- Navbar scroll effect ----- */
 header {
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
 }
 
 header.scrolled {
-  background-color: var(--background-secondary);
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .dark header.scrolled {
-  background-color: var(--background-secondary);
+  background-color: var(--glass-bg);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -423,4 +439,53 @@ header {
 
 .booking-filter:hover:not(.active) {
   background-color: var(--background-tertiary);
+}
+
+/* ========== GENERAL VISUAL POLISH ========== */
+/* Smooth lift-on-hover for cards site-wide (opt-in via class, applied where cards are rendered) */
+.rounded-3xl, .rounded-2xl {
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+/* Focus rings for accessibility on interactive elements that don't already define one */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Links inside body copy get a subtle animated underline instead of an abrupt color snap */
+.prose a, main a:not(.btn-primary):not(.btn-secondary) {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+/* Consistent badge sizing across the site (verified, featured, availability, etc.) */
+.badge-verified, .badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+.badge-verified {
+  background: var(--info-bg);
+  color: var(--info);
+}
+.dark .badge-verified {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+.badge-premium {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #1a1200;
+}
+
+/* Smoother section dividers */
+hr {
+  border-color: var(--border);
+  opacity: 0.7;
 }

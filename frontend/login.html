@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login – Localink</title>
+  <title>Login – LocalLink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=General+Sans:ital,wght@0,200..700;1,200..700&display=swap">
@@ -20,11 +20,8 @@
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
       <nav class="flex items-center justify-between h-16 md:h-18">
         <a href="index.html" class="flex items-center gap-2.5 group">
-          <div class="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--navy)] to-[var(--orange)] flex items-center justify-center overflow-hidden shadow-[0_2px_8px_rgba(0,35,73,0.2)] group-hover:shadow-[0_4px_16px_rgba(255,146,28,0.3)] transition-shadow duration-500">
-            <span class="text-white font-display font-bold text-sm relative z-10 tracking-tight">L</span>
-            <div class="absolute inset-0 bg-gradient-to-br from-[var(--orange)] to-[var(--navy)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </div>
-          <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">ink</span></span>
+          <img src="logo-icon.png" alt="LocalLink" class="w-9 h-9 rounded-xl object-cover shadow-[0_2px_8px_rgba(6,53,119,0.25)] group-hover:shadow-[0_4px_16px_rgba(63,156,23,0.3)] transition-shadow duration-500">
+          <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">Link</span></span>
         </a>
         <div class="hidden lg:flex items-center gap-1">
           <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
@@ -41,7 +38,7 @@
               <a href="search.html?category=Car Rental" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Car Rentals</a>
               <a href="accommodation.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Accommodation</a>
               <a href="search.html?category=Plumbing" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Plumbing</a>
-              <a href="search.html?category=Electrician" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Electrical</a>
+              <a href="search.html?category=Electrical" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Electrical</a>
               <a href="search.html?category=Catering" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Catering</a>
               <a href="search.html?category=Events" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Events</a>
               <a href="search.html?category=Home Repairs" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Home Repairs</a>
@@ -58,11 +55,6 @@
               <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
             </svg>
           </a>
-          <button id="themeToggle" class="relative w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--orange)] focus-visible:ring-offset-2" aria-label="Switch theme">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--navy)] dark:text-white">
-              <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
-            </svg>
-          </button>
           <div id="authButtons" class="flex items-center gap-4 border-l border-[var(--border)] pl-6">
             <div id="loggedOutNav" class="flex items-center gap-4">
               <a href="login.html" class="text-sm font-bold text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Provider Login</a>
@@ -128,7 +120,7 @@
     <div class="absolute top-12 right-12 w-40 h-40 border border-white/4 rounded-full"></div>
     <div class="absolute top-16 right-16 w-32 h-32 border border-white/4 rounded-full"></div>
     <div class="text-center py-6 text-white/40 text-xs">
-      © 2026 Localink. All rights reserved.
+      © 2026 LocalLink. All rights reserved.
     </div>
   </footer>
 

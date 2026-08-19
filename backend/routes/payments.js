@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const pool = require('../db/pool');
 const upload = require('../middleware/upload');
+const { uploadAny } = require('../middleware/upload');
 const { uploadBuffer } = require('../utils/cloudinary');
 const { sendPaymentConfirmationEmail } = require('../utils/email');
 
@@ -72,14 +73,14 @@ router.post('/request-invoice', authenticateToken, async (req, res) => {
 router.post(
   '/upload-proof',
   authenticateToken,
-  upload.single('proofImage'),
+  uploadAny.single('proofImage'),
   async (req, res) => {
     const { invoiceId } = req.body;
     if (!invoiceId) {
       return res.status(400).json({ error: 'Invoice ID is required' });
     }
     if (!req.file) {
-      return res.status(400).json({ error: 'Please upload a proof image (PNG, JPG, PDF)' });
+      return res.status(400).json({ error: 'Please upload a proof of payment file' });
     }
 
     try {
@@ -97,9 +98,12 @@ router.post(
         return res.status(400).json({ error: 'This invoice cannot be updated' });
       }
 
-      // Upload to Cloudinary (folder: 'proofs')
+      // Upload to Cloudinary (folder: 'proofs'). resource_type: 'auto' lets
+      // Cloudinary correctly store PDFs/documents as well as images, instead
+      // of assuming everything is an image (which would fail for PDFs).
       const uploadResult = await uploadBuffer(req.file.buffer, {
         folder: 'localink/proofs',
+        resource_type: 'auto',
       });
       const imageUrl = uploadResult.secure_url;
 

@@ -130,20 +130,8 @@ function updateNavbarAuth() {
 
 // ---------- THEME TOGGLE ----------
 function initTheme() {
-  const themeToggle = document.getElementById('themeToggle');
-  const html = document.documentElement;
-  const savedTheme = localStorage.getItem('theme') || 'dark';
-  if (savedTheme === 'light') {
-    html.classList.remove('dark');
-  } else {
-    html.classList.add('dark');
-  }
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      html.classList.toggle('dark');
-      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-    });
-  }
+  // Site now uses a single fixed theme (dark) — the light/dark toggle was removed.
+  document.documentElement.classList.add('dark');
 }
 
 // ---------- NAVBAR SCROLL ----------
@@ -323,11 +311,20 @@ async function initSearchPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const categoryParam = urlParams.get('category');
   if (categoryParam) {
-    const optionExists = Array.from(categorySelect.options).some(opt => opt.value === categoryParam);
-    if (optionExists) {
+    const options = Array.from(categorySelect.options);
+    const exactMatch = options.find(opt => opt.value === categoryParam);
+    if (exactMatch) {
       categorySelect.value = categoryParam;
     } else {
-      categorySelect.value = categoryParam;
+      // Fall back to a case-insensitive match so a mismatched query param
+      // (e.g. different capitalization) doesn't silently clear the filter.
+      const looseMatch = options.find(opt => opt.value.toLowerCase() === categoryParam.toLowerCase());
+      if (looseMatch) {
+        categorySelect.value = looseMatch.value;
+      } else {
+        console.warn(`Category "${categoryParam}" from URL doesn't match any filter option; showing all categories.`);
+        categorySelect.value = '';
+      }
     }
   }
 
@@ -359,7 +356,13 @@ async function initSearchPage() {
         grid.innerHTML = businesses.map(b => `
           <div class="bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border)] hover:shadow-lg transition-shadow">
             <img src="${escapeHtml(b.logo_url || 'https://placehold.co/400x300')}" class="h-40 w-full object-cover rounded-xl mb-3" onerror="this.src='https://placehold.co/400x300'">
-            <h3 class="text-xl font-black text-[var(--foreground)]">${escapeHtml(b.name)}</h3>
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="text-xl font-black text-[var(--foreground)]">${escapeHtml(b.name)}</h3>
+              ${b.hours && b.hours.length ? (isOpenNow(b.hours)
+                ? '<span class="shrink-0 text-xs font-bold px-2 py-1 rounded-full bg-[var(--success-bg)] text-[var(--success)]">🟢 Open Now</span>'
+                : '<span class="shrink-0 text-xs font-bold px-2 py-1 rounded-full bg-[var(--error-bg)] text-[var(--error)]">🔴 Closed</span>'
+              ) : ''}
+            </div>
             <p class="text-[var(--foreground-muted)] text-sm mt-2">${escapeHtml(b.description?.substring(0, 100))}</p>
             <div class="mt-4 flex justify-between items-center">
               <span>
@@ -471,21 +474,32 @@ async function initBusinessPage() {
       <div>
         <h2 class="text-2xl font-bold mb-4">Services</h2>
         ${b.services.map(s => `
-          <div class="mb-4 p-4 border rounded-xl">
-            <h3 class="font-bold text-lg">${escapeHtml(s.name)}</h3>
-            <p class="text-sm text-[var(--foreground-muted)]">N$${s.price} / ${s.duration_minutes} min</p>
-            <p class="text-sm">${escapeHtml(s.description || '')}</p>
+          <div class="mb-4 p-5 border rounded-2xl bg-[var(--card-bg)] hover:shadow-[var(--card-shadow-hover)] transition-shadow duration-300">
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="font-bold text-lg">${escapeHtml(s.name)}</h3>
+              <span class="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${s.is_available === false ? 'bg-red-500/15 text-red-500' : 'bg-[var(--success-bg)] text-[var(--success)]'}">${s.is_available === false ? '🔴 Fully Booked' : '🟢 Available'}</span>
+            </div>
+            <p class="text-sm font-semibold text-[var(--orange)] mt-1">N$${s.price} <span class="text-[var(--foreground-muted)] font-normal">/ ${s.duration_minutes} min</span></p>
+            <p class="text-sm text-[var(--foreground-secondary)] mt-2">${escapeHtml(s.description || '')}</p>
             ${s.image_urls && s.image_urls.length ? `
-              <div class="flex gap-2 mt-2 flex-wrap">
-                ${s.image_urls.map(url => `<img src="${escapeHtml(url)}" class="h-20 w-20 object-cover rounded-lg">`).join('')}
+              <div class="flex gap-2 mt-3 flex-wrap">
+                ${s.image_urls.map(url => `<img src="${escapeHtml(url)}" class="h-20 w-20 object-cover rounded-xl border border-[var(--border)]">`).join('')}
               </div>
             ` : ''}
-            <button data-service-id="${s.id}" class="btn-primary text-sm mt-3 book-service-btn">Book this service</button>
-            <div id="bookingForm-${s.id}" class="hidden mt-4 p-4 bg-[var(--bg-main)] border rounded-lg">
-              <h4 class="font-bold">Book ${escapeHtml(s.name)}</h4>
-              <input type="text" id="bookingTime-${s.id}" class="w-full p-2 my-2 border rounded-lg bg-[var(--bg-main)]" placeholder="Pick date & time" readonly>
-              <textarea id="bookingNotes-${s.id}" placeholder="Any special requests?" class="w-full p-2 mb-2 border rounded-lg"></textarea>
-              <button data-service-id="${s.id}" data-provider-id="${b.user_id}" class="btn-primary text-sm w-full confirm-booking-btn">Confirm Booking</button>
+            ${s.is_available === false
+              ? `<button disabled class="btn-secondary text-sm mt-4 opacity-50 cursor-not-allowed w-full">Fully Booked</button>`
+              : `<button data-service-id="${s.id}" class="btn-primary text-sm mt-4 book-service-btn w-full">📅 Book this service</button>`
+            }
+            <div id="bookingForm-${s.id}" class="hidden mt-4 p-4 bg-[var(--background-tertiary)] border border-[var(--border)] rounded-xl">
+              <h4 class="font-bold mb-3">Book ${escapeHtml(s.name)}</h4>
+              <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">Date &amp; Time</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)] pointer-events-none">📅</span>
+                <input type="text" id="bookingTime-${s.id}" class="w-full p-3 pl-9 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20 cursor-pointer" placeholder="Pick date & time" readonly>
+              </div>
+              <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">Notes (optional)</label>
+              <textarea id="bookingNotes-${s.id}" placeholder="Any special requests?" class="w-full p-3 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20"></textarea>
+              <button data-service-id="${s.id}" data-provider-id="${b.user_id}" class="btn-primary text-sm w-full confirm-booking-btn">✅ Confirm Booking</button>
             </div>
           </div>
         `).join('')}
@@ -720,17 +734,28 @@ window.submitBooking = async (serviceId, providerId) => {
     showToast('Cannot book a past date or time.', 'warning');
     return;
   }
-  const res = await fetch('/api/bookings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify({ providerId, serviceId, startTime, notes })
-  });
-  if (res.ok) {
-    showToast('Booking sent!', 'success');
-    location.reload();
-  } else {
-    const data = await res.json();
-    showToast(data.error || 'Booking failed', 'error');
+
+  const btn = document.querySelector(`.confirm-booking-btn[data-service-id="${serviceId}"]`);
+  const originalText = btn?.textContent;
+  if (btn) { btn.disabled = true; btn.textContent = 'Booking...'; btn.classList.add('opacity-70'); }
+
+  try {
+    const res = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ providerId, serviceId, startTime, notes })
+    });
+    if (res.ok) {
+      showToast('Booking sent! 🎉', 'success');
+      location.reload();
+    } else {
+      const data = await res.json();
+      showToast(data.error || 'Booking failed', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = originalText; btn.classList.remove('opacity-70'); }
+    }
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = originalText; btn.classList.remove('opacity-70'); }
   }
 };
 async function loadBanners() {
@@ -829,6 +854,7 @@ async function initDashboard() {
     let viewData = [];
     let notifications = [];
     let portfolioItems = [];
+    let quotes = [];
 
     try {
       const statsRes = await apiFetch('/api/dashboard/stats');
@@ -877,12 +903,23 @@ async function initDashboard() {
       if (portfolioRes.ok) portfolioItems = await portfolioRes.json();
     } catch (e) { console.error('Portfolio error:', e); }
 
+    try {
+      const quotesRes = await apiFetch('/api/quotes/my');
+      if (quotesRes.ok) quotes = await quotesRes.json();
+    } catch (e) { console.error('Quotes error:', e); }
+
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     const servicesHtml = services.map(s => `
-      <div class="flex justify-between items-center p-3 bg-[var(--card-bg)] rounded-xl border mb-2">
-        <div><strong>${escapeHtml(s.name)}</strong> – N$${s.price} / ${s.duration_minutes}min</div>
+      <div class="flex justify-between items-center p-3 bg-[var(--card-bg)] rounded-xl border mb-2 flex-wrap gap-2">
+        <div>
+          <strong>${escapeHtml(s.name)}</strong> – N$${s.price} / ${s.duration_minutes}min
+          <span class="ml-2 text-xs px-2 py-0.5 rounded-full ${s.is_available === false ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}">${s.is_available === false ? 'Unavailable' : 'Available'}</span>
+        </div>
         <div class="flex gap-2">
+          <button onclick="toggleServiceAvailability('${s.id}', ${s.is_available === false ? 'true' : 'false'})" class="btn-secondary text-xs py-1 px-2">
+            Mark ${s.is_available === false ? 'Available' : 'Unavailable'}
+          </button>
           <label class="btn-secondary text-xs py-1 px-2 cursor-pointer">Upload
             <input type="file" accept="image/*" class="hidden" onchange="uploadServiceImage('${s.id}', this.files[0])">
           </label>
@@ -961,38 +998,38 @@ async function initDashboard() {
           <!-- BOOKINGS HISTORY WITH FILTERS -->
           <h2 class="text-2xl font-bold mb-4">Bookings History</h2>
           <div class="mb-4 flex flex-wrap gap-2">
-            <button onclick="filterBookings('all')" class="btn-secondary text-xs py-1 px-3 booking-filter active" data-filter="all">All</button>
-            <button onclick="filterBookings('pending')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="pending">Pending</button>
-            <button onclick="filterBookings('confirmed')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="confirmed">Confirmed</button>
-            <button onclick="filterBookings('completed')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="completed">Completed</button>
-            <button onclick="filterBookings('cancelled')" class="btn-secondary text-xs py-1 px-3 booking-filter" data-filter="cancelled">Cancelled</button>
+            <button onclick="filterBookings('all')" class="btn-secondary text-xs py-1.5 px-3 booking-filter active" data-filter="all">All</button>
+            <button onclick="filterBookings('pending')" class="btn-secondary text-xs py-1.5 px-3 booking-filter" data-filter="pending">🟡 Pending</button>
+            <button onclick="filterBookings('confirmed')" class="btn-secondary text-xs py-1.5 px-3 booking-filter" data-filter="confirmed">🔵 Confirmed</button>
+            <button onclick="filterBookings('completed')" class="btn-secondary text-xs py-1.5 px-3 booking-filter" data-filter="completed">🟢 Completed</button>
+            <button onclick="filterBookings('cancelled')" class="btn-secondary text-xs py-1.5 px-3 booking-filter" data-filter="cancelled">🔴 Cancelled</button>
           </div>
           <div id="bookingsList" class="space-y-3 max-h-96 overflow-y-auto">
             ${bookings.length ? bookings.map(b => `
-              <div class="bg-[var(--card-bg)] p-4 rounded-xl border flex justify-between flex-wrap gap-2">
+              <div class="bg-[var(--card-bg)] p-4 rounded-2xl border hover:shadow-[var(--card-shadow-hover)] transition-shadow duration-300 flex justify-between flex-wrap gap-2">
                 <div>
                   <strong>${escapeHtml(b.client_name)}</strong><br>
-                  ${escapeHtml(b.service_name || 'Service')} – ${new Date(b.start_time).toLocaleString()}
+                  <span class="text-[var(--foreground-secondary)]">📅 ${escapeHtml(b.service_name || 'Service')} – ${new Date(b.start_time).toLocaleString()}</span>
                   <br><span class="text-xs px-2 py-0.5 rounded-full ${getStatusBadgeColor(b.status)}">${b.status}</span>
                 </div>
-                <select onchange="updateBookingStatus('${b.id}', this.value)" class="p-2 border rounded-lg">
+                <select onchange="updateBookingStatus('${b.id}', this.value)" class="p-2 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] h-fit">
                   <option ${b.status==='pending'?'selected':''}>pending</option>
                   <option ${b.status==='confirmed'?'selected':''}>confirmed</option>
                   <option ${b.status==='completed'?'selected':''}>completed</option>
                   <option ${b.status==='cancelled'?'selected':''}>cancelled</option>
                 </select>
               </div>
-            `).join('') : '<div class="text-gray-500 text-center py-4">No bookings yet.</div>'}
+            `).join('') : '<div class="text-[var(--foreground-muted)] text-center py-8 bg-[var(--card-bg)] rounded-2xl border">No bookings yet.</div>'}
           </div>
 
           <!-- SERVICES SECTION -->
           <h2 class="text-2xl font-bold mt-8 mb-4">Services</h2>
-          <div id="servicesList" class="space-y-2 mb-4">${servicesHtml || '<div class="text-gray-500">No services added yet.</div>'}</div>
-          <form id="addServiceForm" class="bg-[var(--card-bg)] p-4 rounded-xl border space-y-3">
-            <input name="name" placeholder="Service name" required class="w-full p-2 border rounded-lg">
-            <input name="price" placeholder="Price (N$)" required class="w-full p-2 border rounded-lg">
-            <input name="duration_minutes" placeholder="Duration (minutes)" required class="w-full p-2 border rounded-lg">
-            <button type="submit" class="btn-primary w-full">Add Service</button>
+          <div id="servicesList" class="space-y-2 mb-4">${servicesHtml || '<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-2xl border">No services added yet.</div>'}</div>
+          <form id="addServiceForm" class="bg-[var(--card-bg)] p-5 rounded-2xl border space-y-3">
+            <input name="name" placeholder="Service name" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
+            <input name="price" placeholder="Price (N$)" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
+            <input name="duration_minutes" placeholder="Duration (minutes)" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
+            <button type="submit" class="btn-primary w-full">➕ Add Service</button>
           </form>
         </div>
 
@@ -1055,6 +1092,35 @@ async function initDashboard() {
             <button id="disconnectCalendarBtn" class="btn-secondary hidden">Disconnect</button>
           </div>
         </div>
+      </div>
+    `;
+
+    // Quote Requests section
+    html += `
+      <div class="mt-12 border-t pt-8">
+        <h2 class="text-2xl font-bold mb-4">📋 Quote Requests</h2>
+        <p class="text-sm text-[var(--foreground-muted)] mb-4">Direct requests and broadcast requests for your service category. Higher-priority requests (from your subscription tier ranking) are listed first.</p>
+        ${quotes.length === 0 ? '<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-xl border">No quote requests yet.</div>' : `
+        <div class="space-y-3">
+          ${quotes.map(q => `
+            <div class="p-4 bg-[var(--card-bg)] rounded-xl border ${!q.is_read && q.priority_rank > 0 ? 'border-l-4 border-l-[var(--orange)]' : ''}">
+              <div class="flex justify-between items-start flex-wrap gap-2">
+                <div>
+                  <strong>${escapeHtml(q.client_name)}</strong>
+                  ${q.service_type ? `<span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-[var(--background-tertiary)] text-[var(--foreground-muted)]">${escapeHtml(q.service_type)}</span>` : ''}
+                  ${!q.is_read && q.priority_rank > 0 ? '<span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-[var(--orange)]/20 text-[var(--orange)]">New</span>' : ''}
+                </div>
+                <span class="text-xs text-[var(--foreground-muted)]">${new Date(q.created_at).toLocaleDateString()}</span>
+              </div>
+              <p class="text-sm mt-2">${escapeHtml(q.message)}</p>
+              <div class="text-xs text-[var(--foreground-muted)] mt-2 flex gap-3 flex-wrap">
+                <span>✉️ ${escapeHtml(q.client_email)}</span>
+                ${q.client_phone ? `<span>📞 ${escapeHtml(q.client_phone)}</span>` : ''}
+              </div>
+              ${!q.is_read && q.priority_rank > 0 ? `<button onclick="markQuoteRead('${q.id}', this)" class="btn-secondary text-xs py-1 px-2 mt-3">Mark as read</button>` : ''}
+            </div>
+          `).join('')}
+        </div>`}
       </div>
     `;
 
@@ -1149,18 +1215,18 @@ async function initDashboard() {
       if (!list) return;
 
       if (filtered.length === 0) {
-        list.innerHTML = '<div class="text-gray-500 text-center py-4">No bookings match this filter.</div>';
+        list.innerHTML = '<div class="text-[var(--foreground-muted)] text-center py-8 bg-[var(--card-bg)] rounded-2xl border">No bookings match this filter.</div>';
         return;
       }
 
       list.innerHTML = filtered.map(b => `
-        <div class="bg-[var(--card-bg)] p-4 rounded-xl border flex justify-between flex-wrap gap-2">
+        <div class="bg-[var(--card-bg)] p-4 rounded-2xl border hover:shadow-[var(--card-shadow-hover)] transition-shadow duration-300 flex justify-between flex-wrap gap-2">
           <div>
             <strong>${escapeHtml(b.client_name)}</strong><br>
-            ${escapeHtml(b.service_name || 'Service')} – ${new Date(b.start_time).toLocaleString()}
+            <span class="text-[var(--foreground-secondary)]">📅 ${escapeHtml(b.service_name || 'Service')} – ${new Date(b.start_time).toLocaleString()}</span>
             <br><span class="text-xs px-2 py-0.5 rounded-full ${getStatusBadgeColor(b.status)}">${b.status}</span>
           </div>
-          <select onchange="updateBookingStatus('${b.id}', this.value)" class="p-2 border rounded-lg">
+          <select onchange="updateBookingStatus('${b.id}', this.value)" class="p-2 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] h-fit">
             <option ${b.status==='pending'?'selected':''}>pending</option>
             <option ${b.status==='confirmed'?'selected':''}>confirmed</option>
             <option ${b.status==='completed'?'selected':''}>completed</option>
@@ -1326,6 +1392,30 @@ window.deleteService = async (id) => {
   else showToast('Delete failed', 'error');
 };
 
+window.toggleServiceAvailability = async (id, makeAvailable) => {
+  const res = await apiFetch(`/api/dashboard/services/${id}/availability`, {
+    method: 'PUT',
+    body: JSON.stringify({ is_available: makeAvailable })
+  });
+  if (res.ok) {
+    showToast(makeAvailable ? 'Marked as available' : 'Marked as unavailable', 'success');
+    location.reload();
+  } else {
+    showToast('Failed to update availability', 'error');
+  }
+};
+
+window.markQuoteRead = async (id, btnEl) => {
+  const res = await apiFetch(`/api/quotes/${id}/read`, { method: 'PUT' });
+  if (res.ok) {
+    btnEl.closest('div.p-4').classList.remove('border-l-4', 'border-l-[var(--orange)]');
+    btnEl.remove();
+    showToast('Marked as read', 'success');
+  } else {
+    showToast('Failed to update', 'error');
+  }
+};
+
 window.uploadServiceImage = async (serviceId, file) => {
   const formData = new FormData();
   formData.append('image', file);
@@ -1366,6 +1456,7 @@ async function initAdmin() {
   const bookings = await (await apiFetch('/api/admin/bookings')).json();
   const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
   const invoices = await (await apiFetch('/api/admin/invoices')).json();
+  const paymentsData = await (await apiFetch('/api/admin/payments')).json();
 
   // Store users globally for deactivate/reactivate toggling
   window._users = users;
@@ -1490,7 +1581,7 @@ async function initAdmin() {
                 <td class="p-2">
                   ${u.role === 'provider' ? `<button onclick="viewProvider('${u.id}')" class="btn-primary text-xs py-1 px-2 mr-1">View</button>` : ''}
                   ${u.role === 'client' ? `<button onclick="viewClient('${u.id}')" class="btn-secondary text-xs py-1 px-2 mr-1">View</button>` : ''}
-                  ${u.email !== 'admin@localink.com' ? `
+                  ${u.email !== 'admin@locallink.com' ? `
                     <div class="relative inline-block" id="userMenu_${u.id}">
                       <button onclick="toggleUserMenu('${u.id}')" class="btn-secondary text-xs py-1 px-2">
                         Manage ▼
@@ -1512,6 +1603,61 @@ async function initAdmin() {
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- ========== WHO HAS PAID (SUBSCRIPTION PAYMENT TRACKING) ========== -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">💰 Who Has Paid</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">
+          <div class="text-2xl font-black text-accent">N$${paymentsData.summary.totalRevenue.toFixed(2)}</div>
+          <div class="text-xs text-[var(--foreground-muted)]">Total Revenue</div>
+        </div>
+        <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">
+          <div class="text-2xl font-black text-accent">${paymentsData.summary.totalPayments}</div>
+          <div class="text-xs text-[var(--foreground-muted)]">Total Payments</div>
+        </div>
+        <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">
+          <div class="text-2xl font-black text-green-500">${paymentsData.summary.activeSubscriptions}</div>
+          <div class="text-xs text-[var(--foreground-muted)]">Active Subscriptions</div>
+        </div>
+        <div class="p-4 bg-[var(--card-bg)] rounded-2xl border">
+          <div class="text-2xl font-black text-red-500">${paymentsData.summary.expiredSubscriptions}</div>
+          <div class="text-xs text-[var(--foreground-muted)]">Expired</div>
+        </div>
+      </div>
+      <input type="text" id="paidProvidersSearch" placeholder="🔍 Search by name or email..." class="w-full p-3 mb-4 border rounded-xl bg-[var(--input-bg)] border-[var(--border)]">
+      ${paymentsData.payments.length === 0 ? '<p class="text-[var(--foreground-muted)]">No payments recorded yet.</p>' : `
+      <div class="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border p-4">
+        <table class="w-full text-sm" id="paidProvidersTable">
+          <thead>
+            <tr class="border-b">
+              <th class="text-left p-2">Provider</th>
+              <th class="text-left p-2">Email</th>
+              <th class="text-left p-2">Tier</th>
+              <th class="text-left p-2">Amount</th>
+              <th class="text-left p-2">Paid On</th>
+              <th class="text-left p-2">Expires</th>
+              <th class="text-left p-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${paymentsData.payments.map(p => `
+              <tr class="border-b paid-provider-row" data-search="${escapeHtml((p.business_name || '') + ' ' + (p.full_name || '') + ' ' + (p.email || '')).toLowerCase()}">
+                <td class="p-2">${escapeHtml(p.business_name || p.full_name)}</td>
+                <td class="p-2">${escapeHtml(p.email)}</td>
+                <td class="p-2 capitalize">${escapeHtml(p.tier)}</td>
+                <td class="p-2">N$${parseFloat(p.amount).toFixed(2)}</td>
+                <td class="p-2">${new Date(p.paid_at).toLocaleDateString()}</td>
+                <td class="p-2">${new Date(p.expiry_date).toLocaleDateString()}</td>
+                <td class="p-2">
+                  <span class="px-2 py-1 rounded-full text-xs ${p.is_active ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}">${p.is_active ? '✅ Active' : '⏰ Expired'}</span>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`}
     </div>
 
     <!-- ========== PAYMENT VERIFICATION SECTION ========== -->
@@ -1566,6 +1712,14 @@ async function initAdmin() {
   `;
 
   document.getElementById('adminContent').innerHTML = html;
+
+  // ---- Who Has Paid search filter ----
+  document.getElementById('paidProvidersSearch')?.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.paid-provider-row').forEach(row => {
+      row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+    });
+  });
 
   // ---- Chart initialization with maintainAspectRatio: false ----
   if (typeof Chart !== 'undefined') {

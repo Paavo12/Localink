@@ -62,6 +62,36 @@ async function initializeTables() {
     `);
     console.log('✅ appointments.calendar_event_id column ensured');
 
+    // Add is_available column to services (lets providers mark a room/car/etc.
+    // as fully booked or unavailable, separate from is_active which controls
+    // whether the service is listed at all)
+    await client.query(`
+      ALTER TABLE services ADD COLUMN IF NOT EXISTS is_available BOOLEAN DEFAULT true
+    `);
+    console.log('✅ services.is_available column ensured');
+
+    // Add service_type column to quote_requests (this was already being
+    // inserted into by quotes.js but the column never actually existed,
+    // so every quote request was failing with a 500 error)
+    await client.query(`
+      ALTER TABLE quote_requests ADD COLUMN IF NOT EXISTS service_type VARCHAR(255)
+    `);
+    console.log('✅ quote_requests.service_type column ensured');
+
+    // Create quote_recipients table if it doesn't exist (broadcast quote
+    // requests: one quote_requests row can fan out to many providers)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS quote_recipients (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        quote_id UUID REFERENCES quote_requests(id) ON DELETE CASCADE,
+        provider_id UUID REFERENCES provider_profiles(user_id) ON DELETE CASCADE,
+        priority_rank INT DEFAULT 0,
+        is_read BOOLEAN DEFAULT false,
+        notified_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log('✅ quote_recipients table ensured');
+
   } catch (err) {
     console.error('❌ Failed to initialize tables:', err.message);
   } finally {

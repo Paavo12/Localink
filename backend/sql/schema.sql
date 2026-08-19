@@ -41,6 +41,7 @@ CREATE TABLE services (
   duration_minutes INT,
   image_urls TEXT[],
   is_active BOOLEAN DEFAULT true,
+  is_available BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -87,9 +88,24 @@ CREATE TABLE quote_requests (
   client_name VARCHAR(255) NOT NULL,
   client_email VARCHAR(255) NOT NULL,
   client_phone VARCHAR(50),
+  service_type VARCHAR(255),
   message TEXT NOT NULL,
   status VARCHAR(20) DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Quote broadcast recipients: when a client requests a quote for a service
+-- category (rather than a specific provider), one quote_requests row is
+-- created (provider_id NULL) and one row per matching provider goes here,
+-- so each provider can see and respond to the same request independently,
+-- notified in priority order by subscription tier.
+CREATE TABLE quote_recipients (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  quote_id UUID REFERENCES quote_requests(id) ON DELETE CASCADE,
+  provider_id UUID REFERENCES provider_profiles(user_id) ON DELETE CASCADE,
+  priority_rank INT DEFAULT 0,
+  is_read BOOLEAN DEFAULT false,
+  notified_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Reviews
