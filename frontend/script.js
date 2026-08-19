@@ -373,13 +373,8 @@ async function uploadCover(file) {
   else showToast('Upload failed', 'error');
 }
 
-async function uploadServiceImage(serviceId, file) {
-  const formData = new FormData();
-  formData.append('image', file);
-  const res = await fetch(`/api/upload/service/${serviceId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
-  if (res.ok) showToast('Service image added!', 'success');
-  else showToast('Upload failed', 'error');
-}
+// Note: uploadServiceImage is defined once, later in this file as
+// window.uploadServiceImage, and supports multiple files at once.
 
 // ========== SEARCH PAGE ==========
 async function initSearchPage() {
@@ -1060,20 +1055,33 @@ async function initDashboard() {
     const isAccommodation = profile.category === 'Accommodation';
 
     const servicesHtml = services.map(s => `
-      <div class="flex justify-between items-center p-3 bg-[var(--card-bg)] rounded-xl border mb-2 flex-wrap gap-2">
-        <div>
-          <strong>${escapeHtml(s.name)}</strong> – N$${s.price} ${isCarRental ? '/day' : isAccommodation ? '/night' : `/ ${s.duration_minutes}min`}
-          <span class="ml-2 text-xs px-2 py-0.5 rounded-full ${s.is_available === false ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}">${s.is_available === false ? 'Unavailable' : 'Available'}</span>
+      <div class="p-3 bg-[var(--card-bg)] rounded-xl border mb-2">
+        <div class="flex justify-between items-center flex-wrap gap-2">
+          <div>
+            <strong>${escapeHtml(s.name)}</strong> – N$${s.price} ${isCarRental ? '/day' : isAccommodation ? '/night' : `/ ${s.duration_minutes}min`}
+            <span class="ml-2 text-xs px-2 py-0.5 rounded-full ${s.is_available === false ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}">${s.is_available === false ? 'Unavailable' : 'Available'}</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="toggleServiceAvailability('${s.id}', ${s.is_available === false ? 'true' : 'false'})" class="btn-secondary text-xs py-1 px-2">
+              Mark ${s.is_available === false ? 'Available' : 'Unavailable'}
+            </button>
+            <label class="btn-secondary text-xs py-1 px-2 cursor-pointer">📷 Add Photos
+              <input type="file" accept="image/*" multiple class="hidden" onchange="uploadServiceImage('${s.id}', this.files)">
+            </label>
+            <button onclick="deleteService('${s.id}')" class="text-red-500">Delete</button>
+          </div>
         </div>
-        <div class="flex gap-2">
-          <button onclick="toggleServiceAvailability('${s.id}', ${s.is_available === false ? 'true' : 'false'})" class="btn-secondary text-xs py-1 px-2">
-            Mark ${s.is_available === false ? 'Available' : 'Unavailable'}
-          </button>
-          <label class="btn-secondary text-xs py-1 px-2 cursor-pointer">Upload
-            <input type="file" accept="image/*" class="hidden" onchange="uploadServiceImage('${s.id}', this.files[0])">
-          </label>
-          <button onclick="deleteService('${s.id}')" class="text-red-500">Delete</button>
-        </div>
+        ${s.image_urls && s.image_urls.length ? `
+          <div class="flex gap-2 mt-2 flex-wrap items-center">
+            ${s.image_urls.map((url, i) => `
+              <div class="relative group">
+                <img src="${escapeHtml(url)}" class="h-14 w-14 object-cover rounded-lg border border-[var(--border)]">
+                <button onclick="deleteServiceImage('${s.id}', ${i})" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity" title="Remove photo">✕</button>
+              </div>
+            `).join('')}
+            <span class="text-xs text-[var(--foreground-muted)]">${s.image_urls.length} photo${s.image_urls.length > 1 ? 's' : ''}</span>
+          </div>
+        ` : `<p class="text-xs text-[var(--foreground-muted)] mt-2">No photos yet — add some so clients can see ${isCarRental ? 'the car' : isAccommodation ? 'the room' : 'this'}.</p>`}
       </div>
     `).join('');
 
@@ -1172,8 +1180,8 @@ async function initDashboard() {
           </div>
 
           <!-- SERVICES / CARS / ROOMS SECTION -->
-          <h2 class="text-2xl font-bold mt-8 mb-4">${isCarRental ? '🚗 Your Cars' : isAccommodation ? '🛏️ Your Rooms' : 'Services'}</h2>
-          <p class="text-sm text-[var(--foreground-muted)] -mt-3 mb-4">${isCarRental ? 'Add each car you rent out. Clients will only see cars marked Available.' : isAccommodation ? 'Add each room type you offer. Clients will only see rooms marked Available.' : 'Manage the services you offer clients.'}</p>
+          <h2 class="text-2xl font-bold mt-8 mb-4">${isCarRental ? `🚗 Your Cars ${services.length ? `(${services.length})` : ''}` : isAccommodation ? `🛏️ Your Rooms ${services.length ? `(${services.length})` : ''}` : 'Services'}</h2>
+          <p class="text-sm text-[var(--foreground-muted)] -mt-3 mb-4">${isCarRental ? 'Add as many cars as you like. Each one gets its own photos, price, and availability toggle — clients only ever see cars marked Available.' : isAccommodation ? 'Add as many room types as you like. Each one gets its own photos, price, and availability toggle — clients only ever see rooms marked Available.' : 'Manage the services you offer clients.'}</p>
           <div id="servicesList" class="space-y-2 mb-4">${servicesHtml || `<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-2xl border">${isCarRental ? 'No cars added yet.' : isAccommodation ? 'No rooms added yet.' : 'No services added yet.'}</div>`}</div>
           <form id="addServiceForm" class="bg-[var(--card-bg)] p-5 rounded-2xl border space-y-3">
             <input name="name" placeholder="${isCarRental ? 'Car (e.g. Toyota Corolla 2022)' : isAccommodation ? 'Room type (e.g. Deluxe Double Room)' : 'Service name'}" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
@@ -1570,12 +1578,22 @@ window.markQuoteRead = async (id, btnEl) => {
   }
 };
 
-window.uploadServiceImage = async (serviceId, file) => {
+window.uploadServiceImage = async (serviceId, fileList) => {
+  const files = Array.from(fileList);
+  if (files.length === 0) return;
   const formData = new FormData();
-  formData.append('image', file);
+  files.forEach(file => formData.append('images', file));
+  showToast(`Uploading ${files.length} photo${files.length > 1 ? 's' : ''}...`, 'info');
   const res = await fetch(`/api/upload/service/${serviceId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
-  if (res.ok) { showToast('Image uploaded', 'success'); location.reload(); }
+  if (res.ok) { showToast('Photos uploaded', 'success'); location.reload(); }
   else showToast('Upload failed', 'error');
+};
+
+window.deleteServiceImage = async (serviceId, index) => {
+  if (!confirm('Remove this photo?')) return;
+  const res = await fetch(`/api/upload/service/${serviceId}/image/${index}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` } });
+  if (res.ok) { showToast('Photo removed', 'success'); location.reload(); }
+  else showToast('Failed to remove photo', 'error');
 };
 
 window.toggleHoursDisabled = (checkbox, day) => {
