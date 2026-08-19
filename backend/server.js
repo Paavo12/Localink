@@ -15,14 +15,41 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ----- Rate Limiting -----
+// General API limiter. Raised from 100 -> 300 per window: a single admin
+// dashboard load alone fires ~9 parallel requests, so 100/15min was easy
+// to exhaust with completely normal usage (a few page reloads), which then
+// blocked every API call -- including login -- for the rest of the window.
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
-  
+  // express-rate-limit's default handler responds with plain text, which
+  // crashes any frontend code that assumes every API response is JSON
+  // (that's what caused "Unexpected token 'T', "Too many r"... is not
+  // valid JSON"). Return JSON instead so the frontend can show a normal
+  // error message.
+  handler: (req, res) => {
+    res.status(429).json({ error: 'Too many requests. Please wait a few minutes and try again.' });
+  },
 });
 app.use('/api/', limiter);
+
+// Separate, more generous limiter specifically for login/register, so a
+// locked-out admin isn't blocked by unrelated traffic elsewhere on the site,
+// while still guarding against brute-force password guessing.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({ error: 'Too many login attempts. Please wait a few minutes and try again.' });
+  },
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/register-provider', authLimiter);
 
 // ----- CORS -----
 const allowedOrigins = process.env.ALLOWED_ORIGINS

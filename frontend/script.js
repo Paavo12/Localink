@@ -76,6 +76,9 @@ async function apiFetch(url, options = {}) {
     location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname + location.search);
     throw new Error('Session expired');
   }
+  if (res.status === 429) {
+    showToast('Too many requests. Please wait a moment and try again.', 'warning');
+  }
   return res;
 }
 
@@ -85,7 +88,17 @@ async function login(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  const data = await res.json();
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    // Response wasn't JSON (e.g. a proxy/rate-limit error page) -- fail
+    // gracefully instead of throwing "Unexpected token ... is not valid JSON"
+    showToast(`Login failed (server returned an unexpected response, status ${res.status}). Please try again shortly.`, 'error');
+    return false;
+  }
+
   if (res.ok) {
     setAuthToken(data.token);
     currentUser = data.user;
@@ -163,6 +176,64 @@ function initActiveNavLink() {
     const linkPage = link.getAttribute('href').split('?')[0].split('/').pop();
     if (linkPage === currentPage || (currentPage === '' && linkPage === 'index.html')) {
       link.classList.add('active');
+    }
+  });
+}
+
+// ---------- Broadcast quote request modal ----------
+// Shared wiring for the "Request a Quote" modal, used on index.html and
+// search.html. Only wires up if the modal markup is actually present on
+// the current page, so it's safe to call unconditionally from the router.
+function initBroadcastQuoteModal() {
+  const bqModal = document.getElementById('broadcastQuoteModal');
+  if (!bqModal) return;
+
+  const openBqBtn = document.getElementById('openBroadcastQuoteBtn');
+  const closeBqBtn = document.getElementById('closeBroadcastQuoteBtn');
+  openBqBtn?.addEventListener('click', () => bqModal.classList.remove('hidden'));
+  closeBqBtn?.addEventListener('click', () => bqModal.classList.add('hidden'));
+  bqModal.addEventListener('click', (e) => { if (e.target === bqModal) bqModal.classList.add('hidden'); });
+
+  document.getElementById('broadcastQuoteForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+
+    const payload = {
+      category: document.getElementById('bqCategory').value,
+      name: document.getElementById('bqName').value.trim(),
+      email: document.getElementById('bqEmail').value.trim(),
+      phone: document.getElementById('bqPhone').value.trim(),
+      message: document.getElementById('bqMessage').value.trim(),
+    };
+
+    try {
+      const res = await fetch('/api/quotes/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      let data;
+      try { data = await res.json(); } catch (e) { data = {}; }
+      const successBox = document.getElementById('bqSuccessMessage');
+      if (res.ok) {
+        this.reset();
+        this.classList.add('hidden');
+        successBox.classList.remove('hidden');
+        successBox.textContent = data.notifiedProviders > 0
+          ? `✅ Sent! ${data.notifiedProviders} provider${data.notifiedProviders === 1 ? '' : 's'} notified — expect replies by email or phone soon.`
+          : `Your request was recorded, but no providers currently offer this service.`;
+        setTimeout(() => { bqModal.classList.add('hidden'); successBox.classList.add('hidden'); this.classList.remove('hidden'); }, 4000);
+      } else {
+        showToast(data.error || (data.errors && data.errors[0]?.msg) || 'Failed to send request', 'error');
+      }
+    } catch (err) {
+      showToast('Network error. Please try again.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
     }
   });
 }
@@ -480,40 +551,103 @@ async function initBusinessPage() {
     `;
   }
 
-  html += `
+  const isCarRentalBiz = b.category === 'Car Rental';
+  const isAccommodationBiz = b.category === 'Accommodation';
+  const sectionLabel = isCarRentalBiz ? '🚗 Available Cars' : isAccommodationBiz ? '🛏️ Available Rooms' : 'Services';
+  const priceSuffix = isCarRentalBiz ? '/ day' : isAccommodationBiz ? '/ night' : null;
+
+  // Airbnb-style card: big image on top, price prominent, availability badge overlaid
+  const airbnbCard = (s) => `
+    <div class="rounded-2xl overflow-hidden bg-[var(--card-bg)] border border-[var(--border)] hover:shadow-[var(--card-shadow-hover)] transition-shadow duration-300">
+      <div class="relative h-48 bg-[var(--background-tertiary)]">
+        <img src="${escapeHtml((s.image_urls && s.image_urls[0]) || 'https://placehold.co/400x300?text=' + encodeURIComponent(isCarRentalBiz ? 'Car' : 'Room'))}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+        <span class="absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full shadow ${s.is_available === false ? 'bg-red-500 text-white' : 'bg-white text-green-700'}">${s.is_available === false ? 'Fully Booked' : '🟢 Available'}</span>
+      </div>
+      <div class="p-4">
+        <h3 class="font-bold text-lg">${escapeHtml(s.name)}</h3>
+        <p class="text-sm text-[var(--foreground-secondary)] mt-1 line-clamp-2">${escapeHtml(s.description || '')}</p>
+        ${s.image_urls && s.image_urls.length > 1 ? `
+          <div class="flex gap-1.5 mt-2">
+            ${s.image_urls.slice(1, 4).map(url => `<img src="${escapeHtml(url)}" class="h-12 w-12 object-cover rounded-lg border border-[var(--border)]">`).join('')}
+          </div>
+        ` : ''}
+        <p class="text-base font-black text-[var(--foreground)] mt-3">N$${s.price} <span class="text-xs font-medium text-[var(--foreground-muted)]">${priceSuffix}</span></p>
+        ${s.is_available === false
+          ? `<button disabled class="btn-secondary text-sm mt-3 opacity-50 cursor-not-allowed w-full">Fully Booked</button>`
+          : `<button data-service-id="${s.id}" class="btn-primary text-sm mt-3 book-service-btn w-full">${isCarRentalBiz ? '🚗 Rent this car' : '🛏️ Book this room'}</button>`
+        }
+        <div id="bookingForm-${s.id}" class="hidden mt-4 p-4 bg-[var(--background-tertiary)] border border-[var(--border)] rounded-xl">
+          <h4 class="font-bold mb-3">Book ${escapeHtml(s.name)}</h4>
+          <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">${isCarRentalBiz || isAccommodationBiz ? 'Start Date' : 'Date & Time'}</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)] pointer-events-none">📅</span>
+            <input type="text" id="bookingTime-${s.id}" class="w-full p-3 pl-9 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20 cursor-pointer" placeholder="Pick date & time" readonly>
+          </div>
+          <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">Notes (optional)</label>
+          <textarea id="bookingNotes-${s.id}" placeholder="Any special requests?" class="w-full p-3 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20"></textarea>
+          <button data-service-id="${s.id}" data-provider-id="${b.user_id}" class="btn-primary text-sm w-full confirm-booking-btn">✅ Confirm Booking</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Generic list card (haircuts, plumbing call-outs, etc.) — kept as before
+  const genericCard = (s) => `
+    <div class="mb-4 p-5 border rounded-2xl bg-[var(--card-bg)] hover:shadow-[var(--card-shadow-hover)] transition-shadow duration-300">
+      <div class="flex items-start justify-between gap-2">
+        <h3 class="font-bold text-lg">${escapeHtml(s.name)}</h3>
+        <span class="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${s.is_available === false ? 'bg-red-500/15 text-red-500' : 'bg-[var(--success-bg)] text-[var(--success)]'}">${s.is_available === false ? '🔴 Fully Booked' : '🟢 Available'}</span>
+      </div>
+      <p class="text-sm font-semibold text-[var(--orange)] mt-1">N$${s.price} <span class="text-[var(--foreground-muted)] font-normal">/ ${s.duration_minutes} min</span></p>
+      <p class="text-sm text-[var(--foreground-secondary)] mt-2">${escapeHtml(s.description || '')}</p>
+      ${s.image_urls && s.image_urls.length ? `
+        <div class="flex gap-2 mt-3 flex-wrap">
+          ${s.image_urls.map(url => `<img src="${escapeHtml(url)}" class="h-20 w-20 object-cover rounded-xl border border-[var(--border)]">`).join('')}
+        </div>
+      ` : ''}
+      ${s.is_available === false
+        ? `<button disabled class="btn-secondary text-sm mt-4 opacity-50 cursor-not-allowed w-full">Fully Booked</button>`
+        : `<button data-service-id="${s.id}" class="btn-primary text-sm mt-4 book-service-btn w-full">📅 Book this service</button>`
+      }
+      <div id="bookingForm-${s.id}" class="hidden mt-4 p-4 bg-[var(--background-tertiary)] border border-[var(--border)] rounded-xl">
+        <h4 class="font-bold mb-3">Book ${escapeHtml(s.name)}</h4>
+        <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">Date &amp; Time</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)] pointer-events-none">📅</span>
+          <input type="text" id="bookingTime-${s.id}" class="w-full p-3 pl-9 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20 cursor-pointer" placeholder="Pick date & time" readonly>
+        </div>
+        <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">Notes (optional)</label>
+        <textarea id="bookingNotes-${s.id}" placeholder="Any special requests?" class="w-full p-3 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20"></textarea>
+        <button data-service-id="${s.id}" data-provider-id="${b.user_id}" class="btn-primary text-sm w-full confirm-booking-btn">✅ Confirm Booking</button>
+      </div>
+    </div>
+  `;
+
+  // Only ever show available/unavailable cars & rooms to clients (not drafts or inactive listings) -- filtering already happens server-side via is_active, this just governs display style.
+  html += (isCarRentalBiz || isAccommodationBiz) ? `
+    <div class="mt-8">
+      <h2 class="text-2xl font-bold mb-4">${sectionLabel}</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        ${b.services.map(airbnbCard).join('')}
+      </div>
+      <div class="mt-10">
+        <h2 class="text-2xl font-bold mb-4">Reviews</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${b.reviews.map(r => `
+            <div class="p-4 bg-[var(--card-bg)] rounded-xl border">
+              <strong>${escapeHtml(r.full_name)}</strong> ⭐${r.rating}<br/>
+              ${escapeHtml(r.comment)}
+              ${r.response ? `<div class="mt-2 text-sm text-[var(--foreground-muted)]">Owner reply: ${escapeHtml(r.response)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  ` : `
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
       <div>
         <h2 class="text-2xl font-bold mb-4">Services</h2>
-        ${b.services.map(s => `
-          <div class="mb-4 p-5 border rounded-2xl bg-[var(--card-bg)] hover:shadow-[var(--card-shadow-hover)] transition-shadow duration-300">
-            <div class="flex items-start justify-between gap-2">
-              <h3 class="font-bold text-lg">${escapeHtml(s.name)}</h3>
-              <span class="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${s.is_available === false ? 'bg-red-500/15 text-red-500' : 'bg-[var(--success-bg)] text-[var(--success)]'}">${s.is_available === false ? '🔴 Fully Booked' : '🟢 Available'}</span>
-            </div>
-            <p class="text-sm font-semibold text-[var(--orange)] mt-1">N$${s.price} <span class="text-[var(--foreground-muted)] font-normal">/ ${s.duration_minutes} min</span></p>
-            <p class="text-sm text-[var(--foreground-secondary)] mt-2">${escapeHtml(s.description || '')}</p>
-            ${s.image_urls && s.image_urls.length ? `
-              <div class="flex gap-2 mt-3 flex-wrap">
-                ${s.image_urls.map(url => `<img src="${escapeHtml(url)}" class="h-20 w-20 object-cover rounded-xl border border-[var(--border)]">`).join('')}
-              </div>
-            ` : ''}
-            ${s.is_available === false
-              ? `<button disabled class="btn-secondary text-sm mt-4 opacity-50 cursor-not-allowed w-full">Fully Booked</button>`
-              : `<button data-service-id="${s.id}" class="btn-primary text-sm mt-4 book-service-btn w-full">📅 Book this service</button>`
-            }
-            <div id="bookingForm-${s.id}" class="hidden mt-4 p-4 bg-[var(--background-tertiary)] border border-[var(--border)] rounded-xl">
-              <h4 class="font-bold mb-3">Book ${escapeHtml(s.name)}</h4>
-              <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">Date &amp; Time</label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)] pointer-events-none">📅</span>
-                <input type="text" id="bookingTime-${s.id}" class="w-full p-3 pl-9 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20 cursor-pointer" placeholder="Pick date & time" readonly>
-              </div>
-              <label class="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wide mb-1 block">Notes (optional)</label>
-              <textarea id="bookingNotes-${s.id}" placeholder="Any special requests?" class="w-full p-3 mb-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20"></textarea>
-              <button data-service-id="${s.id}" data-provider-id="${b.user_id}" class="btn-primary text-sm w-full confirm-booking-btn">✅ Confirm Booking</button>
-            </div>
-          </div>
-        `).join('')}
+        ${b.services.map(genericCard).join('')}
       </div>
       <div>
         <h2 class="text-2xl font-bold mb-4">Reviews</h2>
@@ -526,7 +660,9 @@ async function initBusinessPage() {
         `).join('')}
       </div>
     </div>
-    
+  `;
+
+  html += `
     <div class="mt-8">
       <h3 class="text-xl font-bold mb-4">Anonymous comments</h3>
       ${b.anonymousComments.map(c => `
@@ -920,11 +1056,13 @@ async function initDashboard() {
     } catch (e) { console.error('Quotes error:', e); }
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const isCarRental = profile.category === 'Car Rental';
+    const isAccommodation = profile.category === 'Accommodation';
 
     const servicesHtml = services.map(s => `
       <div class="flex justify-between items-center p-3 bg-[var(--card-bg)] rounded-xl border mb-2 flex-wrap gap-2">
         <div>
-          <strong>${escapeHtml(s.name)}</strong> – N$${s.price} / ${s.duration_minutes}min
+          <strong>${escapeHtml(s.name)}</strong> – N$${s.price} ${isCarRental ? '/day' : isAccommodation ? '/night' : `/ ${s.duration_minutes}min`}
           <span class="ml-2 text-xs px-2 py-0.5 rounded-full ${s.is_available === false ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}">${s.is_available === false ? 'Unavailable' : 'Available'}</span>
         </div>
         <div class="flex gap-2">
@@ -1033,14 +1171,19 @@ async function initDashboard() {
             `).join('') : '<div class="text-[var(--foreground-muted)] text-center py-8 bg-[var(--card-bg)] rounded-2xl border">No bookings yet.</div>'}
           </div>
 
-          <!-- SERVICES SECTION -->
-          <h2 class="text-2xl font-bold mt-8 mb-4">Services</h2>
-          <div id="servicesList" class="space-y-2 mb-4">${servicesHtml || '<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-2xl border">No services added yet.</div>'}</div>
+          <!-- SERVICES / CARS / ROOMS SECTION -->
+          <h2 class="text-2xl font-bold mt-8 mb-4">${isCarRental ? '🚗 Your Cars' : isAccommodation ? '🛏️ Your Rooms' : 'Services'}</h2>
+          <p class="text-sm text-[var(--foreground-muted)] -mt-3 mb-4">${isCarRental ? 'Add each car you rent out. Clients will only see cars marked Available.' : isAccommodation ? 'Add each room type you offer. Clients will only see rooms marked Available.' : 'Manage the services you offer clients.'}</p>
+          <div id="servicesList" class="space-y-2 mb-4">${servicesHtml || `<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-2xl border">${isCarRental ? 'No cars added yet.' : isAccommodation ? 'No rooms added yet.' : 'No services added yet.'}</div>`}</div>
           <form id="addServiceForm" class="bg-[var(--card-bg)] p-5 rounded-2xl border space-y-3">
-            <input name="name" placeholder="Service name" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
-            <input name="price" placeholder="Price (N$)" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
-            <input name="duration_minutes" placeholder="Duration (minutes)" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
-            <button type="submit" class="btn-primary w-full">➕ Add Service</button>
+            <input name="name" placeholder="${isCarRental ? 'Car (e.g. Toyota Corolla 2022)' : isAccommodation ? 'Room type (e.g. Deluxe Double Room)' : 'Service name'}" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
+            <textarea name="description" placeholder="${isCarRental ? 'Describe the car: seats, transmission, features...' : isAccommodation ? 'Describe the room: bed size, view, amenities...' : 'Description (optional)'}" rows="2" class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20"></textarea>
+            <input name="price" placeholder="${isCarRental ? 'Price per day (N$)' : isAccommodation ? 'Price per night (N$)' : 'Price (N$)'}" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">
+            ${(isCarRental || isAccommodation)
+              ? `<input type="hidden" name="duration_minutes" value="1440"><p class="text-xs text-[var(--foreground-muted)]">Booked per ${isCarRental ? 'day' : 'night'} (1 day = 1440 min, handled automatically).</p>`
+              : `<input name="duration_minutes" placeholder="Duration (minutes)" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">`
+            }
+            <button type="submit" class="btn-primary w-full">➕ ${isCarRental ? 'Add Car' : isAccommodation ? 'Add Room' : 'Add Service'}</button>
           </form>
         </div>
 
@@ -2085,6 +2228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initNavbarScroll();
   initActiveNavLink();
+  initBroadcastQuoteModal();
   await loadCurrentUser();
   updateNavbarAuth();
   const path = location.pathname;

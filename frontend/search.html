@@ -342,56 +342,6 @@
         localStorage.removeItem('token');
         window.location.href = 'index.html';
       });
-
-      // ========== BROADCAST QUOTE REQUEST MODAL ==========
-      const bqModal = document.getElementById('broadcastQuoteModal');
-      const openBqBtn = document.getElementById('openBroadcastQuoteBtn');
-      const closeBqBtn = document.getElementById('closeBroadcastQuoteBtn');
-      openBqBtn?.addEventListener('click', () => bqModal.classList.remove('hidden'));
-      closeBqBtn?.addEventListener('click', () => bqModal.classList.add('hidden'));
-      bqModal?.addEventListener('click', (e) => { if (e.target === bqModal) bqModal.classList.add('hidden'); });
-
-      document.getElementById('broadcastQuoteForm')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
-
-        const payload = {
-          category: document.getElementById('bqCategory').value,
-          name: document.getElementById('bqName').value.trim(),
-          email: document.getElementById('bqEmail').value.trim(),
-          phone: document.getElementById('bqPhone').value.trim(),
-          message: document.getElementById('bqMessage').value.trim(),
-        };
-
-        try {
-          const res = await fetch('/api/quotes/broadcast', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-          const data = await res.json();
-          const successBox = document.getElementById('bqSuccessMessage');
-          if (res.ok) {
-            this.reset();
-            this.classList.add('hidden');
-            successBox.classList.remove('hidden');
-            successBox.textContent = data.notifiedProviders > 0
-              ? `✅ Sent! ${data.notifiedProviders} provider${data.notifiedProviders === 1 ? '' : 's'} notified — expect replies by email or phone soon.`
-              : `Your request was recorded, but no providers currently offer this service.`;
-            setTimeout(() => { bqModal.classList.add('hidden'); successBox.classList.add('hidden'); this.classList.remove('hidden'); }, 4000);
-          } else {
-            showToast(data.error || (data.errors && data.errors[0]?.msg) || 'Failed to send request', 'error');
-          }
-        } catch (err) {
-          showToast('Network error. Please try again.', 'error');
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
-        }
-      });
   </script>
 </body>
 </html>

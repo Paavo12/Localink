@@ -294,7 +294,7 @@
         <div class="mt-8 text-center">
           <h3 class="text-xl font-bold text-[var(--foreground)]">Request a Quote</h3>
           <p class="text-sm text-[var(--foreground-muted)]">Get custom quotes from trusted professionals</p>
-          <a href="#quoteRequestForm" class="mt-2 inline-block btn-primary">Request Quote</a>
+          <button id="openBroadcastQuoteBtn" class="mt-2 btn-primary">Request Quote</button>
         </div>
       </div>
     </section>
@@ -675,5 +675,35 @@ loadProviderCount();
       }
     });
   </script>
+
+  <!-- ======== BROADCAST QUOTE REQUEST MODAL ======== -->
+  <div id="broadcastQuoteModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] max-w-md w-full p-6 relative">
+      <button id="closeBroadcastQuoteBtn" class="absolute top-4 right-4 text-[var(--foreground-muted)] hover:text-[var(--foreground)]" aria-label="Close">✕</button>
+      <h3 class="text-xl font-black mb-1">Request a Quote</h3>
+      <p class="text-sm text-[var(--foreground-muted)] mb-4">Pick a service and every verified provider offering it will be notified — top-tier providers first.</p>
+      <form id="broadcastQuoteForm" class="space-y-3">
+        <select id="bqCategory" required class="w-full p-3 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)]">
+          <option value="">Select a service...</option>
+          <option value="Salons">Salons &amp; Beauty</option>
+          <option value="Cleaning">Cleaning Services</option>
+          <option value="Car Rental">Car Rentals</option>
+          <option value="Accommodation">Accommodation</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Catering">Catering</option>
+          <option value="Events">Events</option>
+          <option value="Home Repairs">Home Repairs</option>
+          <option value="Photographer">Photographer</option>
+        </select>
+        <input type="text" id="bqName" placeholder="Your Name" required class="w-full p-3 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)]">
+        <input type="email" id="bqEmail" placeholder="Your Email" required class="w-full p-3 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)]">
+        <input type="tel" id="bqPhone" placeholder="Phone (optional)" class="w-full p-3 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)]">
+        <textarea id="bqMessage" rows="4" placeholder="Describe what you need..." required class="w-full p-3 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)]"></textarea>
+        <button type="submit" class="btn-primary w-full">Send Request</button>
+      </form>
+      <div id="bqSuccessMessage" class="hidden mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg border border-green-200 dark:border-green-800"></div>
+    </div>
+  </div>
 </body>
 </html>
