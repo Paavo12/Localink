@@ -73,7 +73,7 @@ async function apiFetch(url, options = {}) {
   const res = await fetch(url, { ...options, headers });
   if (res.status === 401 && !location.pathname.includes('login')) {
     setAuthToken(null);
-    location.href = 'login.html';
+    location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname + location.search);
     throw new Error('Session expired');
   }
   return res;
@@ -154,6 +154,17 @@ function initNavbarScroll() {
     }
   });
   handleScroll();
+}
+
+// ---------- Highlight current page in the nav ----------
+function initActiveNavLink() {
+  const currentPage = location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.nav-link[href]').forEach(link => {
+    const linkPage = link.getAttribute('href').split('?')[0].split('/').pop();
+    if (linkPage === currentPage || (currentPage === '' && linkPage === 'index.html')) {
+      link.classList.add('active');
+    }
+  });
 }
 
 // ---------- Helper: Open Now ----------
@@ -718,7 +729,7 @@ window.submitBooking = async (serviceId, providerId) => {
   const token = localStorage.getItem('token');
   if (!token) {
     showToast('Please login to book.', 'warning');
-    window.location.href = 'login.html';
+    window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname + location.search);
     return;
   }
   const startTime = document.getElementById(`bookingTime-${serviceId}`).value;
@@ -831,14 +842,14 @@ async function initDashboard() {
   const content = document.getElementById('dashboardContent');
 
   if (!authToken) {
-    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
+    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html?redirect=dashboard.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
     return;
   }
 
   if (!currentUser) await loadCurrentUser();
 
   if (!currentUser || currentUser.role !== 'provider') {
-    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
+    content.innerHTML = '<div class="text-center py-20">Please <a href="login.html?redirect=dashboard.html" class="text-[var(--orange)] hover:underline">login</a> as a provider.</div>';
     return;
   }
 
@@ -1442,7 +1453,7 @@ window.toggleHoursDisabled = (checkbox, day) => {
 // *** THIS IS THE UPDATED VERSION WITH THE MANAGE DROPDOWN ***
 async function initAdmin() {
   if (!currentUser || currentUser.role !== 'admin') {
-    window.location.href = 'login.html';
+    window.location.href = 'login.html?redirect=admin.html';
     return;
   }
   const logoutBtn = document.getElementById('logoutAdminBtn');
@@ -2073,13 +2084,14 @@ async function loadTestimonials() {
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initNavbarScroll();
+  initActiveNavLink();
   await loadCurrentUser();
   updateNavbarAuth();
   const path = location.pathname;
 
   if (path.includes('admin.html')) {
     if (!currentUser || currentUser.role !== 'admin') {
-      window.location.href = 'login.html';
+      window.location.href = 'login.html?redirect=admin.html';
       return;
     }
     initAdmin();

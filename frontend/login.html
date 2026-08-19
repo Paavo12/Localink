@@ -24,7 +24,7 @@
           <span class="font-display font-bold text-xl text-[var(--foreground)] hidden sm:block">Local<span class="text-[var(--orange)] group-hover:text-[var(--orange-dark)] transition-colors">Link</span></span>
         </a>
         <div class="hidden lg:flex items-center gap-1">
-          <a href="index.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
+          <a href="index.html" class="nav-link relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-200 flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)]">Home</a>
           <div class="relative" id="servicesDropdown">
             <button id="servicesDropdownBtn" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] focus:outline-none">
               Services
@@ -45,12 +45,12 @@
               <a href="search.html?category=Photographer" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Photographer</a>
             </div>
           </div>
-          <a href="accommodation.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
-          <a href="pricing.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
-          <a href="about.html" class="relative px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+          <a href="accommodation.html" class="nav-link relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-200 flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)]">Stays</a>
+          <a href="pricing.html" class="nav-link relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-200 flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)]">Pricing</a>
+          <a href="about.html" class="nav-link relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-200 flex items-center gap-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)]">About</a>
         </div>
         <div class="flex items-center gap-2">
-          <a href="search.html" class="w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors duration-200" aria-label="Search">
+          <a href="search.html" class="w-11 h-11 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--orange)]/15 active:scale-90 flex items-center justify-center transition-all duration-200" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-[var(--foreground-muted)]">
               <path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z" />
             </svg>
@@ -62,7 +62,7 @@
             </div>
             <!-- LoggedInNav REMOVED – no logout button on login page -->
           </div>
-          <button id="mobileMenuBtn" class="lg:hidden w-9 h-9 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] flex items-center justify-center transition-colors" aria-label="Toggle menu">
+          <button id="mobileMenuBtn" class="lg:hidden w-11 h-11 rounded-xl bg-[var(--background-tertiary)] hover:bg-[var(--border)] active:scale-90 flex items-center justify-center transition-all duration-150" aria-label="Toggle menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,8H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm0-5H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z" />
             </svg>
@@ -70,14 +70,14 @@
         </div>
       </nav>
     </div>
-    <div id="mobileMenu" class="hidden md:hidden bg-[var(--background-secondary)] border-t border-[var(--border)] px-4 py-4 space-y-2">
-      <a href="index.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Home</a>
-      <a href="search.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Services</a>
-      <a href="accommodation.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Stays</a>
-      <a href="pricing.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Pricing</a>
-      <a href="about.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">About</a>
+    <div id="mobileMenu" class="hidden md:hidden bg-[var(--background-secondary)] border-t border-[var(--border)] px-4 py-3 space-y-1 shadow-[0_12px_24px_rgba(0,0,0,0.12)]">
+      <a href="index.html" class="block px-3 py-3.5 min-h-[48px] flex items-center text-[15px] font-semibold rounded-xl text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)] active:scale-[0.98] transition-all duration-150">Home</a>
+      <a href="search.html" class="block px-3 py-3.5 min-h-[48px] flex items-center text-[15px] font-semibold rounded-xl text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)] active:scale-[0.98] transition-all duration-150">Services</a>
+      <a href="accommodation.html" class="block px-3 py-3.5 min-h-[48px] flex items-center text-[15px] font-semibold rounded-xl text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)] active:scale-[0.98] transition-all duration-150">Stays</a>
+      <a href="pricing.html" class="block px-3 py-3.5 min-h-[48px] flex items-center text-[15px] font-semibold rounded-xl text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)] active:scale-[0.98] transition-all duration-150">Pricing</a>
+      <a href="about.html" class="block px-3 py-3.5 min-h-[48px] flex items-center text-[15px] font-semibold rounded-xl text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)] active:scale-[0.98] transition-all duration-150">About</a>
       <hr class="border-[var(--border)]" />
-      <a href="login.html" class="block text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Provider Login</a>
+      <a href="login.html" class="block px-3 py-3.5 min-h-[48px] flex items-center text-[15px] font-semibold rounded-xl text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)] active:scale-[0.98] transition-all duration-150">Provider Login</a>
       <a href="register-provider.html" class="block btn-primary text-center text-sm">List Your Business</a>
     </div>
   </header>
@@ -184,8 +184,21 @@
             const success = await login(email, password);
             if (success) {
               const role = localStorage.getItem('userRole');
+              const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+              if (redirectParam) {
+                // Only follow same-site relative paths, never an absolute/external URL
+                const safeRedirect = redirectParam.startsWith('http') || redirectParam.startsWith('//')
+                  ? null
+                  : redirectParam;
+                if (safeRedirect) {
+                  window.location.href = safeRedirect;
+                  return;
+                }
+              }
               if (role === 'admin') {
                 window.location.href = 'admin.html';
+              } else if (role === 'provider') {
+                window.location.href = 'dashboard.html';
               } else {
                 window.location.href = 'index.html';
               }
