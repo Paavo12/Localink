@@ -1,0 +1,238 @@
+From 032f0bd0d9008aa5e0772103929e26a84d26dd79 Mon Sep 17 00:00:00 2001
+From: Claude <claude@anthropic.com>
+Date: Wed, 19 Aug 2026 07:52:00 +0000
+Subject: [PATCH] Add missing Google Calendar UI to provider dashboard
+
+The backend calendar-sync routes (/api/calendar/connect, /status,
+/disconnect) and their JS event listeners already existed, but the
+actual button/status markup they were looking for
+(#connectCalendarBtn, #disconnectCalendarBtn, #calendarStatusText)
+was never added to dashboard.html's rendered content. The old
+listeners also ran on DOMContentLoaded, before the dashboard content
+(built dynamically by initDashboard() in script.js) even existed in
+the DOM, so they always no-op'd.
+
+- script.js: add a 'Google Calendar Sync' card to the dashboard
+  render (status text + connect/disconnect buttons). Wire up
+  checkCalendarStatus() and the button click handlers immediately
+  after the dashboard HTML is inserted into the DOM, so the elements
+  actually exist when the listeners attach. Show a success toast and
+  clean up the URL when redirected back from Google's OAuth flow
+  (?calendar=connected).
+- dashboard.html: remove the dead duplicate calendar wiring that ran
+  on DOMContentLoaded and never worked, now that the real wiring
+  lives in initDashboard().
+---
+ frontend/dashboard.html | 76 ++-------------------------------
+ frontend/script.js      | 93 +++++++++++++++++++++++++----------------
+ 2 files changed, 60 insertions(+), 109 deletions(-)
+
+diff --git a/frontend/dashboard.html b/frontend/dashboard.html
+index 77f3b74..e83f24f 100644
+--- a/frontend/dashboard.html
++++ b/frontend/dashboard.html
+@@ -225,79 +225,9 @@
+         window.location.href = 'index.html';
+       });
+ 
+-      // ========== GOOGLE CALENDAR INTEGRATION ==========
+-      async function checkCalendarStatus() {
+-        try {
+-          const token = localStorage.getItem('token');
+-          if (!token) return;
+-          
+-          const res = await fetch('/api/calendar/status', {
+-            headers: { 'Authorization': `Bearer ${token}` }
+-          });
+-          const data = await res.json();
+-          
+-          // Find calendar elements (they'll be added by script.js)
+-          const statusText = document.getElementById('calendarStatusText');
+-          const connectBtn = document.getElementById('connectCalendarBtn');
+-          const disconnectBtn = document.getElementById('disconnectCalendarBtn');
+-          
+-          if (statusText) {
+-            if (data.connected) {
+-              statusText.textContent = '✅ Connected';
+-              if (connectBtn) connectBtn.classList.add('hidden');
+-              if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+-            } else {
+-              statusText.textContent = '❌ Not connected';
+-              if (connectBtn) connectBtn.classList.remove('hidden');
+-              if (disconnectBtn) disconnectBtn.classList.add('hidden');
+-            }
+-          }
+-        } catch (err) {
+-          console.error('Calendar status error:', err);
+-        }
+-      }
+-
+-      // Connect calendar button
+-      document.getElementById('connectCalendarBtn')?.addEventListener('click', async function() {
+-        try {
+-          const token = localStorage.getItem('token');
+-          if (!token) {
+-            showToast('Please login first', 'warning');
+-            return;
+-          }
+-          const res = await fetch('/api/calendar/connect', {
+-            headers: { 'Authorization': `Bearer ${token}` }
+-          });
+-          const data = await res.json();
+-          if (data.authUrl) {
+-            window.location.href = data.authUrl;
+-          }
+-        } catch (err) {
+-          showToast('Failed to connect calendar', 'error');
+-        }
+-      });
+-
+-      // Disconnect calendar button
+-      document.getElementById('disconnectCalendarBtn')?.addEventListener('click', async function() {
+-        if (!confirm('Disconnect your Google Calendar?')) return;
+-        try {
+-          const token = localStorage.getItem('token');
+-          const res = await fetch('/api/calendar/disconnect', {
+-            method: 'DELETE',
+-            headers: { 'Authorization': `Bearer ${token}` }
+-          });
+-          if (res.ok) {
+-            showToast('Calendar disconnected', 'success');
+-            checkCalendarStatus();
+-          }
+-        } catch (err) {
+-          showToast('Failed to disconnect', 'error');
+-        }
+-      });
+-
+-      // Check calendar status on page load
+-      checkCalendarStatus();
+-    });
++      // Google Calendar connect/disconnect wiring now lives in script.js's
++      // initDashboard(), run after the dashboard content (and calendar
++      // section) is actually rendered into the DOM.
+   </script>
+ </body>
+ </html>
+\ No newline at end of file
+diff --git a/frontend/script.js b/frontend/script.js
+index 5cea357..51f2b42 100644
+--- a/frontend/script.js
++++ b/frontend/script.js
+@@ -798,42 +798,8 @@ async function checkCalendarStatus() {
+ }
+ 
+ document.addEventListener('DOMContentLoaded', function() {
+-  // Connect calendar button
+-  document.getElementById('connectCalendarBtn')?.addEventListener('click', async function() {
+-    try {
+-      const res = await fetch('/api/calendar/connect', {
+-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+-      });
+-      const data = await res.json();
+-      if (data.authUrl) {
+-        window.location.href = data.authUrl;
+-      }
+-    } catch (err) {
+-      showToast('Failed to connect calendar', 'error');
+-    }
+-  });
+-  
+-  // Disconnect calendar button
+-  document.getElementById('disconnectCalendarBtn')?.addEventListener('click', async function() {
+-    if (!confirm('Disconnect your Google Calendar?')) return;
+-    try {
+-      const res = await fetch('/api/calendar/disconnect', {
+-        method: 'DELETE',
+-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+-      });
+-      if (res.ok) {
+-        showToast('Calendar disconnected', 'success');
+-        checkCalendarStatus();
+-      }
+-    } catch (err) {
+-      showToast('Failed to disconnect', 'error');
+-    }
+-  });
+-  
+-  // Check status if on dashboard
+-  if (window.location.pathname.includes('dashboard.html')) {
+-    checkCalendarStatus();
+-  }
++  // Google Calendar connect/disconnect wiring lives in initDashboard() below,
++  // run after the dashboard content (and calendar section) is rendered.
+ });
+ // ========== PROVIDER DASHBOARD ==========
+ async function initDashboard() {
+@@ -1077,6 +1043,21 @@ async function initDashboard() {
+       </div>
+     `;
+ 
++    // Google Calendar sync section
++    html += `
++      <div class="mt-12 border-t pt-8">
++        <h2 class="text-2xl font-bold mb-4">📅 Google Calendar Sync</h2>
++        <p class="text-sm text-[var(--foreground-muted)] mb-4">Connect your Google Calendar so new bookings are automatically added as events, and cancelled bookings are removed.</p>
++        <div class="bg-[var(--card-bg)] p-4 rounded-xl border flex items-center justify-between flex-wrap gap-3">
++          <div class="font-medium" id="calendarStatusText">Checking status...</div>
++          <div class="flex gap-2">
++            <button id="connectCalendarBtn" class="btn-primary hidden">Connect Google Calendar</button>
++            <button id="disconnectCalendarBtn" class="btn-secondary hidden">Disconnect</button>
++          </div>
++        </div>
++      </div>
++    `;
++
+     // Portfolio section
+     html += `
+       <div class="mt-12 border-t pt-8">
+@@ -1109,6 +1090,46 @@ async function initDashboard() {
+ 
+     content.innerHTML = html;
+ 
++    // ---------- GOOGLE CALENDAR SYNC ----------
++    // (Wired up here, not at DOMContentLoaded, since these elements are
++    // only added to the DOM once the dashboard HTML above is rendered.)
++    checkCalendarStatus();
++
++    // If we just got redirected back from Google's OAuth flow, confirm it and clean up the URL
++    if (new URLSearchParams(window.location.search).get('calendar') === 'connected') {
++      showToast('Google Calendar connected!', 'success');
++      history.replaceState(null, '', window.location.pathname);
++    }
++
++    document.getElementById('connectCalendarBtn')?.addEventListener('click', async function() {
++      try {
++        const res = await apiFetch('/api/calendar/connect');
++        const data = await res.json();
++        if (data.authUrl) {
++          window.location.href = data.authUrl;
++        } else {
++          showToast('Failed to start calendar connection', 'error');
++        }
++      } catch (err) {
++        showToast('Failed to connect calendar', 'error');
++      }
++    });
++
++    document.getElementById('disconnectCalendarBtn')?.addEventListener('click', async function() {
++      if (!confirm('Disconnect your Google Calendar?')) return;
++      try {
++        const res = await apiFetch('/api/calendar/disconnect', { method: 'DELETE' });
++        if (res.ok) {
++          showToast('Calendar disconnected', 'success');
++          checkCalendarStatus();
++        } else {
++          showToast('Failed to disconnect', 'error');
++        }
++      } catch (err) {
++        showToast('Failed to disconnect', 'error');
++      }
++    });
++
+     // ---------- BOOKING FILTER LOGIC ----------
+     const allBookings = [...bookings]; // capture all bookings
+ 
+-- 
+2.43.0
+
