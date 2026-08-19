@@ -65,7 +65,19 @@ CREATE TABLE appointments (
   end_time TIMESTAMP NOT NULL,
   status VARCHAR(20) CHECK (status IN ('pending','confirmed','cancelled','completed')) DEFAULT 'pending',
   notes TEXT,
+  calendar_event_id VARCHAR(255),
   created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Google Calendar OAuth tokens (one per provider who has connected their calendar)
+CREATE TABLE IF NOT EXISTS calendar_tokens (
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  access_token TEXT NOT NULL,
+  refresh_token TEXT,
+  token_expiry TIMESTAMP,
+  calendar_id VARCHAR(255) DEFAULT 'primary',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Quote requests

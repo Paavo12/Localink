@@ -42,6 +42,26 @@ async function initializeTables() {
     `);
     console.log('✅ subscription_payments index ensured');
 
+    // Create calendar_tokens table if it doesn't exist (Google Calendar sync)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS calendar_tokens (
+        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        access_token TEXT NOT NULL,
+        refresh_token TEXT,
+        token_expiry TIMESTAMP,
+        calendar_id VARCHAR(255) DEFAULT 'primary',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log('✅ calendar_tokens table ensured');
+
+    // Add calendar_event_id column to appointments if missing (links a booking to its synced calendar event)
+    await client.query(`
+      ALTER TABLE appointments ADD COLUMN IF NOT EXISTS calendar_event_id VARCHAR(255)
+    `);
+    console.log('✅ appointments.calendar_event_id column ensured');
+
   } catch (err) {
     console.error('❌ Failed to initialize tables:', err.message);
   } finally {
@@ -51,6 +71,15 @@ async function initializeTables() {
 
 // Run the initialization (non-blocking)
 initializeTables();
+
+// Also run the shareholder-features migration (banners, disputes, messages,
+// newsletter_subscribers, push_tokens, verification_documents, etc.) on every
+// startup. This used to be a manual-only script that nothing ever called
+// automatically, so a fresh database would be missing these tables. It's
+// idempotent (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS), so it's
+// safe to run on every boot.
+const migrateShareholderFeatures = require('../migrations/add-shareholder-features');
+migrateShareholderFeatures(pool).catch(() => {}); // errors already logged inside
 
 // Test the connection
 pool.connect((err, client, release) => {

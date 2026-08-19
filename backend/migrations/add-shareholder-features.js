@@ -1,7 +1,9 @@
 require('dotenv').config();
-const pool = require('../db/pool');
 
-async function migrateShareholderFeatures() {
+// Accepts a pg Pool (or defaults to the shared pool) so this can be called
+// either as a standalone script or imported and run automatically on server startup.
+async function migrateShareholderFeatures(pool) {
+  if (!pool) pool = require('../db/pool');
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -140,10 +142,18 @@ async function migrateShareholderFeatures() {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Migration failed:', err.message);
+    throw err;
   } finally {
     client.release();
-    await pool.end();
   }
 }
 
-migrateShareholderFeatures();
+module.exports = migrateShareholderFeatures;
+
+// Allow running standalone: `node backend/migrations/add-shareholder-features.js`
+if (require.main === module) {
+  const pool = require('../db/pool');
+  migrateShareholderFeatures(pool)
+    .catch(() => {}) // error already logged above
+    .finally(() => pool.end());
+}

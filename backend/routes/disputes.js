@@ -61,4 +61,56 @@ router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => 
   }
 });
 
+// Helper: check the requesting user is the dispute's client, provider, or an admin
+async function canAccessDispute(disputeId, user) {
+  if (user.role === 'admin') return true;
+  const result = await pool.query('SELECT client_id, provider_id FROM disputes WHERE id = $1', [disputeId]);
+  if (result.rows.length === 0) return false;
+  const { client_id, provider_id } = result.rows[0];
+  return user.id === client_id || user.id === provider_id;
+}
+
+// Get messages within a dispute (client, provider involved, or admin)
+router.get('/:id/messages', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!(await canAccessDispute(id, req.user))) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    const result = await pool.query(
+      `SELECT m.*, u.full_name, u.role
+       FROM dispute_messages m
+       JOIN users u ON m.user_id = u.id
+       WHERE m.dispute_id = $1
+       ORDER BY m.created_at ASC`,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Post a message within a dispute (client, provider involved, or admin)
+router.post('/:id/messages', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body;
+  if (!message || !message.trim()) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
+  try {
+    if (!(await canAccessDispute(id, req.user))) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    const result = await pool.query(
+      `INSERT INTO dispute_messages (dispute_id, user_id, message, is_admin)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [id, req.user.id, message.trim(), req.user.role === 'admin']
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

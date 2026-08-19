@@ -575,6 +575,23 @@ router.post('/providers/bulk-approve', authenticateToken, requireRole('admin'), 
   }
 });
 
+// Bulk reject providers (removes pending/unverified provider profiles awaiting approval)
+router.delete('/providers/bulk-reject', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { userIds } = req.body;
+  if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    return res.status(400).json({ error: 'No user IDs provided' });
+  }
+  try {
+    const result = await pool.query(
+      `DELETE FROM provider_profiles WHERE user_id = ANY($1) AND is_verified = false RETURNING user_id`,
+      [userIds]
+    );
+    res.json({ message: `${result.rows.length} providers rejected` });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Bulk delete providers
 router.delete('/providers/bulk', authenticateToken, requireRole('admin'), async (req, res) => {
   const { userIds } = req.body;
