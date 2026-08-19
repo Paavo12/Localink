@@ -18,6 +18,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Admin: get every banner regardless of active/expired status, so they can be managed
+router.get('/all', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT * FROM banners ORDER BY sort_order ASC, created_at DESC`);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Admin: Create banner
 router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
   const { title, image_url, link_url, position, expires_at, sort_order } = req.body;
@@ -33,15 +43,20 @@ router.post('/', authenticateToken, requireRole('admin'), async (req, res) => {
   }
 });
 
-// Admin: Update banner
+// Admin: Update banner (partial update -- only overwrites fields that were sent)
 router.put('/:id', authenticateToken, requireRole('admin'), async (req, res) => {
   const { id } = req.params;
   const { title, image_url, link_url, is_active, expires_at, sort_order } = req.body;
   try {
     await pool.query(
       `UPDATE banners 
-       SET title = $1, image_url = $2, link_url = $3, is_active = $4, 
-           expires_at = $5, sort_order = $6, updated_at = NOW()
+       SET title = COALESCE($1, title), 
+           image_url = COALESCE($2, image_url), 
+           link_url = COALESCE($3, link_url), 
+           is_active = COALESCE($4, is_active), 
+           expires_at = COALESCE($5, expires_at), 
+           sort_order = COALESCE($6, sort_order), 
+           updated_at = NOW()
        WHERE id = $7`,
       [title, image_url, link_url, is_active, expires_at, sort_order, id]
     );

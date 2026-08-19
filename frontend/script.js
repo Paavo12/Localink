@@ -998,57 +998,51 @@ async function initDashboard() {
     let portfolioItems = [];
     let quotes = [];
 
-    try {
-      const statsRes = await apiFetch('/api/dashboard/stats');
-      if (statsRes.ok) stats = await statsRes.json();
-    } catch (e) { console.error('Stats error:', e); }
+    // Fire every independent request in parallel instead of one-at-a-time --
+    // sequential awaits here were the main cause of slow dashboard loads,
+    // since 9 round-trips in series (even at ~200ms each) adds up fast.
+    const [
+      statsRes, bookingsRes, servicesRes, profileRes, hoursRes,
+      subRes, notifRes, portfolioRes, quotesRes
+    ] = await Promise.allSettled([
+      apiFetch('/api/dashboard/stats'),
+      apiFetch('/api/dashboard/recent-bookings'),
+      apiFetch('/api/dashboard/services'),
+      apiFetch('/api/dashboard/profile'),
+      apiFetch('/api/dashboard/hours'),
+      apiFetch('/api/subscriptions/me'),
+      apiFetch('/api/dashboard/notifications'),
+      apiFetch('/api/dashboard/portfolio'),
+      apiFetch('/api/quotes/my'),
+    ]);
 
-    try {
-      const bookingsRes = await apiFetch('/api/dashboard/recent-bookings');
-      if (bookingsRes.ok) bookings = await bookingsRes.json();
-    } catch (e) { console.error('Bookings error:', e); }
+    async function readJsonIfOk(settledResult, label) {
+      try {
+        if (settledResult.status === 'fulfilled' && settledResult.value.ok) {
+          return await settledResult.value.json();
+        }
+      } catch (e) { console.error(`${label} error:`, e); }
+      return null;
+    }
 
-    try {
-      const servicesRes = await apiFetch('/api/dashboard/services');
-      if (servicesRes.ok) services = await servicesRes.json();
-    } catch (e) { console.error('Services error:', e); }
+    stats = (await readJsonIfOk(statsRes, 'Stats')) || stats;
+    bookings = (await readJsonIfOk(bookingsRes, 'Bookings')) || bookings;
+    services = (await readJsonIfOk(servicesRes, 'Services')) || services;
+    profile = (await readJsonIfOk(profileRes, 'Profile')) || profile;
+    hours = (await readJsonIfOk(hoursRes, 'Hours')) || hours;
+    subInfo = (await readJsonIfOk(subRes, 'Subscription')) || subInfo;
+    notifications = (await readJsonIfOk(notifRes, 'Notifications')) || notifications;
+    portfolioItems = (await readJsonIfOk(portfolioRes, 'Portfolio')) || portfolioItems;
+    quotes = (await readJsonIfOk(quotesRes, 'Quotes')) || quotes;
 
-    try {
-      const profileRes = await apiFetch('/api/dashboard/profile');
-      if (profileRes.ok) profile = await profileRes.json();
-    } catch (e) { console.error('Profile error:', e); }
-
-    try {
-      const hoursRes = await apiFetch('/api/dashboard/hours');
-      if (hoursRes.ok) hours = await hoursRes.json();
-    } catch (e) { console.error('Hours error:', e); }
-
-    try {
-      const subRes = await apiFetch('/api/subscriptions/me');
-      if (subRes.ok) subInfo = await subRes.json();
-    } catch (e) { console.error('Subscription error:', e); }
-
+    // This one genuinely depends on subInfo (only fetched for paid tiers),
+    // so it has to run after the batch above resolves.
     if (subInfo.subscription_tier !== 'basic') {
       try {
         const viewsRes = await apiFetch('/api/dashboard/profile-views-chart');
         if (viewsRes.ok) viewData = await viewsRes.json();
       } catch (e) { console.error('Chart data error:', e); }
     }
-
-    try {
-      const notifRes = await apiFetch('/api/dashboard/notifications');
-      if (notifRes.ok) notifications = await notifRes.json();
-    } catch (e) { console.error('Notifications error:', e); }
-
-    try {
-      const portfolioRes = await apiFetch('/api/dashboard/portfolio');
-      if (portfolioRes.ok) portfolioItems = await portfolioRes.json();
-    } catch (e) { console.error('Portfolio error:', e); }
-
-    try {
-      const quotesRes = await apiFetch('/api/quotes/my');
-      if (quotesRes.ok) quotes = await quotesRes.json();
-    } catch (e) { console.error('Quotes error:', e); }
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const isCarRental = profile.category === 'Car Rental';
@@ -1620,15 +1614,25 @@ async function initAdmin() {
   const logoutBtn = document.getElementById('logoutAdminBtn');
   if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
-  const stats = await (await apiFetch('/api/admin/stats')).json();
-  const chartData = await (await apiFetch('/api/admin/chart-data')).json();
-  const pending = await (await apiFetch('/api/admin/pending-verifications')).json();
-  const users = await (await apiFetch('/api/admin/users')).json();
-  const feed = await (await apiFetch('/api/admin/activity-feed')).json();
-  const bookings = await (await apiFetch('/api/admin/bookings')).json();
-  const analytics = await (await apiFetch('/api/admin/advanced-analytics')).json();
-  const invoices = await (await apiFetch('/api/admin/invoices')).json();
-  const paymentsData = await (await apiFetch('/api/admin/payments')).json();
+  const [
+    statsRes, chartDataRes, pendingRes, usersRes, feedRes,
+    bookingsRes, analyticsRes, invoicesRes, paymentsDataRes, bannersRes
+  ] = await Promise.all([
+    apiFetch('/api/admin/stats'),
+    apiFetch('/api/admin/chart-data'),
+    apiFetch('/api/admin/pending-verifications'),
+    apiFetch('/api/admin/users'),
+    apiFetch('/api/admin/activity-feed'),
+    apiFetch('/api/admin/bookings'),
+    apiFetch('/api/admin/advanced-analytics'),
+    apiFetch('/api/admin/invoices'),
+    apiFetch('/api/admin/payments'),
+    apiFetch('/api/banners/all'),
+  ]);
+  const [stats, chartData, pending, users, feed, bookings, analytics, invoices, paymentsData, banners] = await Promise.all([
+    statsRes.json(), chartDataRes.json(), pendingRes.json(), usersRes.json(), feedRes.json(),
+    bookingsRes.json(), analyticsRes.json(), invoicesRes.json(), paymentsDataRes.json(), bannersRes.json()
+  ]);
 
   // Store users globally for deactivate/reactivate toggling
   window._users = users;
@@ -1715,16 +1719,66 @@ async function initAdmin() {
     </div>
 
     <div class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Pending Verifications</h2>
-      ${pending.map(p => `
-        <div class="p-4 border rounded mb-2 flex justify-between items-center">
-          <span>${escapeHtml(p.business_name)} (${escapeHtml(p.email)})</span>
+      <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+        <h2 class="text-2xl font-bold">Pending Verifications</h2>
+        ${pending.length > 0 ? `
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm text-[var(--foreground-muted)]"><span id="selectedCount">0</span> selected</span>
+            <button id="bulkApproveBtn" class="btn-primary text-xs py-1.5 px-3">Approve Selected</button>
+            <button id="bulkRejectBtn" class="btn-secondary text-xs py-1.5 px-3">Reject Selected</button>
+          </div>
+        ` : ''}
+      </div>
+      ${pending.length === 0 ? '<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-2xl border">No pending verifications.</div>' : pending.map(p => `
+        <div class="p-4 border rounded-xl mb-2 flex justify-between items-center bg-[var(--card-bg)]">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" class="pending-checkbox w-4 h-4" value="${p.user_id}">
+            <span>${escapeHtml(p.business_name)} (${escapeHtml(p.email)})</span>
+          </label>
           <div>
             <button onclick="approveProvider('${p.user_id}')" class="btn-primary text-sm mr-2">Approve</button>
             <button onclick="rejectProvider('${p.user_id}')" class="btn-secondary text-sm">Reject</button>
           </div>
         </div>
       `).join('')}
+    </div>
+
+    <!-- ========== BANNER MANAGEMENT ========== -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">📢 Banners</h2>
+        <button id="addBannerBtn" class="btn-primary text-sm">+ Add Banner</button>
+      </div>
+      <div id="bannersList" class="space-y-3">
+        ${banners.length === 0 ? '<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-2xl border">No banners yet.</div>' : banners.map(b => `
+          <div class="p-4 border rounded-xl bg-[var(--card-bg)] flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-3">
+              <img src="${escapeHtml(b.image_url)}" class="h-14 w-24 object-cover rounded-lg border border-[var(--border)]" onerror="this.src='https://placehold.co/200x100?text=No+Image'">
+              <div>
+                <div class="font-bold">${escapeHtml(b.title || '(no title)')}</div>
+                <div class="text-xs text-[var(--foreground-muted)]">${escapeHtml(b.position || 'homepage')} · ${b.is_active ? '🟢 Active' : '⚪ Inactive'}${b.expires_at ? ` · expires ${new Date(b.expires_at).toLocaleDateString()}` : ''}</div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="toggleBannerActive('${b.id}', ${b.is_active ? 'false' : 'true'})" class="btn-secondary text-xs py-1 px-2">${b.is_active ? 'Deactivate' : 'Activate'}</button>
+              <button onclick="deleteBanner('${b.id}')" class="text-red-500 text-xs">Delete</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <form id="addBannerForm" class="hidden mt-4 bg-[var(--card-bg)] p-5 rounded-2xl border space-y-3">
+        <input name="title" placeholder="Banner title" class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)]">
+        <input name="image_url" placeholder="Image URL" required class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)]">
+        <input name="link_url" placeholder="Link URL (optional)" class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)]">
+        <select name="position" class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)]">
+          <option value="homepage">Homepage</option>
+          <option value="search">Search page</option>
+        </select>
+        <div class="flex gap-2">
+          <button type="submit" class="btn-primary flex-1">Create Banner</button>
+          <button type="button" id="cancelAddBannerBtn" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
     </div>
 
     <!-- ========== ALL USERS WITH MANAGE DROPDOWN ========== -->
@@ -1892,6 +1946,67 @@ async function initAdmin() {
       row.style.display = row.dataset.search.includes(q) ? '' : 'none';
     });
   });
+
+  // ---- Bulk verification actions ----
+  function getSelectedPendingIds() {
+    return Array.from(document.querySelectorAll('.pending-checkbox:checked')).map(cb => cb.value);
+  }
+  function updateSelectedCount() {
+    const countEl = document.getElementById('selectedCount');
+    if (countEl) countEl.textContent = getSelectedPendingIds().length;
+  }
+  document.querySelectorAll('.pending-checkbox').forEach(cb => cb.addEventListener('change', updateSelectedCount));
+
+  document.getElementById('bulkApproveBtn')?.addEventListener('click', async () => {
+    const ids = getSelectedPendingIds();
+    if (ids.length === 0) return showToast('Select at least one provider first', 'warning');
+    if (!confirm(`Approve ${ids.length} provider(s)?`)) return;
+    const res = await apiFetch('/api/admin/providers/bulk-approve', { method: 'POST', body: JSON.stringify({ userIds: ids }) });
+    if (res.ok) { showToast('Providers approved', 'success'); location.reload(); }
+    else showToast('Bulk approve failed', 'error');
+  });
+
+  document.getElementById('bulkRejectBtn')?.addEventListener('click', async () => {
+    const ids = getSelectedPendingIds();
+    if (ids.length === 0) return showToast('Select at least one provider first', 'warning');
+    if (!confirm(`Reject ${ids.length} provider(s)? This removes their pending profile.`)) return;
+    const res = await apiFetch('/api/admin/providers/bulk-reject', { method: 'DELETE', body: JSON.stringify({ userIds: ids }) });
+    if (res.ok) { showToast('Providers rejected', 'success'); location.reload(); }
+    else showToast('Bulk reject failed', 'error');
+  });
+
+  // ---- Banner management ----
+  const addBannerForm = document.getElementById('addBannerForm');
+  document.getElementById('addBannerBtn')?.addEventListener('click', () => {
+    addBannerForm.classList.toggle('hidden');
+  });
+  document.getElementById('cancelAddBannerBtn')?.addEventListener('click', () => {
+    addBannerForm.classList.add('hidden');
+    addBannerForm.reset();
+  });
+  addBannerForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(addBannerForm));
+    const res = await apiFetch('/api/banners', { method: 'POST', body: JSON.stringify(data) });
+    if (res.ok) { showToast('Banner created', 'success'); location.reload(); }
+    else showToast('Failed to create banner', 'error');
+  });
+
+  window.toggleBannerActive = async (id, makeActive) => {
+    const res = await apiFetch(`/api/banners/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ is_active: makeActive === true || makeActive === 'true' })
+    });
+    if (res.ok) { showToast('Banner updated', 'success'); location.reload(); }
+    else showToast('Failed to update banner', 'error');
+  };
+
+  window.deleteBanner = async (id) => {
+    if (!confirm('Delete this banner?')) return;
+    const res = await apiFetch(`/api/banners/${id}`, { method: 'DELETE' });
+    if (res.ok) { showToast('Banner deleted', 'success'); location.reload(); }
+    else showToast('Failed to delete banner', 'error');
+  };
 
   // ---- Chart initialization with maintainAspectRatio: false ----
   if (typeof Chart !== 'undefined') {
