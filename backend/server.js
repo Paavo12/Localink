@@ -144,13 +144,56 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, closing server...');
+// NOTE on the SIGTERM/'npm error signal SIGTERM' log you may see on Railway:
+// server.close(callback) does NOT fire its callback until every open
+// connection closes on its own -- including idle keep-alive HTTP
+// connections, which can sit open indefinitely. If that happens during a
+// redeploy, this handler used to hang, Railway would eventually force-kill
+// the container after its grace period expired, and THAT forced kill is
+// what showed up as "npm error signal SIGTERM" -- not an application crash.
+// Fixed by (1) proactively closing idle connections instead of waiting on
+// them, and (2) a hard timeout that guarantees we call process.exit()
+// ourselves well before Railway's own grace period runs out.
+function gracefulShutdown(signal) {
+  console.log(`${signal} received, closing server...`);
+
+  // Safety net: no matter what happens above, force-exit after 8s so we
+  // never hang past Railway's shutdown grace period and get force-killed.
+  const forceExitTimer = setTimeout(() => {
+    console.warn('Graceful shutdown did not complete in time, forcing exit.');
+    process.exit(0);
+  }, 8000);
+  forceExitTimer.unref();
+
+  // Stop accepting new connections, and proactively close any idle/open
+  // ones instead of waiting for them to close on their own.
   server.close(() => {
-    const pool = require('./db/pool');
-    pool.end(() => {
-      console.log('Database pool closed');
+    console.log('HTTP server closed');
+    try {
+      const pool = require('./db/pool');
+      pool.end(() => {
+        console.log('Database pool closed');
+        clearTimeout(forceExitTimer);
+        process.exit(0);
+      });
+    } catch (err) {
+      console.error('Error closing database pool:', err);
+      clearTimeout(forceExitTimer);
       process.exit(0);
-    });
+    }
   });
-});
+
+  // Node 18.2+: immediately close idle keep-alive connections so
+  // server.close()'s callback above doesn't wait on them.
+  if (typeof server.closeIdleConnections === 'function') {
+    server.closeIdleConnections();
+  }
+  // Give active in-flight requests a moment to finish, then force-close
+  // anything still open so we don't wait indefinitely on lingering sockets.
+  if (typeof server.closeAllConnections === 'function') {
+    setTimeout(() => server.closeAllConnections(), 3000).unref();
+  }
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
