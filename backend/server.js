@@ -133,6 +133,15 @@ app.get('*', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
+  // Multer file-filter rejections (e.g. "Only images are allowed", file too
+  // large) land here as a generic error. Recognize them and return the
+  // actual reason with a proper 400, instead of a confusing generic 500 --
+  // this is what's uploading a photo, so the person needs to know *why*
+  // their file was rejected, not just that "something went wrong".
+  if (err && (err.name === 'MulterError' || /only images are allowed/i.test(err.message || ''))) {
+    console.warn('File upload rejected:', err.message);
+    return res.status(400).json({ error: err.message || 'Invalid file upload' });
+  }
   console.error('Unhandled error in request:', err);
   res.status(500).json({ error: 'Internal server error' });
 });

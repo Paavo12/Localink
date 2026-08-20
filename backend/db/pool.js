@@ -70,6 +70,49 @@ async function initializeTables() {
     `);
     console.log('✅ services.is_available column ensured');
 
+    // Add other services columns that have only ever existed in schema.sql
+    // (used for brand-new databases) but were never added via an actual
+    // ALTER TABLE migration -- so any database created before these columns
+    // were introduced never got them, causing 'column does not exist'
+    // errors (e.g. image_urls, hit when uploading a photo for a car/room).
+    await client.query(`ALTER TABLE services ADD COLUMN IF NOT EXISTS image_urls TEXT[]`);
+    await client.query(`ALTER TABLE services ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true`);
+    await client.query(`ALTER TABLE services ADD COLUMN IF NOT EXISTS description TEXT`);
+    console.log('✅ services.image_urls / is_active / description columns ensured');
+
+    // Same class of bug, swept across every other table with nullable/
+    // defaulted columns that may have been added to schema.sql after the
+    // live database was first created. All of these are safe no-ops if the
+    // column already exists.
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS cover_image_url TEXT`);
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS whatsapp_number VARCHAR(50)`);
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`);
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`);
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`);
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR(20) DEFAULT 'basic'`);
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS subscription_end DATE`);
+    await client.query(`ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS boosted_until TIMESTAMP`);
+
+    await client.query(`ALTER TABLE business_hours ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`);
+
+    // reviews.response / responded_at back the review-reply feature (a
+    // provider replying publicly to a review) -- these were never added
+    // via a live migration either, so replying would hit this exact same
+    // error until now.
+    await client.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS response TEXT`);
+    await client.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS responded_at TIMESTAMP`);
+    await client.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT false`);
+
+    await client.query(`ALTER TABLE anonymous_comments ADD COLUMN IF NOT EXISTS sentiment VARCHAR(20)`);
+
+    await client.query(`ALTER TABLE payment_requests ADD COLUMN IF NOT EXISTS proof_image_url TEXT`);
+    await client.query(`ALTER TABLE payment_requests ADD COLUMN IF NOT EXISTS admin_notes TEXT`);
+    await client.query(`ALTER TABLE payment_requests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`);
+
+    await client.query(`ALTER TABLE portfolio_items ADD COLUMN IF NOT EXISTS sort_order INT DEFAULT 0`);
+
+    console.log('✅ Defensive column sweep complete across provider_profiles, business_hours, reviews, anonymous_comments, payment_requests, portfolio_items');
+
     // Add service_type column to quote_requests (this was already being
     // inserted into by quotes.js but the column never actually existed,
     // so every quote request was failing with a 500 error)

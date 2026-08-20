@@ -28,6 +28,7 @@ CREATE TABLE provider_profiles (
   is_verified BOOLEAN DEFAULT false,
   subscription_tier VARCHAR(20) DEFAULT 'basic',
   subscription_end DATE,
+  boosted_until TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

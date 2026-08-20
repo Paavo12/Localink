@@ -157,6 +157,16 @@ router.delete('/services/:id', authenticateToken, async (req, res) => {
     }
     res.json({ message: 'Deleted' });
   } catch (err) {
+    // Postgres error code 23503 = foreign key violation. This happens when
+    // trying to delete a service/car/room that still has bookings pointing
+    // at it -- rather than crash with a raw DB error, tell the provider
+    // clearly why the delete was blocked, and let them mark it unavailable
+    // instead (which doesn't require deleting anything).
+    if (err.code === '23503') {
+      return res.status(409).json({
+        error: 'This can\'t be deleted because it has existing bookings. Mark it as Unavailable instead, or wait until those bookings are completed or cancelled.'
+      });
+    }
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
