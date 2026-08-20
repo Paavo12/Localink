@@ -1120,6 +1120,7 @@ async function initDashboard() {
             <label class="btn-secondary text-xs py-1 px-2 cursor-pointer">📷 Add Photos
               <input type="file" accept="image/*" multiple class="hidden" onchange="uploadServiceImage('${s.id}', this.files)">
             </label>
+            <button onclick="archiveService('${s.id}')" class="btn-secondary text-xs py-1 px-2" title="Remove from view without deleting (safe for cars/rooms with booking history)">📦 Archive</button>
             <button onclick="deleteService('${s.id}')" class="text-red-500">Delete</button>
           </div>
         </div>
@@ -1677,8 +1678,33 @@ window.updateBookingStatus = async (id, status) => {
 window.deleteService = async (id) => {
   if (!confirm('Delete this service?')) return;
   const res = await apiFetch(`/api/dashboard/services/${id}`, { method: 'DELETE' });
-  if (res.ok) { showToast('Deleted', 'success'); location.reload(); }
-  else showToast('Delete failed', 'error');
+  if (res.ok) {
+    showToast('Deleted', 'success');
+    location.reload();
+  } else {
+    let message = 'Delete failed';
+    try {
+      const data = await res.json();
+      if (data.error) message = data.error;
+    } catch (e) { /* fall back to generic message */ }
+    showToast(message, 'error');
+  }
+};
+
+window.archiveService = async (id) => {
+  if (!confirm('Archive this? It will be removed from your listing and hidden from clients, but its booking history stays intact. This cannot be undone from the dashboard.')) return;
+  const res = await apiFetch(`/api/dashboard/services/${id}/archive`, { method: 'PUT' });
+  if (res.ok) {
+    showToast('Archived', 'success');
+    location.reload();
+  } else {
+    let message = 'Archive failed';
+    try {
+      const data = await res.json();
+      if (data.error) message = data.error;
+    } catch (e) {}
+    showToast(message, 'error');
+  }
 };
 
 window.toggleServiceAvailability = async (id, makeAvailable) => {

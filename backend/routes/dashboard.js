@@ -164,7 +164,7 @@ router.delete('/services/:id', authenticateToken, async (req, res) => {
     // instead (which doesn't require deleting anything).
     if (err.code === '23503') {
       return res.status(409).json({
-        error: 'This can\'t be deleted because it has existing bookings. Mark it as Unavailable instead, or wait until those bookings are completed or cancelled.'
+        error: 'This can\'t be permanently deleted because it has existing bookings attached (deleting it would break that booking history). Use "Archive" instead to remove it from view without deleting it.'
       });
     }
     console.error(err);
@@ -189,6 +189,29 @@ router.put('/services/:id/availability', authenticateToken, async (req, res) => 
       return res.status(404).json({ error: 'Service not found or not yours' });
     }
     res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Archive a service (hides it from clients entirely, unlike the Available/
+// Unavailable toggle which still shows it as "fully booked"). This is the
+// real fix for services that can't be deleted because they have existing
+// bookings attached -- the database correctly refuses to delete anything
+// still referenced by a booking (to protect booking history), so archiving
+// is the way to permanently remove it from view without breaking that link.
+router.put('/services/:id/archive', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      'UPDATE services SET is_active = false WHERE id = $1 AND provider_id = $2 RETURNING id',
+      [id, req.user.id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Service not found or not yours' });
+    }
+    res.json({ message: 'Archived' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
