@@ -65,4 +65,47 @@ router.get('/top', async (req, res) => {
   }
 });
 
+// Get reviews for the logged-in provider (includes reviews without a
+// response yet, so the dashboard can show what still needs a reply)
+router.get('/mine', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT r.*, u.full_name
+       FROM reviews r
+       JOIN users u ON r.client_id = u.id
+       WHERE r.provider_id = $1
+       ORDER BY (r.response IS NULL) DESC, r.created_at DESC`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get my reviews error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Provider replies to (or edits their reply to) a review left on their business
+router.put('/:id/respond', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { response } = req.body;
+  if (!response || !response.trim()) {
+    return res.status(400).json({ error: 'Reply text is required' });
+  }
+  try {
+    const check = await pool.query('SELECT provider_id FROM reviews WHERE id = $1', [id]);
+    if (check.rows.length === 0) return res.status(404).json({ error: 'Review not found' });
+    if (check.rows[0].provider_id !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    await pool.query(
+      `UPDATE reviews SET response = $1, responded_at = NOW() WHERE id = $2`,
+      [response.trim(), id]
+    );
+    res.json({ message: 'Reply posted' });
+  } catch (err) {
+    console.error('Respond to review error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

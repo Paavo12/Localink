@@ -71,6 +71,7 @@
     <div id="userDropdownMenu" class="absolute right-0 mt-1 w-48 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] shadow-lg hidden z-50 py-2">
       <a href="dashboard.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">Dashboard</a>
       <a href="my-bookings.html" class="block px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors">My Bookings</a>
+    <a href="messages.html" class="px-4 py-2 text-sm text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors flex items-center justify-between">Messages <span id="navUnreadBadge" class="hidden bg-[var(--orange)] text-white text-[10px] font-bold rounded-full w-4 h-4 items-center justify-center"></span></a>
       <hr class="border-[var(--border)] my-1">
       <button id="logoutNavBtn" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[var(--background-tertiary)] transition-colors">Logout</button>
     </div>
@@ -106,7 +107,34 @@
     <div id="bookingsContainer">
       <div class="text-center py-20">Loading your bookings...</div>
     </div>
+
+    <div class="mt-12 border-t border-[var(--border)] pt-8">
+      <h2 class="text-2xl font-bold mb-4">🚩 My Reported Issues</h2>
+      <div id="disputesContainer" class="space-y-3"></div>
+    </div>
   </main>
+
+  <!-- ======== REPORT ISSUE MODAL ======== -->
+  <div id="disputeModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60">
+    <div class="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] max-w-md w-full p-6 relative">
+      <button id="closeDisputeModalBtn" class="absolute top-4 right-4 text-[var(--foreground-muted)] hover:text-[var(--foreground)]" aria-label="Close">✕</button>
+      <h3 class="text-xl font-black mb-1">Report an Issue</h3>
+      <p class="text-sm text-[var(--foreground-muted)] mb-4">Let us know what went wrong with this booking. Our team and the provider will be able to see this.</p>
+      <form id="disputeForm" class="space-y-3">
+        <input type="hidden" id="disputeBookingId">
+        <select id="disputeReason" required class="w-full p-3 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)]">
+          <option value="">What went wrong?</option>
+          <option value="Service not as described">Service not as described</option>
+          <option value="Provider didn't show up">Provider didn't show up</option>
+          <option value="Quality issue">Quality issue</option>
+          <option value="Payment issue">Payment issue</option>
+          <option value="Other">Other</option>
+        </select>
+        <textarea id="disputeDescription" rows="4" placeholder="Describe what happened..." required class="w-full p-3 border rounded-lg bg-[var(--input-bg)] border-[var(--border)] text-[var(--foreground)]"></textarea>
+        <button type="submit" class="btn-primary w-full">Submit Report</button>
+      </form>
+    </div>
+  </div>
 
   <script>
     // ========== MY BOOKINGS PAGE ==========
@@ -155,9 +183,11 @@
                   📅 ${new Date(b.start_time).toLocaleString()}
                 </p>
                 ${b.notes ? `<p class="text-sm text-[var(--foreground-muted)] mt-1">📝 ${escapeHtml(b.notes)}</p>` : ''}
-                <div class="mt-4 flex gap-2">
+                <div class="mt-4 flex gap-2 flex-wrap">
                   ${b.status === 'pending' ? `<button onclick="cancelBooking('${b.id}')" class="btn-secondary text-sm">Cancel</button>` : ''}
-                  <a href="business.html?id=${b.provider_id}" class="btn-primary text-sm">View Provider</a>
+                  ${(b.status === 'completed' || b.status === 'cancelled') ? `<a href="business.html?id=${b.provider_id}&rebook=${b.service_id}" class="btn-primary text-sm">🔁 Book Again</a>` : `<a href="business.html?id=${b.provider_id}" class="btn-primary text-sm">View Provider</a>`}
+                  <a href="messages.html" class="btn-secondary text-sm">💬 Message</a>
+                  ${(b.status === 'confirmed' || b.status === 'completed') ? `<button onclick="openDisputeModal('${b.id}')" class="text-red-500 text-sm hover:underline">🚩 Report Issue</button>` : ''}
                 </div>
               </div>
             `).join('')}
@@ -201,6 +231,81 @@
       }
     };
 
+    // ========== REPORT ISSUE / DISPUTES ==========
+    window.openDisputeModal = (bookingId) => {
+      document.getElementById('disputeBookingId').value = bookingId;
+      document.getElementById('disputeModal').classList.remove('hidden');
+    };
+    document.getElementById('closeDisputeModalBtn')?.addEventListener('click', () => {
+      document.getElementById('disputeModal').classList.add('hidden');
+    });
+    document.getElementById('disputeModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'disputeModal') e.target.classList.add('hidden');
+    });
+    document.getElementById('disputeForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      const booking_id = document.getElementById('disputeBookingId').value;
+      const reason = document.getElementById('disputeReason').value;
+      const description = document.getElementById('disputeDescription').value.trim();
+      try {
+        const res = await fetch('/api/disputes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ booking_id, reason, description })
+        });
+        if (res.ok) {
+          showToast('Issue reported. We\'ll review it shortly.', 'success');
+          document.getElementById('disputeModal').classList.add('hidden');
+          this.reset();
+          loadMyDisputes();
+        } else {
+          const data = await res.json();
+          showToast(data.error || 'Failed to submit report', 'error');
+        }
+      } catch (err) {
+        showToast('Network error. Please try again.', 'error');
+      }
+    });
+
+    const disputeStatusColor = (status) => ({
+      open: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400',
+      investigating: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
+      resolved: 'bg-green-500/20 text-green-600 dark:text-green-400',
+      closed: 'bg-gray-500/20 text-gray-600 dark:text-gray-400',
+    })[status] || 'bg-gray-500/20 text-gray-600 dark:text-gray-400';
+
+    async function loadMyDisputes() {
+      const container = document.getElementById('disputesContainer');
+      const token = localStorage.getItem('token');
+      if (!token || !container) return;
+      try {
+        const res = await fetch('/api/disputes/mine', { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) throw new Error('Failed to load');
+        const disputes = await res.json();
+        if (disputes.length === 0) {
+          container.innerHTML = `<div class="text-center py-6 text-[var(--foreground-muted)] bg-[var(--card-bg)] rounded-2xl border">No reported issues.</div>`;
+          return;
+        }
+        container.innerHTML = disputes.map(d => `
+          <div class="p-4 bg-[var(--card-bg)] rounded-xl border">
+            <div class="flex justify-between items-start flex-wrap gap-2">
+              <div>
+                <strong>${escapeHtml(d.reason)}</strong>
+                <span class="ml-2 text-xs text-[var(--foreground-muted)]">${escapeHtml(d.provider_name)}${d.service_name ? ` · ${escapeHtml(d.service_name)}` : ''}</span>
+              </div>
+              <span class="px-2 py-1 rounded-full text-xs font-bold ${disputeStatusColor(d.status)}">${d.status}</span>
+            </div>
+            ${d.description ? `<p class="text-sm mt-2">${escapeHtml(d.description)}</p>` : ''}
+            ${d.resolution ? `<div class="mt-2 p-2 bg-[var(--background-tertiary)] rounded-lg text-sm"><strong>Resolution:</strong> ${escapeHtml(d.resolution)}</div>` : ''}
+            <p class="text-xs text-[var(--foreground-muted)] mt-2">Reported ${new Date(d.created_at).toLocaleDateString()}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="text-center py-6 text-red-500">Failed to load reported issues.</div>`;
+      }
+    }
+
     // ========== NAVBAR AUTH TOGGLE ==========
     function updateNavbarAuth() {
       const loggedOutNav = document.getElementById('loggedOutNav');
@@ -222,6 +327,7 @@
       loadCurrentUser().then(() => {
         updateNavbarAuth();
         loadMyBookings();
+        loadMyDisputes();
       });
 
       // Mobile menu toggle

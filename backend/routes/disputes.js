@@ -28,6 +28,30 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Get my disputes (client or provider -- either side of a dispute can see it)
+router.get('/mine', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT d.*, 
+             u.full_name as client_name, 
+             p.business_name as provider_name,
+             s.name as service_name,
+             a.start_time
+      FROM disputes d
+      JOIN users u ON d.client_id = u.id
+      JOIN provider_profiles p ON d.provider_id = p.user_id
+      LEFT JOIN appointments a ON d.booking_id = a.id
+      LEFT JOIN services s ON a.service_id = s.id
+      WHERE d.client_id = $1 OR d.provider_id = $1
+      ORDER BY d.created_at DESC
+    `, [req.user.id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get my disputes error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Get disputes (admin only)
 router.get('/', authenticateToken, requireRole('admin'), async (req, res) => {
   try {

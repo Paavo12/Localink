@@ -92,6 +92,14 @@ async function initializeTables() {
     `);
     console.log('✅ quote_recipients table ensured');
 
+    // Add conversation_id column to messages (messages.js has always
+    // inserted into this column, but it never actually existed on the
+    // table -- every message send was failing with a DB error).
+    await client.query(`
+      ALTER TABLE messages ADD COLUMN IF NOT EXISTS conversation_id UUID
+    `);
+    console.log('✅ messages.conversation_id column ensured');
+
   } catch (err) {
     console.error('❌ Failed to initialize tables:', err.message);
   } finally {

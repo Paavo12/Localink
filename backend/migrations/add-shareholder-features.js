@@ -115,6 +115,7 @@ async function migrateShareholderFeatures(pool) {
     await client.query(`
       CREATE TABLE IF NOT EXISTS messages (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        conversation_id UUID,
         sender_id UUID REFERENCES users(id),
         receiver_id UUID REFERENCES users(id),
         booking_id UUID REFERENCES appointments(id),

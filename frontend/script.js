@@ -169,6 +169,22 @@ function initNavbarScroll() {
   handleScroll();
 }
 
+// ---------- Unread messages badge in nav ----------
+async function initUnreadMessagesBadge() {
+  if (!authToken) return;
+  try {
+    const res = await apiFetch('/api/messages/unread/count');
+    if (!res.ok) return;
+    const { count } = await res.json();
+    const badge = document.getElementById('navUnreadBadge');
+    if (badge && count > 0) {
+      badge.textContent = count > 9 ? '9+' : count;
+      badge.classList.remove('hidden');
+      badge.classList.add('flex');
+    }
+  } catch (e) { /* silent -- badge just stays hidden */ }
+}
+
 // ---------- Highlight current page in the nav ----------
 function initActiveNavLink() {
   const currentPage = location.pathname.split('/').pop() || 'index.html';
@@ -499,10 +515,11 @@ async function initBusinessPage() {
         <h1 class="text-5xl font-black text-[var(--foreground)]">${escapeHtml(b.business_name)}</h1>
       </div>
     </div>
-    <div class="flex gap-4 mb-6 flex-wrap">
+    <div class="flex gap-4 mb-6 flex-wrap items-center">
       ${b.is_verified ? '<span class="badge-verified">✓ Verified</span>' : ''}
       ${b.subscription_tier === 'premium' ? '<span class="badge-premium">⭐ Featured</span>' : ''}
       <span class="px-3 py-1 rounded-full text-xs ${open ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}">${open ? 'Open Now' : 'Closed Now'}</span>
+      <button id="messageProviderBtn" data-provider-id="${b.user_id}" class="btn-secondary text-sm ml-auto">💬 Message</button>
     </div>
     <p class="text-[var(--foreground-secondary)] mb-6">${escapeHtml(b.description)}</p>
   `;
@@ -745,6 +762,41 @@ async function initBusinessPage() {
       submitBooking(serviceId, providerId);
     });
   });
+
+  document.getElementById('messageProviderBtn')?.addEventListener('click', async function() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname + location.search);
+      return;
+    }
+    const providerId = this.dataset.providerId;
+    try {
+      const res = await apiFetch('/api/messages/conversations/start', {
+        method: 'POST',
+        body: JSON.stringify({ providerId })
+      });
+      if (res.ok) {
+        const convo = await res.json();
+        window.location.href = `messages.html?conversation=${convo.id}`;
+      } else {
+        const data = await res.json();
+        showToast(data.error || 'Could not start conversation', 'error');
+      }
+    } catch (err) {
+      showToast('Network error. Please try again.', 'error');
+    }
+  });
+
+  // If arriving via a 'Book Again' link (?rebook=<serviceId>), open that
+  // service's booking form automatically and scroll it into view.
+  const rebookServiceId = new URLSearchParams(location.search).get('rebook');
+  if (rebookServiceId) {
+    const formDiv = document.getElementById(`bookingForm-${rebookServiceId}`);
+    if (formDiv) {
+      formDiv.classList.remove('hidden');
+      setTimeout(() => formDiv.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+    }
+  }
 
   document.getElementById('anonCommentForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -997,13 +1049,15 @@ async function initDashboard() {
     let notifications = [];
     let portfolioItems = [];
     let quotes = [];
+    let reviews = [];
+    let disputes = [];
 
     // Fire every independent request in parallel instead of one-at-a-time --
     // sequential awaits here were the main cause of slow dashboard loads,
     // since 9 round-trips in series (even at ~200ms each) adds up fast.
     const [
       statsRes, bookingsRes, servicesRes, profileRes, hoursRes,
-      subRes, notifRes, portfolioRes, quotesRes
+      subRes, notifRes, portfolioRes, quotesRes, reviewsRes, disputesRes
     ] = await Promise.allSettled([
       apiFetch('/api/dashboard/stats'),
       apiFetch('/api/dashboard/recent-bookings'),
@@ -1014,6 +1068,8 @@ async function initDashboard() {
       apiFetch('/api/dashboard/notifications'),
       apiFetch('/api/dashboard/portfolio'),
       apiFetch('/api/quotes/my'),
+      apiFetch('/api/reviews/mine'),
+      apiFetch('/api/disputes/mine'),
     ]);
 
     async function readJsonIfOk(settledResult, label) {
@@ -1034,6 +1090,8 @@ async function initDashboard() {
     notifications = (await readJsonIfOk(notifRes, 'Notifications')) || notifications;
     portfolioItems = (await readJsonIfOk(portfolioRes, 'Portfolio')) || portfolioItems;
     quotes = (await readJsonIfOk(quotesRes, 'Quotes')) || quotes;
+    reviews = (await readJsonIfOk(reviewsRes, 'Reviews')) || reviews;
+    disputes = (await readJsonIfOk(disputesRes, 'Disputes')) || disputes;
 
     // This one genuinely depends on subInfo (only fetched for paid tiers),
     // so it has to run after the batch above resolves.
@@ -1279,6 +1337,76 @@ async function initDashboard() {
         </div>`}
       </div>
     `;
+
+    // Reviews section
+    html += `
+      <div class="mt-12 border-t pt-8">
+        <h2 class="text-2xl font-bold mb-4">⭐ Reviews</h2>
+        <p class="text-sm text-[var(--foreground-muted)] mb-4">Reply to reviews to show clients you're engaged. Your reply appears publicly under the review.</p>
+        ${reviews.length === 0 ? '<div class="text-[var(--foreground-muted)] text-center py-6 bg-[var(--card-bg)] rounded-xl border">No reviews yet.</div>' : `
+        <div class="space-y-3">
+          ${reviews.map(r => `
+            <div class="p-4 bg-[var(--card-bg)] rounded-xl border">
+              <div class="flex justify-between items-start flex-wrap gap-2">
+                <div>
+                  <strong>${r.is_anonymous ? 'Anonymous' : escapeHtml(r.full_name)}</strong>
+                  <span class="ml-2 text-amber-500">${'⭐'.repeat(r.rating)}</span>
+                </div>
+                <span class="text-xs text-[var(--foreground-muted)]">${new Date(r.created_at).toLocaleDateString()}</span>
+              </div>
+              ${r.comment ? `<p class="text-sm mt-2">${escapeHtml(r.comment)}</p>` : '<p class="text-sm mt-2 text-[var(--foreground-muted)] italic">No comment left.</p>'}
+              ${r.response ? `
+                <div class="mt-3 ml-4 p-3 bg-[var(--background-tertiary)] rounded-lg border-l-2 border-[var(--orange)]">
+                  <p class="text-xs font-bold text-[var(--foreground-muted)] uppercase tracking-wide mb-1">Your reply</p>
+                  <p class="text-sm">${escapeHtml(r.response)}</p>
+                  <button onclick="showReviewReplyForm('${r.id}')" class="text-xs text-[var(--orange)] hover:underline mt-2">Edit reply</button>
+                </div>
+              ` : `<button onclick="showReviewReplyForm('${r.id}')" class="btn-secondary text-xs py-1 px-2 mt-3">Reply</button>`}
+              <div id="reviewReplyForm-${r.id}" class="hidden mt-3">
+                <textarea id="reviewReplyText-${r.id}" rows="2" placeholder="Write a public reply..." class="w-full p-3 border rounded-xl bg-[var(--input-bg)] border-[var(--input-border)] focus:outline-none focus:border-[var(--orange)] focus:ring-2 focus:ring-[var(--orange)]/20">${r.response ? escapeHtml(r.response) : ''}</textarea>
+                <div class="flex gap-2 mt-2">
+                  <button onclick="submitReviewReply('${r.id}')" class="btn-primary text-xs py-1.5 px-3">Post Reply</button>
+                  <button onclick="document.getElementById('reviewReplyForm-${r.id}').classList.add('hidden')" class="btn-secondary text-xs py-1.5 px-3">Cancel</button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>`}
+      </div>
+    `;
+
+    // Disputes section (issues clients have reported against this provider)
+    const disputeStatusColorDash = (status) => ({
+      open: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400',
+      investigating: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
+      resolved: 'bg-green-500/20 text-green-600 dark:text-green-400',
+      closed: 'bg-gray-500/20 text-gray-600 dark:text-gray-400',
+    })[status] || 'bg-gray-500/20 text-gray-600 dark:text-gray-400';
+
+    if (disputes.length > 0) {
+      html += `
+        <div class="mt-12 border-t pt-8">
+          <h2 class="text-2xl font-bold mb-4">🚩 Reported Issues</h2>
+          <p class="text-sm text-[var(--foreground-muted)] mb-4">Issues a client has raised about a booking. Our team reviews these; resolutions will show here once decided.</p>
+          <div class="space-y-3">
+            ${disputes.map(d => `
+              <div class="p-4 bg-[var(--card-bg)] rounded-xl border">
+                <div class="flex justify-between items-start flex-wrap gap-2">
+                  <div>
+                    <strong>${escapeHtml(d.reason)}</strong>
+                    <span class="ml-2 text-xs text-[var(--foreground-muted)]">${escapeHtml(d.client_name)}${d.service_name ? ` · ${escapeHtml(d.service_name)}` : ''}</span>
+                  </div>
+                  <span class="px-2 py-1 rounded-full text-xs font-bold ${disputeStatusColorDash(d.status)}">${d.status}</span>
+                </div>
+                ${d.description ? `<p class="text-sm mt-2">${escapeHtml(d.description)}</p>` : ''}
+                ${d.resolution ? `<div class="mt-2 p-2 bg-[var(--background-tertiary)] rounded-lg text-sm"><strong>Resolution:</strong> ${escapeHtml(d.resolution)}</div>` : ''}
+                <p class="text-xs text-[var(--foreground-muted)] mt-2">Reported ${new Date(d.created_at).toLocaleDateString()}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
 
     // Portfolio section
     html += `
@@ -1569,6 +1697,26 @@ window.markQuoteRead = async (id, btnEl) => {
     showToast('Marked as read', 'success');
   } else {
     showToast('Failed to update', 'error');
+  }
+};
+
+window.showReviewReplyForm = (id) => {
+  document.getElementById(`reviewReplyForm-${id}`)?.classList.remove('hidden');
+};
+
+window.submitReviewReply = async (id) => {
+  const textarea = document.getElementById(`reviewReplyText-${id}`);
+  const text = textarea.value.trim();
+  if (!text) return showToast('Reply cannot be empty', 'warning');
+  const res = await apiFetch(`/api/reviews/${id}/respond`, {
+    method: 'PUT',
+    body: JSON.stringify({ response: text })
+  });
+  if (res.ok) {
+    showToast('Reply posted', 'success');
+    location.reload();
+  } else {
+    showToast('Failed to post reply', 'error');
   }
 };
 
@@ -2362,6 +2510,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initNavbarScroll();
   initActiveNavLink();
   initBroadcastQuoteModal();
+  initUnreadMessagesBadge();
   await loadCurrentUser();
   updateNavbarAuth();
   const path = location.pathname;
