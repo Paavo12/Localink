@@ -1,15 +1,18 @@
 const multer = require('multer');
-const path = require('path');
 
 // Use memory storage (no disk writing)
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  const allowed = /jpeg|jpg|png|webp/;
-  const mime = allowed.test(file.mimetype);
-  const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-  if (mime && ext) return cb(null, true);
-  cb(new Error('Only images are allowed'));
+  // Accept any image type (checked via MIME type, which is what actually
+  // matters -- browsers/OSes set this based on real file content, not just
+  // the extension). Previously only allowed jpeg/jpg/png/webp, which
+  // silently rejected perfectly valid photos in newer formats like AVIF,
+  // HEIC (iPhone default), GIF, or SVG.
+  if (file.mimetype && file.mimetype.startsWith('image/')) {
+    return cb(null, true);
+  }
+  cb(new Error('Only image files are allowed'));
 };
 
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });

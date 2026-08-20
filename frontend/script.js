@@ -547,7 +547,7 @@ async function initBusinessPage() {
     `;
   }
 
-  if (portfolioItems.length) {
+  if (portfolioItems.length && b.category !== 'Car Rental' && b.category !== 'Accommodation') {
     html += `
       <div class="mt-8">
         <h3 class="text-2xl font-bold mb-4">📸 Portfolio</h3>
@@ -1408,35 +1408,40 @@ async function initDashboard() {
       `;
     }
 
-    // Portfolio section
-    html += `
-      <div class="mt-12 border-t pt-8">
-        <h2 class="text-2xl font-bold mb-4">📸 Portfolio</h2>
-        <p class="text-sm text-[var(--foreground-muted)] mb-4">Showcase your work to potential clients.</p>
-        <div id="portfolioGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          ${portfolioItems.length ? portfolioItems.map(item => `
-            <div class="relative group border rounded-lg overflow-hidden bg-[var(--card-bg)]">
-              <img src="${escapeHtml(item.image_url)}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-              ${item.title ? `<p class="text-xs font-semibold p-2">${escapeHtml(item.title)}</p>` : ''}
-              <button onclick="deletePortfolioItem('${item.id}')" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+    // Portfolio section (not relevant for Car Rental / Accommodation --
+    // those providers showcase individual cars/rooms instead, via the
+    // Cars/Rooms section above, so a separate generic photo gallery is
+    // redundant for them)
+    if (!isCarRental && !isAccommodation) {
+      html += `
+        <div class="mt-12 border-t pt-8">
+          <h2 class="text-2xl font-bold mb-4">📸 Portfolio</h2>
+          <p class="text-sm text-[var(--foreground-muted)] mb-4">Showcase your work to potential clients.</p>
+          <div id="portfolioGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            ${portfolioItems.length ? portfolioItems.map(item => `
+              <div class="relative group border rounded-lg overflow-hidden bg-[var(--card-bg)]">
+                <img src="${escapeHtml(item.image_url)}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                ${item.title ? `<p class="text-xs font-semibold p-2">${escapeHtml(item.title)}</p>` : ''}
+                <button onclick="deletePortfolioItem('${item.id}')" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            `).join('') : '<div class="col-span-full text-center text-[var(--foreground-muted)] py-4">No portfolio images yet.</div>'}
+          </div>
+          <form id="addPortfolioForm" class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+            <div class="flex-1">
+              <label class="block text-sm font-medium">Upload Image</label>
+              <input type="file" id="portfolioImageInput" accept="image/*" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
             </div>
-          `).join('') : '<div class="col-span-full text-center text-[var(--foreground-muted)] py-4">No portfolio images yet.</div>'}
+            <div>
+              <label class="block text-sm font-medium">Title (optional)</label>
+              <input type="text" id="portfolioTitle" placeholder="e.g., Wedding Decor" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
+            </div>
+            <button type="submit" class="btn-primary whitespace-nowrap">Add to Portfolio</button>
+          </form>
         </div>
-        <form id="addPortfolioForm" class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
-          <div class="flex-1">
-            <label class="block text-sm font-medium">Upload Image</label>
-            <input type="file" id="portfolioImageInput" accept="image/*" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Title (optional)</label>
-            <input type="text" id="portfolioTitle" placeholder="e.g., Wedding Decor" class="w-full p-2 border rounded-lg bg-[var(--bg-main)] border-[var(--border)] text-[var(--foreground)]">
-          </div>
-          <button type="submit" class="btn-primary whitespace-nowrap">Add to Portfolio</button>
-        </form>
-      </div>
-    `;
+      `;
+    }
 
     content.innerHTML = html;
 
@@ -1777,9 +1782,35 @@ async function initAdmin() {
     apiFetch('/api/admin/payments'),
     apiFetch('/api/banners/all'),
   ]);
+
+  // Read each response defensively: if one endpoint fails, log which one
+  // and fall back to an empty-but-valid shape, instead of letting a single
+  // failure throw partway through rendering and leave the whole admin page
+  // stuck on its loading spinner with no visible error.
+  async function readAdminJson(res, label, fallback) {
+    if (!res.ok) {
+      console.error(`Admin ${label} request failed: ${res.status}`);
+      return fallback;
+    }
+    try {
+      return await res.json();
+    } catch (e) {
+      console.error(`Admin ${label} response was not valid JSON:`, e);
+      return fallback;
+    }
+  }
+
   const [stats, chartData, pending, users, feed, bookings, analytics, invoices, paymentsData, banners] = await Promise.all([
-    statsRes.json(), chartDataRes.json(), pendingRes.json(), usersRes.json(), feedRes.json(),
-    bookingsRes.json(), analyticsRes.json(), invoicesRes.json(), paymentsDataRes.json(), bannersRes.json()
+    readAdminJson(statsRes, 'stats', {}),
+    readAdminJson(chartDataRes, 'chart-data', { registrations: [], categories: [], tiers: [], cities: [], revenue: [] }),
+    readAdminJson(pendingRes, 'pending-verifications', []),
+    readAdminJson(usersRes, 'users', []),
+    readAdminJson(feedRes, 'activity-feed', []),
+    readAdminJson(bookingsRes, 'bookings', []),
+    readAdminJson(analyticsRes, 'advanced-analytics', {}),
+    readAdminJson(invoicesRes, 'invoices', []),
+    readAdminJson(paymentsDataRes, 'payments', { payments: [], summary: { totalRevenue: 0, totalPayments: 0, activeSubscriptions: 0, expiredSubscriptions: 0 } }),
+    readAdminJson(bannersRes, 'banners', []),
   ]);
 
   // Store users globally for deactivate/reactivate toggling
